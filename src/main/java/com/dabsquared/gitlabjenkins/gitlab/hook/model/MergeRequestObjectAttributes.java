@@ -10,27 +10,23 @@ import java.util.List;
 
 /**
  * @author Robin Müller
+ * @author Yashin
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
 public class MergeRequestObjectAttributes {
 
     private Integer id;
     private Integer iid;
-    private String sourceBranch;
-    private String targetBranch;
-    private Integer sourceProjectId;
-    private Integer targetProjectId;
     private Integer authorId;
     private Integer assigneeId;
     private String title;
     private Date createdAt;
     private Date updatedAt;
-    private State state;
     private String description;
-    private Project source;
-    private Project target;
-    private Commit lastCommit;
+    private BranchData head;
+    private BranchData base;
     private String mergeStatus;
+    private String mergeCommitSha;
     private String url;
     private Action action;
     private Boolean workInProgress;
@@ -47,40 +43,24 @@ public class MergeRequestObjectAttributes {
         return iid;
     }
 
-    public void setIid(Integer iid) {
+    public void setNumber(Integer iid) {
         this.iid = iid;
     }
 
     public String getSourceBranch() {
-        return sourceBranch;
-    }
-
-    public void setSourceBranch(String sourceBranch) {
-        this.sourceBranch = sourceBranch;
+        return head.getRef();
     }
 
     public String getTargetBranch() {
-        return targetBranch;
-    }
-
-    public void setTargetBranch(String targetBranch) {
-        this.targetBranch = targetBranch;
+        return base.getRef();
     }
 
     public Integer getSourceProjectId() {
-        return sourceProjectId;
-    }
-
-    public void setSourceProjectId(Integer sourceProjectId) {
-        this.sourceProjectId = sourceProjectId;
+        return head.getProject().getId();
     }
 
     public Integer getTargetProjectId() {
-        return targetProjectId;
-    }
-
-    public void setTargetProjectId(Integer targetProjectId) {
-        this.targetProjectId = targetProjectId;
+        return base.getProject().getId();
     }
 
     public Integer getAuthorId() {
@@ -123,14 +103,6 @@ public class MergeRequestObjectAttributes {
         this.updatedAt = updatedAt;
     }
 
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -140,27 +112,36 @@ public class MergeRequestObjectAttributes {
     }
 
     public Project getSource() {
-        return source;
+        return head.getProject();
     }
 
-    public void setSource(Project source) {
-        this.source = source;
+    public BranchData getHead() {
+        return head;
+    }
+
+    public void setHead(BranchData head) {
+        this.head = head;
+    }
+
+    public BranchData getBase() {
+        return base;
+    }
+
+    public void setBase(BranchData base) {
+        this.base = base;
     }
 
     public Project getTarget() {
-        return target;
+        return base.getProject();
     }
 
-    public void setTarget(Project target) {
-        this.target = target;
+
+    public String getMergeCommitSha() {
+        return mergeCommitSha;
     }
 
-    public Commit getLastCommit() {
-        return lastCommit;
-    }
-
-    public void setLastCommit(Commit lastCommit) {
-        this.lastCommit = lastCommit;
+    public void setMergeCommitSha(String mergeCommitSha) {
+        this.mergeCommitSha = mergeCommitSha;
     }
 
     public String getMergeStatus() {
@@ -207,20 +188,15 @@ public class MergeRequestObjectAttributes {
         return new EqualsBuilder()
             .append(id, that.id)
             .append(iid, that.iid)
-            .append(sourceBranch, that.sourceBranch)
-            .append(targetBranch, that.targetBranch)
-            .append(sourceProjectId, that.sourceProjectId)
-            .append(targetProjectId, that.targetProjectId)
             .append(authorId, that.authorId)
             .append(assigneeId, that.assigneeId)
             .append(title, that.title)
             .append(createdAt, that.createdAt)
             .append(updatedAt, that.updatedAt)
-            .append(state, that.state)
             .append(description, that.description)
-            .append(source, that.source)
-            .append(target, that.target)
-            .append(lastCommit, that.lastCommit)
+            .append(head, that.head)
+            .append(base, that.base)
+            .append(mergeCommitSha, that.mergeCommitSha)
             .append(mergeStatus, that.mergeStatus)
             .append(url, that.url)
             .append(action, that.action)
@@ -233,21 +209,16 @@ public class MergeRequestObjectAttributes {
         return new HashCodeBuilder(17, 37)
             .append(id)
             .append(iid)
-            .append(sourceBranch)
-            .append(targetBranch)
-            .append(sourceProjectId)
-            .append(targetProjectId)
             .append(authorId)
             .append(assigneeId)
             .append(title)
             .append(createdAt)
             .append(updatedAt)
-            .append(state)
             .append(description)
-            .append(source)
-            .append(target)
-            .append(lastCommit)
+            .append(head)
+            .append(base)
             .append(mergeStatus)
+            .append(mergeCommitSha)
             .append(url)
             .append(action)
             .append(workInProgress)
@@ -259,20 +230,15 @@ public class MergeRequestObjectAttributes {
         return new ToStringBuilder(this)
             .append("id", id)
             .append("iid", iid)
-            .append("sourceBranch", sourceBranch)
-            .append("targetBranch", targetBranch)
-            .append("sourceProjectId", sourceProjectId)
-            .append("targetProjectId", targetProjectId)
             .append("authorId", authorId)
             .append("assigneeId", assigneeId)
             .append("title", title)
             .append("createdAt", createdAt)
             .append("updatedAt", updatedAt)
-            .append("state", state)
             .append("description", description)
-            .append("source", source)
-            .append("target", target)
-            .append("lastCommit", lastCommit)
+            .append("head", head)
+            .append("base", base)
+            .append("mergeCommitSha", mergeCommitSha)
             .append("mergeStatus", mergeStatus)
             .append("url", url)
             .append("action", action)

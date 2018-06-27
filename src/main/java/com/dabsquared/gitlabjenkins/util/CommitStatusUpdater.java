@@ -1,7 +1,7 @@
 package com.dabsquared.gitlabjenkins.util;
 
 
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
 import hudson.EnvVars;
@@ -94,7 +94,7 @@ public class CommitStatusUpdater {
     }
 
     private static String getBuildBranch(Run<?, ?> build) {
-        GitLabWebHookCause cause = build.getCause(GitLabWebHookCause.class);
+        GiteeWebHookCause cause = build.getCause(GiteeWebHookCause.class);
         return cause == null ? null : cause.getData().getSourceBranch();
     }
 
@@ -106,13 +106,13 @@ public class CommitStatusUpdater {
         LOGGER.log(Level.INFO, "Retrieving gitlab project ids");
         final List<GitLabBranchBuild> result = new ArrayList<>();
 
-        GitLabWebHookCause gitlabCause = build.getCause(GitLabWebHookCause.class);
+        GiteeWebHookCause gitlabCause = build.getCause(GiteeWebHookCause.class);
         if (gitlabCause != null) {
             return Collections.singletonList(new GitLabBranchBuild(
                     gitlabCause.getData().getSourceProjectId().toString(), gitlabCause.getData().getLastCommit()));
         }
 
-        // Check upstream causes for GitLabWebHookCause
+        // Check upstream causes for GiteeWebHookCause
         List<GitLabBranchBuild> builds = findBuildsFromUpstreamCauses(build.getCauses());
         if (!builds.isEmpty()) {
             return builds;
@@ -160,7 +160,7 @@ public class CommitStatusUpdater {
     }
 
     private static String getBuildRevision(Run<?, ?> build) {
-        GitLabWebHookCause cause = build.getCause(GitLabWebHookCause.class);
+        GiteeWebHookCause cause = build.getCause(GiteeWebHookCause.class);
         if (cause != null) {
             return cause.getData().getLastCommit();
         }
@@ -207,8 +207,8 @@ public class CommitStatusUpdater {
             if (cause instanceof UpstreamCause) {
                 List<Cause> upCauses = ((UpstreamCause) cause).getUpstreamCauses();    // Non null, returns empty list when none are set
                 for (Cause upCause : upCauses) {
-                    if (upCause instanceof GitLabWebHookCause) {
-                        GitLabWebHookCause gitlabCause = (GitLabWebHookCause) upCause;
+                    if (upCause instanceof GiteeWebHookCause) {
+                        GiteeWebHookCause gitlabCause = (GiteeWebHookCause) upCause;
                         return Collections.singletonList(
                                 new GitLabBranchBuild(gitlabCause.getData().getSourceProjectId().toString(),
                                         gitlabCause.getData().getLastCommit()));

@@ -62,8 +62,8 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 .withTargetProjectId(hook.getMergeRequest().getTargetProjectId())
                 .withBranch(hook.getMergeRequest().getSourceBranch())
                 .withSourceBranch(hook.getMergeRequest().getSourceBranch())
-                .withUserName(hook.getMergeRequest().getLastCommit().getAuthor().getName())
-                .withUserEmail(hook.getMergeRequest().getLastCommit().getAuthor().getEmail())
+                .withUserName(hook.getMergeRequest().getHead().getUser().getName())
+                .withUserEmail(hook.getMergeRequest().getHead().getUser().getEmail())
                 .withSourceRepoHomepage(hook.getMergeRequest().getSource().getHomepage())
                 .withSourceRepoName(hook.getMergeRequest().getSource().getName())
                 .withSourceNamespace(hook.getMergeRequest().getSource().getNamespace())
@@ -80,8 +80,8 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 .withTargetNamespace(hook.getMergeRequest().getTarget().getNamespace())
                 .withTargetRepoSshUrl(hook.getMergeRequest().getTarget().getSshUrl())
                 .withTargetRepoHttpUrl(hook.getMergeRequest().getTarget().getHttpUrl())
-                .withTriggeredByUser(hook.getMergeRequest().getLastCommit().getAuthor().getName())
-                .withLastCommit(hook.getMergeRequest().getLastCommit().getId())
+                .withTriggeredByUser(hook.getMergeRequest().getHead().getUser().getName())
+                .withLastCommit(hook.getMergeRequest().getMergeCommitSha())
                 .withTargetProjectUrl(hook.getMergeRequest().getTarget().getWebUrl())
                 .withTriggerPhrase(hook.getObjectAttributes().getNote())
                 .build();
@@ -96,17 +96,16 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     protected BuildStatusUpdate retrieveBuildStatusUpdate(NoteHook hook) {
         return buildStatusUpdate()
             .withProjectId(hook.getMergeRequest().getSourceProjectId())
-            .withSha(hook.getMergeRequest().getLastCommit().getId())
+            .withSha(hook.getMergeRequest().getMergeCommitSha())
             .withRef(hook.getMergeRequest().getSourceBranch())
             .build();
     }
 
     private String retrieveRevisionToBuild(NoteHook hook) throws NoRevisionToBuildException {
         if (hook.getMergeRequest() != null
-                && hook.getMergeRequest().getLastCommit() != null
-                && hook.getMergeRequest().getLastCommit().getId() != null) {
+                && hook.getMergeRequest().getMergeCommitSha() != null) {
 
-            return hook.getMergeRequest().getLastCommit().getId();
+            return hook.getMergeRequest().getMergeCommitSha();
         } else {
             throw new NoRevisionToBuildException();
         }

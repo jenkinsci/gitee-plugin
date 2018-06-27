@@ -21,7 +21,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.dabsquared.gitlabjenkins.cause.CauseData;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
@@ -52,7 +52,7 @@ public class CommitStatusUpdaterTest {
     @Mock Run<?, ?> build;
 	@Mock TaskListener taskListener;
 	@Mock GitLabClient client;
-	@Mock GitLabWebHookCause gitlabCause;
+	@Mock GiteeWebHookCause gitlabCause;
 	@Mock BuildData action;
 	@Mock Revision lastBuiltRevision;
 	@Mock Build lastBuild;

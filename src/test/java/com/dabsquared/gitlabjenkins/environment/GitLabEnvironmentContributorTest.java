@@ -1,7 +1,7 @@
 package com.dabsquared.gitlabjenkins.environment;
 
 import com.dabsquared.gitlabjenkins.cause.CauseData;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import hudson.EnvVars;
 import hudson.matrix.AxisList;
 import hudson.matrix.MatrixBuild;
@@ -57,7 +57,7 @@ public class GitLabEnvironmentContributorTest {
     @Test
     public void freeStyleProjectTest() throws IOException, InterruptedException, ExecutionException {
         FreeStyleProject p = jenkins.createFreeStyleProject();
-        GitLabWebHookCause cause = new GitLabWebHookCause(generateCauseData());
+        GiteeWebHookCause cause = new GiteeWebHookCause(generateCauseData());
         FreeStyleBuild b = p.scheduleBuild2(0, cause).get();
         EnvVars env = b.getEnvironment(listener);
 
@@ -68,7 +68,7 @@ public class GitLabEnvironmentContributorTest {
     public void matrixProjectTest() throws IOException, InterruptedException, ExecutionException {
         EnvVars env;
         MatrixProject p = jenkins.jenkins.createProject(MatrixProject.class, "matrixbuild");
-        GitLabWebHookCause cause = new GitLabWebHookCause(generateCauseData());
+        GiteeWebHookCause cause = new GiteeWebHookCause(generateCauseData());
         // set up 2x2 matrix
         AxisList axes = new AxisList();
         axes.add(new TextAxis("db","mysql","oracle"));

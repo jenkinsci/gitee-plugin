@@ -36,6 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @author Robin Müller
+ * @author Yashin
  */
 public class ActionResolver {
 
@@ -98,12 +99,12 @@ public class ActionResolver {
     }
 
     private WebHookAction onPost(Item project, StaplerRequest request) {
-        String eventHeader = request.getHeader("X-Gitlab-Event");
+        String eventHeader = request.getHeader("X-Gitee-Event");
         if (eventHeader == null) {
-            LOGGER.log(Level.FINE, "Missing X-Gitlab-Event header");
+            LOGGER.log(Level.FINE, "Missing X-Gitee-Event header");
             return new NoopAction();
         }
-        String tokenHeader = request.getHeader("X-Gitlab-Token");
+        String tokenHeader = request.getHeader("X-Gitee-Token");
         switch (eventHeader) {
             case "Merge Request Hook":
                 return new MergeRequestBuildAction(project, getRequestBody(request), tokenHeader);

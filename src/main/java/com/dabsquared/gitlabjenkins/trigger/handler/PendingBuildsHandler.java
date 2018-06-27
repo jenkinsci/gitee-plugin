@@ -2,7 +2,7 @@ package com.dabsquared.gitlabjenkins.trigger.handler;
 
 import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.cause.CauseData;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
@@ -30,11 +30,11 @@ public class PendingBuildsHandler {
             if (!job.getName().equals(item.task.getName())) {
                 continue;
             }
-            GitLabWebHookCause queueItemGitLabWebHookCause = getGitLabWebHookCauseData(item);
-            if (queueItemGitLabWebHookCause == null) {
+            GiteeWebHookCause queueItemGiteeWebHookCause = getGiteeWebHookCauseData(item);
+            if (queueItemGiteeWebHookCause == null) {
                 continue;
             }
-            CauseData queueItemCauseData = queueItemGitLabWebHookCause.getData();
+            CauseData queueItemCauseData = queueItemGiteeWebHookCause.getData();
             if (!projectId.equals(queueItemCauseData.getSourceProjectId())) {
                 continue;
             }
@@ -45,10 +45,10 @@ public class PendingBuildsHandler {
         }
     }
 
-    private GitLabWebHookCause getGitLabWebHookCauseData(Queue.Item item) {
+    private GiteeWebHookCause getGiteeWebHookCauseData(Queue.Item item) {
         for (Cause cause : item.getCauses()) {
-            if (cause instanceof GitLabWebHookCause) {
-                return (GitLabWebHookCause) cause;
+            if (cause instanceof GiteeWebHookCause) {
+                return (GiteeWebHookCause) cause;
             }
         }
         return null;

@@ -2,7 +2,7 @@ package com.dabsquared.gitlabjenkins.webhook.build;
 
 import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.cause.CauseData;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.gitlab.hook.model.NoteHook;
 import hudson.model.FreeStyleProject;
 import hudson.model.ParametersAction;
@@ -98,7 +98,7 @@ public class NoteBuildActionTest {
         FreeStyleProject testProject = jenkins.createFreeStyleProject();
         testProject.addTrigger(trigger);
         testProject.setScm(new GitSCM(gitRepoUrl));
-        QueueTaskFuture<?> future = testProject.scheduleBuild2(0, new GitLabWebHookCause(causeData()
+        QueueTaskFuture<?> future = testProject.scheduleBuild2(0, new GiteeWebHookCause(causeData()
                 .withActionType(CauseData.ActionType.NOTE)
                 .withSourceProjectId(1)
                 .withTargetProjectId(1)

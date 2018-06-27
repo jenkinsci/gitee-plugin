@@ -1,6 +1,6 @@
 package com.dabsquared.gitlabjenkins.publisher;
 
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.MergeRequest;
 import hudson.Launcher;
@@ -54,7 +54,7 @@ public abstract class MergeRequestNotifier extends Notifier implements MatrixAgg
     protected abstract void perform(Run<?, ?> build, TaskListener listener, GitLabClient client, MergeRequest mergeRequest);
 
     MergeRequest getMergeRequest(Run<?, ?> run) {
-        GitLabWebHookCause cause = run.getCause(GitLabWebHookCause.class);
+        GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
         return cause == null ? null : cause.getData().getMergeRequest();
 
     }

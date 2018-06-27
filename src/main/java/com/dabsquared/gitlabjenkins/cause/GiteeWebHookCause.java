@@ -6,12 +6,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Robin Müller
+ * @author Yashin
  */
-public class GitLabWebHookCause extends SCMTrigger.SCMTriggerCause {
+public class GiteeWebHookCause extends SCMTrigger.SCMTriggerCause {
 
     private final CauseData data;
 
-    public GitLabWebHookCause(CauseData data) {
+    public GiteeWebHookCause(CauseData data) {
         super("");
         this.data = checkNotNull(data, "data must not be null");
     }

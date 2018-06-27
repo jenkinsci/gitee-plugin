@@ -1,7 +1,7 @@
 package com.dabsquared.gitlabjenkins.trigger.handler;
 
 import com.dabsquared.gitlabjenkins.cause.CauseData;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
@@ -81,7 +81,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected Action[] createActions(Job<?, ?> job, H hook) {
         ArrayList<Action> actions = new ArrayList<>();
-        actions.add(new CauseAction(new GitLabWebHookCause(retrieveCauseData(hook))));
+        actions.add(new CauseAction(new GiteeWebHookCause(retrieveCauseData(hook))));
         try {
             SCMTriggerItem item = SCMTriggerItem.SCMTriggerItems.asSCMTriggerItem(job);
             GitSCM gitSCM = getGitSCM(item);
@@ -99,7 +99,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected abstract String getTargetBranch(H hook);
 
-    protected abstract RevisionParameterAction createRevisionParameter(H hook, GitSCM gitSCM) throws NoRevisionToBuildException;
+    protected abstract RevisionParameterAction  createRevisionParameter(H hook, GitSCM gitSCM) throws NoRevisionToBuildException;
 
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 

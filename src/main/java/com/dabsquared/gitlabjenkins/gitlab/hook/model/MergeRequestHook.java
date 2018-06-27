@@ -17,8 +17,26 @@ public class MergeRequestHook extends WebHook {
     private User user;
     private User assignee;
     private Project project;
+    private Action action;
+    private State state;
     private MergeRequestObjectAttributes objectAttributes;
     private List<MergeRequestLabel> labels;
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public State getState() {
+        return this.state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
 
     public User getUser() {
         return user;
@@ -44,11 +62,21 @@ public class MergeRequestHook extends WebHook {
         this.project = project;
     }
 
+    // adapt gitee hook
+    public void setRepo(Project project) {
+        this.project = project;
+    }
+
     public MergeRequestObjectAttributes getObjectAttributes() {
         return objectAttributes;
     }
 
     public void setObjectAttributes(MergeRequestObjectAttributes objectAttributes) {
+        this.objectAttributes = objectAttributes;
+    }
+
+    // adapt gitee hook
+    public void setPullRequest(MergeRequestObjectAttributes objectAttributes) {
         this.objectAttributes = objectAttributes;
     }
 
@@ -73,6 +101,7 @@ public class MergeRequestHook extends WebHook {
                 .append(user, that.user)
                 .append(assignee, that.assignee)
                 .append(project, that.project)
+                .append(state, that.state)
                 .append(objectAttributes, that.objectAttributes)
                 .append(labels, that.labels)
                 .isEquals();
@@ -86,6 +115,7 @@ public class MergeRequestHook extends WebHook {
                 .append(project)
                 .append(objectAttributes)
                 .append(labels)
+                .append(state)
                 .toHashCode();
     }
 
@@ -95,6 +125,7 @@ public class MergeRequestHook extends WebHook {
                 .append("user", user)
                 .append("assignee", assignee)
                 .append("project", project)
+                .append("state", state)
                 .append("objectAttributes", objectAttributes)
                 .append("labels", labels)
                 .toString();

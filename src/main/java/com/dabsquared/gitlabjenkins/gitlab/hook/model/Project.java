@@ -17,7 +17,7 @@ public class Project {
     private String webUrl;
     private String avatarUrl;
     private String namespace;
-    private Integer visibilityLevel;
+//    private Integer visibilityLevel;
     private String pathWithNamespace;
     private String defaultBranch;
     private String homepage;
@@ -65,13 +65,13 @@ public class Project {
         this.namespace = namespace;
     }
 
-    public Integer getVisibilityLevel() {
-        return visibilityLevel;
-    }
+//    public Integer getVisibilityLevel() {
+//        return visibilityLevel;
+//    }
 
-    public void setVisibilityLevel(Integer visibilityLevel) {
-        this.visibilityLevel = visibilityLevel;
-    }
+//    public void setVisibilityLevel(Integer visibilityLevel) {
+//        this.visibilityLevel = visibilityLevel;
+//    }
 
     public String getPathWithNamespace() {
         return pathWithNamespace;
@@ -117,7 +117,7 @@ public class Project {
         return httpUrl;
     }
 
-    public void setHttpUrl(String httpUrl) {
+    public void setGitHttpUrl(String httpUrl) {
         this.httpUrl = httpUrl;
     }
 
@@ -145,7 +145,7 @@ public class Project {
                 .append(webUrl, project.webUrl)
                 .append(avatarUrl, project.avatarUrl)
                 .append(namespace, project.namespace)
-                .append(visibilityLevel, project.visibilityLevel)
+//                .append(visibilityLevel, project.visibilityLevel)
                 .append(pathWithNamespace, project.pathWithNamespace)
                 .append(defaultBranch, project.defaultBranch)
                 .append(homepage, project.homepage)
@@ -164,7 +164,7 @@ public class Project {
                 .append(webUrl)
                 .append(avatarUrl)
                 .append(namespace)
-                .append(visibilityLevel)
+//                .append(visibilityLevel)
                 .append(pathWithNamespace)
                 .append(defaultBranch)
                 .append(homepage)
@@ -183,7 +183,7 @@ public class Project {
                 .append("webUrl", webUrl)
                 .append("avatarUrl", avatarUrl)
                 .append("namespace", namespace)
-                .append("visibilityLevel", visibilityLevel)
+//                .append("visibilityLevel", visibilityLevel)
                 .append("pathWithNamespace", pathWithNamespace)
                 .append("defaultBranch", defaultBranch)
                 .append("homepage", homepage)

@@ -1,7 +1,7 @@
 package com.dabsquared.gitlabjenkins.listener;
 
 import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
-import com.dabsquared.gitlabjenkins.cause.GitLabWebHookCause;
+import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import hudson.Extension;
 import hudson.model.Cause;
 import hudson.model.Run;
@@ -23,7 +23,7 @@ public class GitLabBuildDescriptionRunListener extends RunListener<Run<?, ?>> {
     public void onStarted(Run<?, ?> build, TaskListener listener) {
         GitLabPushTrigger trigger = GitLabPushTrigger.getFromJob(build.getParent());
         if (trigger != null && trigger.getSetBuildDescription()) {
-            Cause cause = build.getCause(GitLabWebHookCause.class);
+            Cause cause = build.getCause(GiteeWebHookCause.class);
             if (cause != null && !cause.getShortDescription().isEmpty()) {
                 try {
                     build.setDescription(cause.getShortDescription());

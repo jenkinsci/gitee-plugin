@@ -469,11 +469,11 @@ public final class CauseData {
             String getShortDescription(CauseData data) {
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
                 if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
-                    return Messages.GitLabWebHookCause_ShortDescription_MergeRequestHook_plain(String.valueOf(data.getMergeRequestIid()),
+                    return Messages.GiteeWebHookCause_ShortDescription_MergeRequestHook_plain(String.valueOf(data.getMergeRequestIid()),
                                                                                                forkNamespace + data.getSourceBranch(),
                                                                                                data.getTargetBranch());
                 } else {
-                    return Messages.GitLabWebHookCause_ShortDescription_MergeRequestHook_html(String.valueOf(data.getMergeRequestIid()),
+                    return Messages.GiteeWebHookCause_ShortDescription_MergeRequestHook_html(String.valueOf(data.getMergeRequestIid()),
                                                                                               forkNamespace + data.getSourceBranch(),
                                                                                               data.getTargetBranch(),
                                                                                               data.getTargetProjectUrl());
@@ -485,12 +485,12 @@ public final class CauseData {
                 String triggeredBy = data.getTriggeredByUser();
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
                 if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
-                    return Messages.GitLabWebHookCause_ShortDescription_NoteHook_plain(triggeredBy,
+                    return Messages.GiteeWebHookCause_ShortDescription_NoteHook_plain(triggeredBy,
                         String.valueOf(data.getMergeRequestIid()),
                         forkNamespace + data.getSourceBranch(),
                         data.getTargetBranch());
                 } else {
-                    return Messages.GitLabWebHookCause_ShortDescription_NoteHook_html(triggeredBy,
+                    return Messages.GiteeWebHookCause_ShortDescription_NoteHook_html(triggeredBy,
                         String.valueOf(data.getMergeRequestIid()),
                         forkNamespace + data.getSourceBranch(),
                         data.getTargetBranch(),
@@ -502,9 +502,9 @@ public final class CauseData {
                 String getShortDescription(CauseData data) {
                     String getStatus = data.getStatus();
                     if (getStatus == null) {
-                       return Messages.GitLabWebHookCause_ShortDescription_PipelineHook_noStatus();
+                       return Messages.GiteeWebHookCause_ShortDescription_PipelineHook_noStatus();
                     } else {
-                      return Messages.GitLabWebHookCause_ShortDescription_PipelineHook(getStatus);
+                      return Messages.GiteeWebHookCause_ShortDescription_PipelineHook(getStatus);
                     }
                 }
         };
@@ -512,9 +512,9 @@ public final class CauseData {
         private static String getShortDescriptionPush(CauseData data) {
             String pushedBy = data.getTriggeredByUser();
             if (pushedBy == null) {
-                return Messages.GitLabWebHookCause_ShortDescription_PushHook_noUser();
+                return Messages.GiteeWebHookCause_ShortDescription_PushHook_noUser();
             } else {
-                return Messages.GitLabWebHookCause_ShortDescription_PushHook(pushedBy);
+                return Messages.GiteeWebHookCause_ShortDescription_PushHook(pushedBy);
             }
         }
 
