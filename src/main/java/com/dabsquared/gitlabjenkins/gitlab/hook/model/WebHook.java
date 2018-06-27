@@ -11,6 +11,15 @@ public abstract class WebHook {
 
     private Repository repository;
     private String objectKind;
+    private String hookName;
+
+    public String getHookName() {
+        return this.hookName;
+    }
+
+    public void setHookName(String hookName) {
+        this.hookName = hookName;
+    }
 
     public String getObjectKind() {
         return objectKind;
@@ -40,6 +49,7 @@ public abstract class WebHook {
         return new EqualsBuilder()
                 .append(repository, webHook.repository)
                 .append(objectKind, webHook.objectKind)
+                .append(hookName, webHook.hookName)
                 .isEquals();
     }
 
@@ -47,6 +57,7 @@ public abstract class WebHook {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(repository)
+                .append(hookName)
                 .append(objectKind)
                 .toHashCode();
     }
@@ -55,6 +66,7 @@ public abstract class WebHook {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("repository", repository)
+                .append("hookName", hookName)
                 .append("objectKind", objectKind)
                 .toString();
     }

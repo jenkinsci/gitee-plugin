@@ -42,7 +42,9 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
 
     @Override
     protected CauseData retrieveCauseData(PushHook hook) {
-        CauseData.ActionType actionType = hook.getObjectKind().equals("tag_push") ? CauseData.ActionType.TAG_PUSH : CauseData.ActionType.PUSH;
+//        fixme 判断是否push tag，Gitee 钩子未有相关数据
+//        CauseData.ActionType actionType = hook.getObjectKind().equals("tag_push") ? CauseData.ActionType.TAG_PUSH : CauseData.ActionType.PUSH;
+        CauseData.ActionType actionType = CauseData.ActionType.PUSH;
         return causeData()
                 .withActionType(actionType)
                 .withSourceProjectId(hook.getProjectId())
@@ -51,12 +53,12 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                 .withSourceBranch(getTargetBranch(hook))
                 .withUserName(hook.getUserName())
                 .withUserEmail(hook.getUserEmail())
-                .withSourceRepoHomepage(hook.getRepository().getHomepage())
-                .withSourceRepoName(hook.getRepository().getName())
+                .withSourceRepoHomepage(hook.getProject().getHomepage())
+                .withSourceRepoName(hook.getProject().getName())
                 .withSourceNamespace(hook.getProject().getNamespace())
-                .withSourceRepoUrl(hook.getRepository().getUrl())
-                .withSourceRepoSshUrl(hook.getRepository().getGitSshUrl())
-                .withSourceRepoHttpUrl(hook.getRepository().getGitHttpUrl())
+                .withSourceRepoUrl(hook.getProject().getUrl())
+                .withSourceRepoSshUrl(hook.getProject().getSshUrl())
+                .withSourceRepoHttpUrl(hook.getProject().getHttpUrl())
                 .withMergeRequestTitle("")
                 .withMergeRequestDescription("")
                 .withMergeRequestId(null)

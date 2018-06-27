@@ -20,7 +20,6 @@ public class PushHook extends WebHook {
     private String userName;
     private String userEmail;
     private String userAvatar;
-    private Integer projectId;
     private Project project;
     private List<Commit> commits;
     private Integer totalCommitsCount;
@@ -82,11 +81,7 @@ public class PushHook extends WebHook {
     }
 
     public Integer getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
+        return getProject().getId();
     }
 
     public Project getProject() {
@@ -94,6 +89,10 @@ public class PushHook extends WebHook {
     }
 
     public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void setRepository(Project project) {
         this.project = project;
     }
 
@@ -130,7 +129,6 @@ public class PushHook extends WebHook {
                 .append(userName, pushHook.userName)
                 .append(userEmail, pushHook.userEmail)
                 .append(userAvatar, pushHook.userAvatar)
-                .append(projectId, pushHook.projectId)
                 .append(project, pushHook.project)
                 .append(commits, pushHook.commits)
                 .append(totalCommitsCount, pushHook.totalCommitsCount)
@@ -147,7 +145,6 @@ public class PushHook extends WebHook {
                 .append(userName)
                 .append(userEmail)
                 .append(userAvatar)
-                .append(projectId)
                 .append(project)
                 .append(commits)
                 .append(totalCommitsCount)
@@ -164,7 +161,6 @@ public class PushHook extends WebHook {
                 .append("userName", userName)
                 .append("userEmail", userEmail)
                 .append("userAvatar", userAvatar)
-                .append("projectId", projectId)
                 .append("project", project)
                 .append("commits", commits)
                 .append("totalCommitsCount", totalCommitsCount)
