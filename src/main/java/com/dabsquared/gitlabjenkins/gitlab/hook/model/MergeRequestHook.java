@@ -101,6 +101,7 @@ public class MergeRequestHook extends WebHook {
                 .append(user, that.user)
                 .append(assignee, that.assignee)
                 .append(project, that.project)
+                .append(action, that.action)
                 .append(state, that.state)
                 .append(objectAttributes, that.objectAttributes)
                 .append(labels, that.labels)
@@ -116,6 +117,7 @@ public class MergeRequestHook extends WebHook {
                 .append(objectAttributes)
                 .append(labels)
                 .append(state)
+                .append(action)
                 .toHashCode();
     }
 
@@ -126,6 +128,7 @@ public class MergeRequestHook extends WebHook {
                 .append("assignee", assignee)
                 .append("project", project)
                 .append("state", state)
+                .append("action", action)
                 .append("objectAttributes", objectAttributes)
                 .append("labels", labels)
                 .toString();

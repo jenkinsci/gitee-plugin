@@ -28,7 +28,6 @@ public class MergeRequestObjectAttributes {
     private String mergeStatus;
     private String mergeCommitSha;
     private String url;
-    private Action action;
     private Boolean workInProgress;
 
     public Integer getId() {
@@ -160,14 +159,6 @@ public class MergeRequestObjectAttributes {
         this.url = url;
     }
 
-    public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
     public Boolean getWorkInProgress() {
         return workInProgress;
     }
@@ -199,7 +190,6 @@ public class MergeRequestObjectAttributes {
             .append(mergeCommitSha, that.mergeCommitSha)
             .append(mergeStatus, that.mergeStatus)
             .append(url, that.url)
-            .append(action, that.action)
             .append(workInProgress, that.workInProgress)
             .isEquals();
     }
@@ -220,7 +210,6 @@ public class MergeRequestObjectAttributes {
             .append(mergeStatus)
             .append(mergeCommitSha)
             .append(url)
-            .append(action)
             .append(workInProgress)
             .toHashCode();
     }
@@ -241,7 +230,6 @@ public class MergeRequestObjectAttributes {
             .append("mergeCommitSha", mergeCommitSha)
             .append("mergeStatus", mergeStatus)
             .append("url", url)
-            .append("action", action)
             .append("workInProgress", workInProgress)
             .toString();
     }

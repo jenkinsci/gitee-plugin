@@ -95,7 +95,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
         if (!this.cancelPendingBuildsOnUpdate) {
             return;
         }
-        if (!hook.getObjectAttributes().getAction().equals(Action.update)) {
+        if (!hook.getAction().equals(Action.update)) {
             return;
         }
         this.pendingBuildsHandler.cancelPendingBuilds(job, hook.getObjectAttributes().getSourceProjectId(), hook.getObjectAttributes().getSourceBranch());
@@ -171,7 +171,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
 
     private boolean isLastCommitNotYetBuild(Job<?, ?> project, MergeRequestHook hook) {
         MergeRequestObjectAttributes objectAttributes = hook.getObjectAttributes();
-        if (objectAttributes != null && objectAttributes.getAction() == Action.approved) {
+        if (objectAttributes != null && hook.getAction() == Action.approved) {
             LOGGER.log(Level.FINEST, "Skipping LastCommitNotYetBuild check for approve action");
             return true;
         }

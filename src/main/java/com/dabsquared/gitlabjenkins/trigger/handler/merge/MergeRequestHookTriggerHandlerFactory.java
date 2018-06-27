@@ -36,6 +36,7 @@ public final class MergeRequestHookTriggerHandlerFactory {
 		Set<Action> allowedActions = EnumSet.of(Action.open, Action.update);
 		if (triggerOnApprovedMergeRequest)
 			allowedActions.add(Action.approved);
+			allowedActions.add(Action.merge);
 		return allowedActions;
 	}
 
@@ -46,6 +47,7 @@ public final class MergeRequestHookTriggerHandlerFactory {
         List<State> result = new ArrayList<>();
         if (triggerOnMergeRequest) {
             result.add(State.opened);
+            result.add(State.open);
             result.add(State.reopened);
         }
         if (triggerOnAcceptedMergeRequest)  {
