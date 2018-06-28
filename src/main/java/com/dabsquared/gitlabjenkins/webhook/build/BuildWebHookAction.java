@@ -1,7 +1,9 @@
 package com.dabsquared.gitlabjenkins.webhook.build;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.dabsquared.gitlabjenkins.gitlab.hook.model.WebHook;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.security.Messages;
@@ -10,13 +12,17 @@ import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import org.acegisecurity.Authentication;
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionConfig;
 import com.dabsquared.gitlabjenkins.webhook.WebHookAction;
 
+import javax.servlet.ServletException;
+
 /**
  * @author Xinran Xiao
+ * @author Yashin Luo
  */
 abstract class BuildWebHookAction implements WebHookAction {
 
@@ -29,6 +35,16 @@ abstract class BuildWebHookAction implements WebHookAction {
     public final void execute(StaplerResponse response) {
         processForCompatibility();
         execute();
+    }
+
+    public static HttpResponses.HttpResponseException responseWithHook(final WebHook webHook) {
+        return new HttpResponses.HttpResponseException() {
+            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+                String text = webHook.getWebHookDescription() + " has been accepted.";
+                rsp.setContentType("text/plain;charset=UTF-8");
+                rsp.getWriter().println(text);
+            }
+        };
     }
 
     protected abstract static class TriggerNotifier implements Runnable {

@@ -64,6 +64,6 @@ public class MergeRequestBuildAction extends BuildWebHookAction {
                 trigger.onPost(mergeRequestHook);
             }
         });
-        throw HttpResponses.ok();
+        throw responseWithHook(mergeRequestHook);
     }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * @author Robin Müller
+ * @author Yashin Luo
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
 public class MergeRequestHook extends WebHook {
@@ -86,6 +87,10 @@ public class MergeRequestHook extends WebHook {
 
     public void setLabels(List<MergeRequestLabel> labels) {
         this.labels = labels;
+    }
+
+    public String getWebHookDescription() {
+        return getHookName() + " iid = " + objectAttributes.getIid() + " merge commit sha = " + objectAttributes.getMergeCommitSha();
     }
 
     @Override

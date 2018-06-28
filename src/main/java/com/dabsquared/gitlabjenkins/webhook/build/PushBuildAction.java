@@ -14,7 +14,6 @@ import jenkins.scm.api.SCMSource;
 import jenkins.scm.api.SCMSourceOwner;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
-
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -72,11 +71,11 @@ public class PushBuildAction extends BuildWebHookAction {
                     trigger.onPost(pushHook);
                 }
             });
-            throw HttpResponses.ok();
+            throw responseWithHook(pushHook);
         }
         if (project instanceof SCMSourceOwner) {
             ACL.impersonate(ACL.SYSTEM, new SCMSourceOwnerNotifier());
-            throw HttpResponses.ok();
+            throw responseWithHook(pushHook);
         }
         throw HttpResponses.errorWithoutStack(409, "Push Hook is not supported for this project");
     }

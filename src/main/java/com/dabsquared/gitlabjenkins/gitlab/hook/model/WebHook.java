@@ -6,6 +6,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * @author Robin Müller
+ * @author Yashin Luo
  */
 public abstract class WebHook {
 
@@ -35,6 +36,10 @@ public abstract class WebHook {
 
     public void setRepository(Repository repository) {
         this.repository = repository;
+    }
+
+    public String getWebHookDescription() {
+        return hookName;
     }
 
     @Override
