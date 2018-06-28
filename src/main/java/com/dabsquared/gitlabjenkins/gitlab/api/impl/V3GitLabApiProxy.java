@@ -123,11 +123,11 @@ interface V3GitLabApiProxy extends GitLabApiProxy {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Path("/projects/{projectId}/merge_requests/{mergeRequestId}/notes")
+    @Path("/projects/{projectId}/pull_request/{mergeRequestId}/comments")
     @Override
     void createMergeRequestNote(@PathParam("projectId") Integer projectId,
                                 @PathParam("mergeRequestId") Integer mergeRequestId,
-                                @FormParam("body") String body);
+                                @FormParam("note") String note);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
