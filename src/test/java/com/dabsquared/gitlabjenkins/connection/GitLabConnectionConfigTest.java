@@ -8,7 +8,6 @@ import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.V3GitLabClientBuilder;
 import hudson.ProxyConfiguration;
 import hudson.model.FreeStyleProject;
 import hudson.model.Item;

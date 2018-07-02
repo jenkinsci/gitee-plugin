@@ -65,13 +65,13 @@ class TestUtility {
         return clientBuilder.buildClient(url, API_TOKEN, IGNORE_CERTIFICATE_ERRORS, CONNECTION_TIMEOUT, READ_TIMEOUT);
     }
 
-    static void assertApiImpl(GitLabClient client, Class<? extends GitLabApiProxy> apiImplClass) throws Exception {
-        Field apiField = ((ResteasyGitLabClient) client).getClass().getDeclaredField("api");
+    static void assertApiImpl(GitLabClient client, Class<? extends GiteeApiProxy> apiImplClass) throws Exception {
+        Field apiField = ((ResteasyGiteeClient) client).getClass().getDeclaredField("api");
         apiField.setAccessible(true);
         assertThat(apiField.get(client), instanceOf(apiImplClass));
     }
 
-    static void assertApiImpl(AutodetectingGitLabClient api, Class<? extends GitLabApiProxy> apiImplClass) throws Exception {
+    static void assertApiImpl(AutodetectingGiteeClient api, Class<? extends GiteeApiProxy> apiImplClass) throws Exception {
         Field delegate = api.getClass().getDeclaredField("delegate");
         delegate.setAccessible(true);
         assertApiImpl((GitLabClient) delegate.get(api), apiImplClass);

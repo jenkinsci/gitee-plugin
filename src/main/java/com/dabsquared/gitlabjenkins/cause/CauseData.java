@@ -21,6 +21,7 @@ public final class CauseData {
     private final Integer sourceProjectId;
     private final Integer targetProjectId;
     private final String branch;
+    private final String pathWithNamespace;
     private final String sourceBranch;
     private final String userName;
     private final String userEmail;
@@ -66,7 +67,7 @@ public final class CauseData {
               Integer mergeRequestIid, Integer mergeRequestTargetProjectId, String targetBranch, String targetRepoName, String targetNamespace, String targetRepoSshUrl,
               String targetRepoHttpUrl, String triggeredByUser, String before, String after, String lastCommit, String targetProjectUrl,
               String triggerPhrase, String mergeRequestState, String mergedByUser, String mergeRequestAssignee, String ref, String isTag,
-	            String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt, String buildDuration) {
+              String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt, String buildDuration, String pathWithNamespace) {
         this.actionType = checkNotNull(actionType, "actionType must not be null.");
         this.sourceProjectId = checkNotNull(sourceProjectId, "sourceProjectId must not be null.");
         this.targetProjectId = checkNotNull(targetProjectId, "targetProjectId must not be null.");
@@ -108,6 +109,7 @@ public final class CauseData {
         this.createdAt = createdAt;
         this.finishedAt = finishedAt;
         this.buildDuration = buildDuration;
+        this.pathWithNamespace = pathWithNamespace;
     }
 
     public Map<String, String> getBuildVariables() {
@@ -212,6 +214,8 @@ public final class CauseData {
         return mergeRequestDescription;
     }
 
+    public String getPathWithNamespace() { return pathWithNamespace; }
+
     public Integer getMergeRequestId() {
         return mergeRequestId;
     }
@@ -305,7 +309,7 @@ public final class CauseData {
         }
 
         return new MergeRequest(mergeRequestId, mergeRequestIid, sourceBranch, targetBranch, mergeRequestTitle,
-            sourceProjectId, targetProjectId, mergeRequestDescription, mergeRequestState);
+            sourceProjectId, targetProjectId, mergeRequestDescription, mergeRequestState, pathWithNamespace);
     }
 
     @Override
@@ -358,6 +362,7 @@ public final class CauseData {
             .append(createdAt, causeData.getCreatedAt())
             .append(finishedAt, causeData.getFinishedAt())
             .append(buildDuration, causeData.getBuildDuration())
+            .append(pathWithNamespace, causeData.getPathWithNamespace())
             .isEquals();
     }
 
@@ -404,6 +409,7 @@ public final class CauseData {
             .append(createdAt)
             .append(finishedAt)
             .append(buildDuration)
+            .append(pathWithNamespace)
             .toHashCode();
     }
 
@@ -450,6 +456,7 @@ public final class CauseData {
             .append("createdAt", createdAt)
             .append("finishedAt", finishedAt)
             .append("duration", buildDuration)
+            .append("pathWithNamespace", pathWithNamespace)
             .toString();
     }
 

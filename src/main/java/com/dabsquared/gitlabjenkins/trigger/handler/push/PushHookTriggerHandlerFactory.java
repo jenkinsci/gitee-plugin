@@ -29,9 +29,7 @@ public final class PushHookTriggerHandlerFactory {
         if (triggerOnPush) {
             result.add(new PushHookTriggerHandlerImpl());
         }
-        if (triggerOpenMergeRequestOnPush == TriggerOpenMergeRequest.both) {
-            result.add(new OpenMergeRequestPushHookTriggerHandler(skipWorkInProgressMergeRequest));
-        }
+
         return result;
     }
 }

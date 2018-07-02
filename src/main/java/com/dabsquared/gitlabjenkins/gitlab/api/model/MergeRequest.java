@@ -31,6 +31,8 @@ public class MergeRequest {
     private Boolean workInProgress;
     private Boolean mergeWhenBuildSucceeds;
     private String mergeStatus;
+    private String repoOwner;
+    private String repoPath;
 
     public MergeRequest() { /* default-constructor for Resteasy-based-api-proxies */ }
 
@@ -46,6 +48,29 @@ public class MergeRequest {
         this.projectId = targetProjectId;
         this.description = description;
         this.mergeStatus = mergeStatus;
+    }
+
+    public MergeRequest(int id, int iid, String sourceBranch, String targetBranch, String title,
+                        int sourceProjectId, int targetProjectId,
+                        String description, String mergeStatus, String pathWithNamespace) {
+        this.id = id;
+        this.iid= iid;
+        this.sourceBranch = sourceBranch;
+        this.targetBranch = targetBranch;
+        this.title = title;
+        this.sourceProjectId = sourceProjectId;
+        this.projectId = targetProjectId;
+        this.description = description;
+        this.mergeStatus = mergeStatus;
+        try {
+            String[] path = pathWithNamespace.split("/");
+            String repoOwner = path[0];
+            String repoPath = path[1];
+            this.repoOwner = repoOwner;
+            this.repoPath = repoPath;
+        } catch (Exception e) {
+            // do nothing
+        }
     }
 
     public Integer getId() {
@@ -192,6 +217,22 @@ public class MergeRequest {
         this.mergeStatus = mergeStatus;
     }
 
+    public String getRepoOwner() {
+        return repoOwner;
+    }
+
+    public void setRepoOwner(String repoOwner) {
+        this.repoOwner = repoOwner;
+    }
+
+    public String getRepoPath() {
+        return repoPath;
+    }
+
+    public void setRepoPath(String repoPath) {
+        this.repoPath = repoPath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -220,6 +261,8 @@ public class MergeRequest {
                 .append(workInProgress, that.workInProgress)
                 .append(mergeWhenBuildSucceeds, that.mergeWhenBuildSucceeds)
                 .append(mergeStatus, that.mergeStatus)
+                .append(repoPath, that.repoPath)
+                .append(repoOwner, that.repoOwner)
                 .isEquals();
     }
 
@@ -244,6 +287,8 @@ public class MergeRequest {
                 .append(workInProgress)
                 .append(mergeWhenBuildSucceeds)
                 .append(mergeStatus)
+                .append(repoOwner)
+                .append(repoPath)
                 .toHashCode();
     }
 
@@ -268,6 +313,8 @@ public class MergeRequest {
                 .append("workInProgress", workInProgress)
                 .append("mergeWhenBuildSucceeds", mergeWhenBuildSucceeds)
                 .append("mergeStatus", mergeStatus)
+                .append("repoOwner", repoOwner)
+                .append("repoPath", repoPath)
                 .toString();
     }
 }

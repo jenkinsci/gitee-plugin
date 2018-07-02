@@ -29,6 +29,8 @@ import static com.dabsquared.gitlabjenkins.trigger.handler.builder.generated.Bui
 /**
  * @author Milena Zachow
  */
+
+// fixme ？？？？
 class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PipelineHook> implements PipelineHookTriggerHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PipelineHookTriggerHandlerImpl.class.getName());
@@ -48,8 +50,6 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
 
                 if (property != null && property.getClient() != null) {
                     GitLabClient client = property.getClient();
-                    com.dabsquared.gitlabjenkins.gitlab.api.model.Project projectForName = client.getProject(hook.getProject().getPathWithNamespace());
-                    hook.setProjectId(projectForName.getId());
                 }
             }
         } catch (WebApplicationException e) {

@@ -17,7 +17,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.export.ExportedBean;
 
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
-import com.dabsquared.gitlabjenkins.util.CommitStatusUpdater;
 import com.google.common.collect.ImmutableSet;
 
 import hudson.Extension;
@@ -73,7 +72,6 @@ public class GitLabCommitStatusStep extends Step {
                 .withCallback(new BodyExecutionCallback() {
                     @Override
                     public void onStart(StepContext context) {
-                        CommitStatusUpdater.updateCommitStatus(run, getTaskListener(context), BuildState.running, name);
                         PendingBuildsAction action = run.getAction(PendingBuildsAction.class);
                         if (action != null) {
                             action.startBuild(name);
@@ -82,14 +80,11 @@ public class GitLabCommitStatusStep extends Step {
 
                     @Override
                     public void onSuccess(StepContext context, Object result) {
-                        CommitStatusUpdater.updateCommitStatus(run, getTaskListener(context), BuildState.success, name);
                         context.onSuccess(result);
                     }
 
                     @Override
                     public void onFailure(StepContext context, Throwable t) {
-                        BuildState state = t instanceof FlowInterruptedException ? BuildState.canceled : BuildState.failed;
-                        CommitStatusUpdater.updateCommitStatus(run, getTaskListener(context), state, name);
                         context.onFailure(t);
                     }
                 })
@@ -101,8 +96,6 @@ public class GitLabCommitStatusStep extends Step {
         public void stop(@Nonnull Throwable cause) throws Exception {
             // should be no need to do anything special (but verify in JENKINS-26148)
             if (body != null) {
-                String name = StringUtils.isEmpty(step.name) ? "jenkins" : step.name;
-                CommitStatusUpdater.updateCommitStatus(run, null, BuildState.canceled, name);
                 body.cancel(cause);
             }
         }

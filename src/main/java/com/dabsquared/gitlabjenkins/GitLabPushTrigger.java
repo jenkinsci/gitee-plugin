@@ -9,11 +9,9 @@ import com.dabsquared.gitlabjenkins.gitlab.hook.model.NoteHook;
 import com.dabsquared.gitlabjenkins.gitlab.hook.model.PipelineHook;
 import com.dabsquared.gitlabjenkins.gitlab.hook.model.PushHook;
 import com.dabsquared.gitlabjenkins.publisher.GitLabAcceptMergeRequestPublisher;
-import com.dabsquared.gitlabjenkins.publisher.GitLabCommitStatusPublisher;
 import com.dabsquared.gitlabjenkins.publisher.GitLabMessagePublisher;
 import com.dabsquared.gitlabjenkins.publisher.GitLabVotePublisher;
 import com.dabsquared.gitlabjenkins.trigger.TriggerOpenMergeRequest;
-import com.dabsquared.gitlabjenkins.trigger.branch.ProjectBranchesProvider;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilter;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterFactory;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterType;
@@ -24,7 +22,6 @@ import com.dabsquared.gitlabjenkins.trigger.handler.merge.MergeRequestHookTrigge
 import com.dabsquared.gitlabjenkins.trigger.handler.note.NoteHookTriggerHandler;
 import com.dabsquared.gitlabjenkins.trigger.handler.pipeline.PipelineHookTriggerHandler;
 import com.dabsquared.gitlabjenkins.trigger.handler.push.PushHookTriggerHandler;
-import com.dabsquared.gitlabjenkins.trigger.label.ProjectLabelsProvider;
 import com.dabsquared.gitlabjenkins.webhook.GitLabWebHook;
 import hudson.Extension;
 import hudson.Util;
@@ -175,9 +172,6 @@ public class GitLabPushTrigger extends Trigger<Job<?, ?>> {
             for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
                 GitLabPushTrigger trigger = project.getTrigger(GitLabPushTrigger.class);
                 if (trigger != null) {
-                    if (trigger.addCiMessage) {
-                        project.getPublishersList().add(new GitLabCommitStatusPublisher("jenkins", false));
-                    }
                     project.addProperty(new GitLabConnectionProperty(defaultConnectionName));
                     project.save();
                 }
@@ -572,43 +566,12 @@ public class GitLabPushTrigger extends Trigger<Job<?, ?>> {
             return super.configure(req, formData);
         }
 
-        public ListBoxModel doFillTriggerOpenMergeRequestOnPushItems(@QueryParameter String triggerOpenMergeRequestOnPush) {
-            return new ListBoxModel(new Option("Never", "never", triggerOpenMergeRequestOnPush.matches("never")),
-                    new Option("On push to source branch", "source", triggerOpenMergeRequestOnPush.matches("source")),
-                    new Option("On push to source or target branch", "both", triggerOpenMergeRequestOnPush.matches("both")));
-        }
+//        public ListBoxModel doFillTriggerOpenMergeRequestOnPushItems(@QueryParameter String triggerOpenMergeRequestOnPush) {
+//            return new ListBoxModel(new Option("Never", "never", triggerOpenMergeRequestOnPush.matches("never")),
+//                    new Option("On push to source branch", "source", triggerOpenMergeRequestOnPush.matches("source")),
+//                    new Option("On push to source or target branch", "both", triggerOpenMergeRequestOnPush.matches("both")));
+//        }
 
-        public AutoCompletionCandidates doAutoCompleteIncludeBranchesSpec(@AncestorInPath final Job<?, ?> job, @QueryParameter final String value) {
-            return ProjectBranchesProvider.instance().doAutoCompleteBranchesSpec(job, value);
-        }
-
-        public AutoCompletionCandidates doAutoCompleteExcludeBranchesSpec(@AncestorInPath final Job<?, ?> job, @QueryParameter final String value) {
-            return ProjectBranchesProvider.instance().doAutoCompleteBranchesSpec(job, value);
-        }
-
-        public FormValidation doCheckIncludeBranchesSpec(@AncestorInPath final Job<?, ?> project, @QueryParameter final String value) {
-            return ProjectBranchesProvider.instance().doCheckBranchesSpec(project, value);
-        }
-
-        public FormValidation doCheckExcludeBranchesSpec(@AncestorInPath final Job<?, ?> project, @QueryParameter final String value) {
-            return ProjectBranchesProvider.instance().doCheckBranchesSpec(project, value);
-        }
-
-        public AutoCompletionCandidates doAutoCompleteIncludeMergeRequestLabels(@AncestorInPath final Job<?, ?> job, @QueryParameter final String value) {
-            return ProjectLabelsProvider.instance().doAutoCompleteLabels(job, value);
-        }
-
-        public AutoCompletionCandidates doAutoCompleteExcludeMergeRequestLabels(@AncestorInPath final Job<?, ?> job, @QueryParameter final String value) {
-            return ProjectLabelsProvider.instance().doAutoCompleteLabels(job, value);
-        }
-
-        public FormValidation doCheckIncludeMergeRequestLabels(@AncestorInPath final Job<?, ?> project, @QueryParameter final String value) {
-            return ProjectLabelsProvider.instance().doCheckLabels(project, value);
-        }
-
-        public FormValidation doCheckExcludeMergeRequestLabels(@AncestorInPath final Job<?, ?> project, @QueryParameter final String value) {
-            return ProjectLabelsProvider.instance().doCheckLabels(project, value);
-        }
 
         public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {
             byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token

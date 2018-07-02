@@ -57,8 +57,8 @@ import static java.net.Proxy.Type.HTTP;
 
 
 @Restricted(NoExternalUse.class)
-public class ResteasyGitLabClientBuilder extends GitLabClientBuilder {
-    private static final Logger LOGGER = Logger.getLogger(ResteasyGitLabClientBuilder.class.getName());
+public class ResteasyGiteeClientBuilder extends GitLabClientBuilder {
+    private static final Logger LOGGER = Logger.getLogger(ResteasyGiteeClientBuilder.class.getName());
     private static final String PRIVATE_TOKEN = "PRIVATE-TOKEN";
 
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
@@ -66,10 +66,10 @@ public class ResteasyGitLabClientBuilder extends GitLabClientBuilder {
         RuntimeDelegate.setInstance(new ResteasyProviderFactory());
     }
 
-    private final Class<? extends GitLabApiProxy> apiProxyClass;
+    private final Class<? extends GiteeApiProxy> apiProxyClass;
     private final Function<MergeRequest, Integer> mergeRequestIdProvider;
 
-    ResteasyGitLabClientBuilder(String id, int ordinal, Class<? extends GitLabApiProxy> apiProxyClass, Function<MergeRequest, Integer> mergeRequestIdProvider) {
+    ResteasyGiteeClientBuilder(String id, int ordinal, Class<? extends GiteeApiProxy> apiProxyClass, Function<MergeRequest, Integer> mergeRequestIdProvider) {
         super(id, ordinal);
         this.apiProxyClass = apiProxyClass;
         this.mergeRequestIdProvider = mergeRequestIdProvider;
@@ -108,7 +108,7 @@ public class ResteasyGitLabClientBuilder extends GitLabClientBuilder {
             }
         }
 
-        GitLabApiProxy apiProxy = builder
+        GiteeApiProxy apiProxy = builder
             .connectionPoolSize(60)
             .maxPooledPerRoute(30)
             .establishConnectionTimeout(connectionTimeout, TimeUnit.SECONDS)
@@ -124,7 +124,7 @@ public class ResteasyGitLabClientBuilder extends GitLabClientBuilder {
             .classloader(apiProxyClass.getClassLoader())
             .build();
 
-        return new ResteasyGitLabClient(url, apiProxy, mergeRequestIdProvider);
+        return new ResteasyGiteeClient(url, apiProxy, mergeRequestIdProvider);
     }
 
     private String getHost(String url) {

@@ -19,7 +19,7 @@ import static org.junit.Assert.fail;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.matchers.Times.once;
 
-public class AutodetectingGitLabClientTest {
+public class AutodetectingGiteeClientTest {
     @Rule
     public MockServerRule mockServer = new MockServerRule(this);
     @Rule
@@ -27,7 +27,7 @@ public class AutodetectingGitLabClientTest {
     private MockServerClient mockServerClient;
     private String gitLabUrl;
     private GitLabClientBuilder clientBuilder;
-    private AutodetectingGitLabClient api;
+    private AutodetectingGiteeClient api;
     private HttpRequest v3Request;
     private HttpRequest v4Request;
 
@@ -37,7 +37,7 @@ public class AutodetectingGitLabClientTest {
         addGitLabApiToken();
 
         List<GitLabClientBuilder> builders = Arrays.<GitLabClientBuilder>asList(new V3GitLabClientBuilder(), new V4GitLabClientBuilder());
-        api = new AutodetectingGitLabClient(builders, gitLabUrl, API_TOKEN, true, 10, 10);
+        api = new AutodetectingGiteeClient(builders, gitLabUrl, API_TOKEN, true, 10, 10);
 
         v3Request = versionRequest(V3GitLabApiProxy.ID);
         v4Request = versionRequest(V4GitLabApiProxy.ID);

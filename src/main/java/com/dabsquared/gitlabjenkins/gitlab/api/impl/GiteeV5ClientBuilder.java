@@ -10,16 +10,16 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 
 @Extension
 @Restricted(NoExternalUse.class)
-public final class V3GitLabClientBuilder extends ResteasyGitLabClientBuilder {
-    private static final int ORDINAL = 2;
+public final class GiteeV5ClientBuilder extends ResteasyGiteeClientBuilder {
+    private static final int ORDINAL = 3;
     private static final Function<MergeRequest, Integer> MERGE_REQUEST_ID_PROVIDER = new Function<MergeRequest, Integer>() {
         @Override
         public Integer apply(MergeRequest mergeRequest) {
-            return mergeRequest.getId();
+            return mergeRequest.getIid();
         }
     };
 
-    public V3GitLabClientBuilder() {
-        super(V3GitLabApiProxy.ID, ORDINAL, V3GitLabApiProxy.class, MERGE_REQUEST_ID_PROVIDER);
+    public GiteeV5ClientBuilder() {
+        super(GiteeV5ApiProxy.ID, ORDINAL, GiteeV5ApiProxy.class, MERGE_REQUEST_ID_PROVIDER);
     }
 }

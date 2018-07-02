@@ -11,7 +11,7 @@ import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClientBuilder;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.AutodetectGitLabClientBuilder;
+import com.dabsquared.gitlabjenkins.gitlab.api.impl.GiteeV5ClientBuilder;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import hudson.model.Item;
@@ -52,7 +52,7 @@ public class GitLabConnection {
             name,
             url,
             apiTokenId,
-            new AutodetectGitLabClientBuilder(),
+            new GiteeV5ClientBuilder(),
             ignoreCertificateErrors,
             connectionTimeout,
             readTimeout
@@ -137,10 +137,10 @@ public class GitLabConnection {
 
     protected GitLabConnection readResolve() {
         if (connectionTimeout == null || readTimeout == null) {
-            return new GitLabConnection(name, url, apiTokenId, new AutodetectGitLabClientBuilder(), ignoreCertificateErrors, 10, 10);
+            return new GitLabConnection(name, url, apiTokenId, new GiteeV5ClientBuilder(), ignoreCertificateErrors, 10, 10);
         }
         if (clientBuilder == null) {
-            return new GitLabConnection(name, url, apiTokenId, new AutodetectGitLabClientBuilder(), ignoreCertificateErrors, connectionTimeout, readTimeout);
+            return new GitLabConnection(name, url, apiTokenId, new GiteeV5ClientBuilder(), ignoreCertificateErrors, connectionTimeout, readTimeout);
         }
 
         return this;

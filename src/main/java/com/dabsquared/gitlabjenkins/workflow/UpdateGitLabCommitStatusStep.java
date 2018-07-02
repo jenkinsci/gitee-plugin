@@ -14,7 +14,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.export.ExportedBean;
 
 import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
-import com.dabsquared.gitlabjenkins.util.CommitStatusUpdater;
 import com.google.common.collect.ImmutableSet;
 
 import hudson.Extension;
@@ -76,7 +75,6 @@ public class UpdateGitLabCommitStatusStep extends Step {
         @Override
         protected Void run() throws Exception {
             final String name = StringUtils.isEmpty(step.name) ? "jenkins" : step.name;
-            CommitStatusUpdater.updateCommitStatus(run, null, step.state, name);
             PendingBuildsAction action = run.getAction(PendingBuildsAction.class);
             if (action != null) {
                 action.startBuild(name);

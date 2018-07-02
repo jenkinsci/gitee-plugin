@@ -9,8 +9,6 @@ import com.cloudbees.plugins.credentials.domains.Domain;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnection;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionConfig;
 import com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.V3GitLabClientBuilder;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.V4GitLabClientBuilder;
 import com.dabsquared.gitlabjenkins.gitlab.api.model.MergeRequest;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;

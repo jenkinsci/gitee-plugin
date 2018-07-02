@@ -49,7 +49,6 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
         if (branchFilter.isBranchAllowed(targetBranch)) {
             LOGGER.log(Level.INFO, "{0} triggered for {1}.", LoggerUtil.toArray(job.getFullName(), getTriggerType()));
             cancelPendingBuildsIfNecessary(job, hook);
-            setCommitStatusPendingIfNecessary(job, hook);
             scheduleBuild(job, createActions(job, hook));
         } else {
             LOGGER.log(Level.INFO, "branch {0} is not allowed", targetBranch);
@@ -59,25 +58,6 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected abstract String getTriggerType();
 
     protected abstract boolean isCiSkip(H hook);
-
-    private void setCommitStatusPendingIfNecessary(Job<?, ?> job, H hook) {
-        String buildName = PendingBuildsHandler.resolvePendingBuildName(job);
-        if (StringUtils.isNotBlank(buildName)) {
-            GitLabClient client = job.getProperty(GitLabConnectionProperty.class).getClient();
-            BuildStatusUpdate buildStatusUpdate = retrieveBuildStatusUpdate(hook);
-            try {
-                if (client == null) {
-                    LOGGER.log(Level.SEVERE, "No GitLab connection configured");
-                } else {
-                    String targetUrl = DisplayURLProvider.get().getJobURL(job);
-                    client.changeBuildStatus(buildStatusUpdate.getProjectId(), buildStatusUpdate.getSha(),
-                        BuildState.pending, buildStatusUpdate.getRef(), buildName, targetUrl, BuildState.pending.name());
-                }
-            } catch (WebApplicationException | ProcessingException e) {
-                LOGGER.log(Level.SEVERE, "Failed to set build state to pending", e);
-            }
-        }
-    }
 
     protected Action[] createActions(Job<?, ?> job, H hook) {
         ArrayList<Action> actions = new ArrayList<>();

@@ -1,9 +1,6 @@
 package com.dabsquared.gitlabjenkins.gitlab.api;
 
 
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.AutodetectGitLabClientBuilder;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.V3GitLabClientBuilder;
-import com.dabsquared.gitlabjenkins.gitlab.api.impl.V4GitLabClientBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -24,7 +21,7 @@ public class GitLabClientBuilderTest {
     @Test
     public void getAllGitLabClientBuilders_list_is_sorted_by_ordinal() {
         List<GitLabClientBuilder> builders = getAllGitLabClientBuilders();
-        assertThat(builders.get(0), instanceOf(AutodetectGitLabClientBuilder.class));
+        assertThat(builders.get(0), instanceOf(AutodetectGiteeClientBuilder.class));
         assertThat(builders.get(1), instanceOf(V4GitLabClientBuilder.class));
         assertThat(builders.get(2), instanceOf(V3GitLabClientBuilder.class));
     }
