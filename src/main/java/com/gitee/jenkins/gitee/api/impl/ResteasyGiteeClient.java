@@ -22,18 +22,16 @@ final class ResteasyGiteeClient implements GiteeClient {
         return hostUrl;
     }
 
-
-
+    // Gitee v5 don't support commit message and remove source branch
     @Override
     public void acceptMergeRequest(MergeRequest mr, String mergeCommitMessage, boolean shouldRemoveSourceBranch) {
-        api.acceptMergeRequest(mr.getProjectId(), mergeRequestIdProvider.apply(mr), mergeCommitMessage, shouldRemoveSourceBranch);
+        api.acceptMergeRequest(mr.getRepoOwner(), mr.getRepoPath(), mergeRequestIdProvider.apply(mr));
     }
 
     @Override
     public void createMergeRequestNote(MergeRequest mr, String body) {
         api.createMergeRequestNote(mr.getRepoOwner(), mr.getRepoPath(), mergeRequestIdProvider.apply(mr), body);
     }
-
 
     @Override
     public User getCurrentUser() {

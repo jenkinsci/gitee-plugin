@@ -16,11 +16,10 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Path("/projects/{projectId}/merge_requests/{mergeRequestId}/merge")
-    void acceptMergeRequest(@PathParam("projectId") Integer projectId,
-                            @PathParam("mergeRequestId") Integer mergeRequestId,
-                            @FormParam("merge_commit_message") String mergeCommitMessage,
-                            @FormParam("should_remove_source_branch") boolean shouldRemoveSourceBranch);
+    @Path("/repos/{ownerPath}/{repoPath}/pulls/{prNumber}/merge")
+    void acceptMergeRequest(@PathParam("ownerPath") String ownerPath,
+                            @PathParam("repoPath") String repoPath,
+                            @PathParam("prNumber") Integer prNumber);
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)

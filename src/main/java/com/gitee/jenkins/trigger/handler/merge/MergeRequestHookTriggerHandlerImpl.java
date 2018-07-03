@@ -73,7 +73,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
                 }
             }
             else {
-                LOGGER.log(Level.INFO, "request is not allow, hook ----- #" + hook.toString());
+                LOGGER.log(Level.INFO, "request is not allow, hook state=" + hook.getState() + ", action = " + hook.getAction());
             }
         } catch (Exception e) {
             LOGGER.log(Level.INFO, "request is not allow, hook ----- #" + hook.toString());

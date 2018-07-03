@@ -10,7 +10,6 @@ import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.publisher.GiteeAcceptMergeRequestPublisher;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
-import com.gitee.jenkins.publisher.GiteeVotePublisher;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.BranchFilterFactory;
 import com.gitee.jenkins.trigger.filter.BranchFilterType;
@@ -180,9 +179,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                 if (trigger != null) {
                     if (trigger.addNoteOnMergeRequest) {
                         project.getPublishersList().add(new GiteeMessagePublisher());
-                    }
-                    if (trigger.addVoteOnMergeRequest) {
-                        project.getPublishersList().add(new GiteeVotePublisher());
                     }
                     if (trigger.acceptMergeRequestOnSuccess) {
                         project.getPublishersList().add(new GiteeAcceptMergeRequestPublisher());
