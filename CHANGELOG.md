@@ -1,5 +1,11 @@
 ChangeLog
 
+1.0 for Gitee plugin
+=====================
+* change Gitlab to Gitee
+* support Gitee api v5
+
+
 1.5.6
 =====================
 * #691: Fix project ID regex to not require '.git' in URLs

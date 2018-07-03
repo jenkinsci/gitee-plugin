@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+  Configure Gitee to deliver a POST request to your Jenkins instance like Gitee CI.
+</div>
