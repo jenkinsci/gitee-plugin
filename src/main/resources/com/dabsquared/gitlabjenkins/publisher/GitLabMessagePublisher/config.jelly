@@ -2,25 +2,25 @@
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
   <f:advanced>
-    <f:entry title="${%Add message only for failed builds}" field="onlyForFailure">
+    <f:entry title="${%Add.message.only.failed}" field="onlyForFailure">
       <f:checkbox default="false"/>
     </f:entry>
-    <f:optionalBlock name="replaceSuccessNote" checked="${instance.replaceSuccessNote}" title="Custom message on success" inline="true">
+    <f:optionalBlock name="replaceSuccessNote" checked="${instance.replaceSuccessNote}" title="${%Custom.message.on.success}" inline="true">
       <f:entry>
         <f:textarea name="successNoteText" field="successNoteText"/>
       </f:entry>
     </f:optionalBlock>
-    <f:optionalBlock name="replaceFailureNote" checked="${instance.replaceFailureNote}" title="Custom message on failure" inline="true">
+    <f:optionalBlock name="replaceFailureNote" checked="${instance.replaceFailureNote}" title="${%Custom.message.on.failure}" inline="true">
       <f:entry>
         <f:textarea name="failureNoteText" field="failureNoteText"/>
       </f:entry>
     </f:optionalBlock>
-    <f:optionalBlock name="replaceAbortNote" checked="${instance.replaceAbortNote}" title="Custom message on abort" inline="true">
+    <f:optionalBlock name="replaceAbortNote" checked="${instance.replaceAbortNote}" title="${%Custom.message.on.abort}" inline="true">
       <f:entry>
         <f:textarea name="abortNoteText" field="abortNoteText"/>
       </f:entry>
     </f:optionalBlock>
-    <f:optionalBlock name="replaceUnstableNote" checked="${instance.replaceUnstableNote}" title="Custom message on unstable" inline="true">
+    <f:optionalBlock name="replaceUnstableNote" checked="${instance.replaceUnstableNote}" title="${%Custom.message.on.unstable}" inline="true">
       <f:entry>
         <f:textarea name="unstableNoteText" field="unstableNoteText"/>
       </f:entry>

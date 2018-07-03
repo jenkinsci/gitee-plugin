@@ -6,7 +6,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.Domain;
-import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
+import com.dabsquared.gitlabjenkins.trigger.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.gitlab.api.GitLabClient;
 import hudson.ProxyConfiguration;
 import hudson.model.FreeStyleProject;

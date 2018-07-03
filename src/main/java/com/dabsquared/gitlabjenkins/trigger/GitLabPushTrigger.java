@@ -1,4 +1,4 @@
-package com.dabsquared.gitlabjenkins;
+package com.dabsquared.gitlabjenkins.trigger;
 
 
 import com.dabsquared.gitlabjenkins.connection.GitLabConnection;
@@ -11,7 +11,6 @@ import com.dabsquared.gitlabjenkins.gitlab.hook.model.PushHook;
 import com.dabsquared.gitlabjenkins.publisher.GitLabAcceptMergeRequestPublisher;
 import com.dabsquared.gitlabjenkins.publisher.GitLabMessagePublisher;
 import com.dabsquared.gitlabjenkins.publisher.GitLabVotePublisher;
-import com.dabsquared.gitlabjenkins.trigger.TriggerOpenMergeRequest;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilter;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterFactory;
 import com.dabsquared.gitlabjenkins.trigger.filter.BranchFilterType;
@@ -28,14 +27,10 @@ import hudson.Util;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import hudson.model.AbstractProject;
-import hudson.model.AutoCompletionCandidates;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
-import hudson.util.ListBoxModel.Option;
 import hudson.util.Secret;
 import hudson.util.SequentialExecutionQueue;
 import jenkins.model.Jenkins;
@@ -49,7 +44,6 @@ import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -305,11 +299,6 @@ public class GitLabPushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setTriggerOpenMergeRequestOnPush(TriggerOpenMergeRequest triggerOpenMergeRequestOnPush) {
-        this.triggerOpenMergeRequestOnPush = triggerOpenMergeRequestOnPush;
-    }
-
-    @DataBoundSetter
     public void setTriggerOnNoteRequest(boolean triggerOnNoteRequest) {
         this.triggerOnNoteRequest = triggerOnNoteRequest;
     }
@@ -526,12 +515,13 @@ public class GitLabPushTrigger extends Trigger<Job<?, ?>> {
             Job<?, ?> project = retrieveCurrentJob();
             if (project != null) {
                 try {
-                    return "Build when a change is pushed to GitLab. GitLab webhook URL: " + retrieveProjectUrl(project);
+                    return Messages.Build_Gitee_WebHook(retrieveProjectUrl(project));
+//                    return "Build when a change is pushed to Gitee";
                 } catch (IllegalStateException e) {
                     // nothing to do
                 }
             }
-            return "Build when a change is pushed to GitLab, unknown URL";
+            return "Build when a change is pushed to Gitee, unknown URL";
         }
 
         private StringBuilder retrieveProjectUrl(Job<?, ?> project) {
@@ -565,12 +555,6 @@ public class GitLabPushTrigger extends Trigger<Job<?, ?>> {
             save();
             return super.configure(req, formData);
         }
-
-//        public ListBoxModel doFillTriggerOpenMergeRequestOnPushItems(@QueryParameter String triggerOpenMergeRequestOnPush) {
-//            return new ListBoxModel(new Option("Never", "never", triggerOpenMergeRequestOnPush.matches("never")),
-//                    new Option("On push to source branch", "source", triggerOpenMergeRequestOnPush.matches("source")),
-//                    new Option("On push to source or target branch", "both", triggerOpenMergeRequestOnPush.matches("both")));
-//        }
 
 
         public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {

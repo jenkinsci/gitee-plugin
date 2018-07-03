@@ -138,6 +138,10 @@ public class GitLabConnectionConfig extends GlobalConfiguration {
                                            @QueryParameter int connectionTimeout,
                                            @QueryParameter int readTimeout) {
         try {
+            if (clientBuilderId == null) {
+                clientBuilderId  = "v5";
+            }
+
             new GitLabConnection("", url, apiTokenId, clientBuilderId, ignoreCertificateErrors, connectionTimeout, readTimeout).getClient().getCurrentUser();
             return FormValidation.ok(Messages.connection_success());
         } catch (WebApplicationException e) {

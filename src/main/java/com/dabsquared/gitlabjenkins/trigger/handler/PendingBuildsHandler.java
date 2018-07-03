@@ -1,15 +1,12 @@
 package com.dabsquared.gitlabjenkins.trigger.handler;
 
-import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.cause.CauseData;
 import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import com.dabsquared.gitlabjenkins.util.LoggerUtil;
-import hudson.model.AbstractProject;
 import hudson.model.Cause;
 import hudson.model.Job;
 import hudson.model.Queue;
 import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

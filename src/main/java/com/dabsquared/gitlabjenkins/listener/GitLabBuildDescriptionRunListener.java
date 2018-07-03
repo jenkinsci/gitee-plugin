@@ -1,6 +1,6 @@
 package com.dabsquared.gitlabjenkins.listener;
 
-import com.dabsquared.gitlabjenkins.GitLabPushTrigger;
+import com.dabsquared.gitlabjenkins.trigger.GitLabPushTrigger;
 import com.dabsquared.gitlabjenkins.cause.GiteeWebHookCause;
 import hudson.Extension;
 import hudson.model.Cause;
@@ -12,7 +12,7 @@ import java.io.IOException;
 
 /**
  * RunListener that will be called when a build starts and completes.
- * Will lookup GitLabPushTrigger and call set the build description if necessary.
+ * Will lookup trigger and call set the build description if necessary.
  *
  * @author Robin Müller
  */

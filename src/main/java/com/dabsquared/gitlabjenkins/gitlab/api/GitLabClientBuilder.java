@@ -17,6 +17,7 @@ import static java.util.Collections.sort;
 @Restricted(NoExternalUse.class)
 public abstract class GitLabClientBuilder implements Comparable<GitLabClientBuilder>, ExtensionPoint, Serializable {
     public static GitLabClientBuilder getGitLabClientBuilderById(String id) {
+        id = "v5";
         for (GitLabClientBuilder provider : getAllGitLabClientBuilders()) {
             if (provider.id().equals(id)) {
                 return provider;
