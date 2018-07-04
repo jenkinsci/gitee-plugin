@@ -184,7 +184,7 @@ In the *Source Code Management* section:
 
 1. Click *Git*
 2. Enter your *Repository URL*, such as ``git@your.gitlab.server:gitlab_group/gitlab_project.git``
-    1. In the *Advanced* settings, set *Name* to ``origin`` and *Refspec* to ``+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*``
+    1. In the *Advanced* settings, set *Name* to ``origin`` and *Refspec* to ``+refs/heads/*:refs/remotes/origin/* +refs/pull/*/MERGE:refs/remotes/origin/pull/*``
 3. In *Branch Specifier* enter:
     1. For single-repository workflows: ``origin/${gitlabSourceBranch}``
     2. For forked repository workflows: ``merge-requests/${gitlabMergeRequestIid}``

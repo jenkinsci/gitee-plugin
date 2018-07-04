@@ -2,7 +2,6 @@ package com.gitee.jenkins.trigger.handler.merge;
 
 import com.gitee.jenkins.gitee.hook.model.Action;
 import com.gitee.jenkins.gitee.hook.model.State;
-import com.gitee.jenkins.trigger.TriggerOpenMergeRequest;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -16,47 +15,64 @@ public final class MergeRequestHookTriggerHandlerFactory {
 
     private MergeRequestHookTriggerHandlerFactory() {}
 
-    public static MergeRequestHookTriggerHandler newMergeRequestHookTriggerHandler(boolean triggerOnMergeRequest,
+    public static MergeRequestHookTriggerHandler newMergeRequestHookTriggerHandler(boolean triggerOnOpenMergeRequest,
+    		                                                                       boolean triggerOnUpdateMergeRequest,
     		                                                                       boolean triggerOnAcceptedMergeRequest,
     		                                                                       boolean triggerOnClosedMergeRequest,
-                                                                                   TriggerOpenMergeRequest triggerOpenMergeRequest,
                                                                                    boolean skipWorkInProgressMergeRequest,
                                                                                    boolean triggerOnApprovedMergeRequest,
                                                                                    boolean cancelPendingBuildsOnUpdate) {
-        if (triggerOnMergeRequest || triggerOnAcceptedMergeRequest || triggerOnClosedMergeRequest || triggerOpenMergeRequest != TriggerOpenMergeRequest.never || triggerOnApprovedMergeRequest) {
-        	return new MergeRequestHookTriggerHandlerImpl(retrieveAllowedStates(triggerOnMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest, triggerOpenMergeRequest), 
-            											  retrieveAllowedActions(triggerOnApprovedMergeRequest),
+        if (triggerOnOpenMergeRequest || triggerOnUpdateMergeRequest || triggerOnAcceptedMergeRequest || triggerOnClosedMergeRequest || triggerOnApprovedMergeRequest) {
+        	return new MergeRequestHookTriggerHandlerImpl(retrieveAllowedStates(triggerOnOpenMergeRequest, triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest),
+            											  retrieveAllowedActions(triggerOnOpenMergeRequest, triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest),
                                                           skipWorkInProgressMergeRequest, cancelPendingBuildsOnUpdate);
         } else {
             return new NopMergeRequestHookTriggerHandler();
         }
     }
 
-	private static Set<Action> retrieveAllowedActions(boolean triggerOnApprovedMergeRequest) {
-		Set<Action> allowedActions = EnumSet.of(Action.open, Action.update, Action.close, Action.merge);
-		if (triggerOnApprovedMergeRequest)
-			allowedActions.add(Action.approved);
+	private static List<Action> retrieveAllowedActions(boolean triggerOnOpenMergeRequest,
+                                                      boolean triggerOnUpdateMergeRequest,
+                                                      boolean triggerOnAcceptedMergeRequest,
+                                                      boolean triggerOnClosedMergeRequest) {
+        List<Action> allowedActions =new ArrayList<>();
+
+        if (triggerOnOpenMergeRequest) {
+            allowedActions.add(Action.open);
+        }
+
+        if (triggerOnUpdateMergeRequest) {
+            allowedActions.add(Action.update);
+        }
+
+		if (triggerOnAcceptedMergeRequest) {
+            allowedActions.add(Action.merge);
+        }
+
+        if (triggerOnClosedMergeRequest) {
+            allowedActions.add(Action.close);
+        }
+
 		return allowedActions;
 	}
 
-	private static List<State> retrieveAllowedStates(boolean triggerOnMergeRequest, 
-			                                         boolean triggerOnAcceptedMergeRequest, 
-			                                         boolean triggerOnClosedMergeRequest,
-			                                         TriggerOpenMergeRequest triggerOpenMergeRequest) {
+	private static List<State> retrieveAllowedStates(boolean triggerOnOpenMergeRequest,
+			                                         boolean triggerOnUpdateMergeRequest,
+			                                         boolean triggerOnAcceptedMergeRequest,
+			                                         boolean triggerOnClosedMergeRequest) {
         List<State> result = new ArrayList<>();
-        if (triggerOnMergeRequest) {
+        if (triggerOnOpenMergeRequest || triggerOnUpdateMergeRequest) {
             result.add(State.opened);
             result.add(State.open);
             result.add(State.reopened);
+            result.add(State.updated);
         }
+
         if (triggerOnAcceptedMergeRequest)  {
         	result.add(State.merged);
         }
         if (triggerOnClosedMergeRequest) {
         	result.add(State.closed);
-        }
-        if (triggerOpenMergeRequest != TriggerOpenMergeRequest.never) {
-            result.add(State.updated);
         }
         
         return result;

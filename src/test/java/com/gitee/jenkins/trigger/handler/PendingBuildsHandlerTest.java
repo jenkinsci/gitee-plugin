@@ -127,7 +127,7 @@ public class PendingBuildsHandlerTest {
     private GiteePushTrigger giteePushTrigger() {
         GiteePushTrigger giteePushTrigger = new GiteePushTrigger();
         giteePushTrigger.setTriggerOnPush(true);
-        giteePushTrigger.setTriggerOnMergeRequest(true);
+        giteePushTrigger.setTriggerOnOpenMergeRequest(true);
         giteePushTrigger.setPendingBuildName(GITEE_BUILD_NAME);
         giteePushTrigger.setBranchFilterType(BranchFilterType.NameBasedFilter);
         giteePushTrigger.setBranchFilterName("");

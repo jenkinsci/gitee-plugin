@@ -90,7 +90,7 @@ public class GiteeIT {
     public void buildOnMergeRequest() throws IOException, InterruptedException, GitAPIException {
         final OneShotEvent buildTriggered = new OneShotEvent();
         FreeStyleProject project = jenkins.createFreeStyleProject("test");
-        GiteePushTrigger trigger = giteePushTrigger().withTriggerOnMergeRequest(true).withBranchFilterType(BranchFilterType.All).build();
+        GiteePushTrigger trigger = giteePushTrigger().withTriggerOnOpenMergeRequest(true).withBranchFilterType(BranchFilterType.All).build();
         project.addTrigger(trigger);
         trigger.start(project, true);
         project.getBuildersList().add(new TestBuilder() {

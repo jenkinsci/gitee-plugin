@@ -76,7 +76,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                 .withBefore(hook.getBefore())
                 .withAfter(hook.getAfter())
                 .withLastCommit(hook.getAfter())
-                .withTargetProjectUrl(hook.getProject().getWebUrl())
+                .withTargetProjectUrl(hook.getProject().getUrl())
                 .build();
     }
 

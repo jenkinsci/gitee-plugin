@@ -2,7 +2,6 @@ package com.gitee.jenkins.webhook.build;
 
 import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
-import com.gitee.jenkins.trigger.TriggerOpenMergeRequest;
 import hudson.model.FreeStyleProject;
 import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
@@ -57,7 +56,6 @@ public class PushBuildActionTest {
     public void build() throws IOException {
         try {
             FreeStyleProject testProject = jenkins.createFreeStyleProject();
-            when(trigger.getTriggerOpenMergeRequestOnPush()).thenReturn(TriggerOpenMergeRequest.never);
             testProject.addTrigger(trigger);
 
             exception.expect(HttpResponses.HttpResponseException.class);
@@ -73,7 +71,6 @@ public class PushBuildActionTest {
     @Test
     public void invalidToken() throws IOException {
         FreeStyleProject testProject = jenkins.createFreeStyleProject();
-        when(trigger.getTriggerOpenMergeRequestOnPush()).thenReturn(TriggerOpenMergeRequest.never);
         when(trigger.getSecretToken()).thenReturn("secret");
         testProject.addTrigger(trigger);
 

@@ -31,6 +31,7 @@ import static com.gitee.jenkins.util.LoggerUtil.toArray;
 
 /**
  * @author Robin Müller
+ * @author Yashin Luo
  */
 class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<MergeRequestHook> implements MergeRequestHookTriggerHandler {
 
@@ -57,6 +58,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
         MergeRequestObjectAttributes objectAttributes = hook.getObjectAttributes();
 
         try {
+            LOGGER.log(Level.INFO, "request hook  state=" + hook.getState() + ", action = " + hook.getAction() + " pr iid = " + objectAttributes.getIid() + " hook name = " + hook.getHookName());
             if (isAllowedByConfig(hook)
                 && isLastCommitNotYetBuild(job, hook)
                 && isNotSkipWorkInProgressMergeRequest(objectAttributes)) {
@@ -141,7 +143,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
                 .withTargetRepoHttpUrl(hook.getObjectAttributes().getTarget().getHttpUrl())
                 .withTriggeredByUser(hook.getObjectAttributes().getHead().getUser().getName())
                 .withLastCommit(hook.getObjectAttributes().getMergeCommitSha())
-                .withTargetProjectUrl(hook.getObjectAttributes().getTarget().getWebUrl())
+                .withTargetProjectUrl(hook.getObjectAttributes().getTarget().getUrl())
                 .withPathWithNamespace(hook.getProject().getPathWithNamespace())
                 .build();
     }

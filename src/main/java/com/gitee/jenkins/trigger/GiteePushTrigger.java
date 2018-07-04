@@ -62,18 +62,20 @@ import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFacto
  * Triggers a build when we receive a Gitee WebHook.
  *
  * @author Daniel Brooks
+ * @author Yashin Luo
+ *
  */
 public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private boolean triggerOnPush = true;
-    private boolean triggerOnMergeRequest = true;
+    private boolean triggerOnOpenMergeRequest = true;
     private boolean triggerOnPipelineEvent = false;
     private boolean triggerOnAcceptedMergeRequest = false;
+    private boolean triggerOnUpdateMergeRequest = false;
     private boolean triggerOnClosedMergeRequest = false;
     private boolean triggerOnApprovedMergeRequest = false;
-    private TriggerOpenMergeRequest triggerOpenMergeRequestOnPush;
     private boolean triggerOnNoteRequest = true;
     private String noteRegex = "";
     private boolean ciSkip = true;
@@ -106,8 +108,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
      */
     @Deprecated
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-    public GiteePushTrigger(boolean triggerOnPush, boolean triggerOnMergeRequest, boolean triggerOnAcceptedMergeRequest, boolean triggerOnClosedMergeRequest,
-                            TriggerOpenMergeRequest triggerOpenMergeRequestOnPush, boolean triggerOnNoteRequest, String noteRegex,
+    public GiteePushTrigger(boolean triggerOnPush, boolean triggerOnOpenMergeRequest, boolean triggerOnUpdateMergeRequest, boolean triggerOnAcceptedMergeRequest, boolean triggerOnClosedMergeRequest,
+                            boolean triggerOnNoteRequest, String noteRegex,
                             boolean skipWorkInProgressMergeRequest, boolean ciSkip,
                             boolean setBuildDescription, boolean addNoteOnMergeRequest, boolean addCiMessage, boolean addVoteOnMergeRequest,
                             boolean acceptMergeRequestOnSuccess, BranchFilterType branchFilterType,
@@ -115,12 +117,12 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                             MergeRequestLabelFilterConfig mergeRequestLabelFilterConfig, String secretToken, boolean triggerOnPipelineEvent,
                             boolean triggerOnApprovedMergeRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate) {
         this.triggerOnPush = triggerOnPush;
-        this.triggerOnMergeRequest = triggerOnMergeRequest;
+        this.triggerOnOpenMergeRequest = triggerOnOpenMergeRequest;
+        this.triggerOnUpdateMergeRequest = triggerOnUpdateMergeRequest;
         this.triggerOnAcceptedMergeRequest = triggerOnAcceptedMergeRequest;
         this.triggerOnClosedMergeRequest = triggerOnClosedMergeRequest;
         this.triggerOnNoteRequest = triggerOnNoteRequest;
         this.noteRegex = noteRegex;
-        this.triggerOpenMergeRequestOnPush = triggerOpenMergeRequestOnPush;
         this.triggerOnPipelineEvent = triggerOnPipelineEvent;
         this.ciSkip = ciSkip;
         this.skipWorkInProgressMergeRequest = skipWorkInProgressMergeRequest;
@@ -195,8 +197,12 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return triggerOnPush;
     }
 
-    public boolean getTriggerOnMergeRequest() {
-        return triggerOnMergeRequest;
+    public boolean getTriggerOnOpenMergeRequest() {
+        return triggerOnOpenMergeRequest;
+    }
+
+    public boolean getTriggerOnUpdateMergeRequest() {
+        return triggerOnUpdateMergeRequest;
     }
 
     public boolean isTriggerOnAcceptedMergeRequest() {
@@ -219,10 +225,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public String getNoteRegex() {
         return this.noteRegex == null ? "" : this.noteRegex;
-    }
-
-    public TriggerOpenMergeRequest getTriggerOpenMergeRequestOnPush() {
-        return triggerOpenMergeRequestOnPush;
     }
 
     public boolean getSetBuildDescription() {
@@ -280,8 +282,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setTriggerOnMergeRequest(boolean triggerOnMergeRequest) {
-        this.triggerOnMergeRequest = triggerOnMergeRequest;
+    public void setTriggerOnOpenMergeRequest(boolean triggerOnOpenMergeRequest) {
+        this.triggerOnOpenMergeRequest = triggerOnOpenMergeRequest;
     }
 
     @DataBoundSetter
@@ -375,6 +377,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
+    public void setTriggerOnUpdateMergeRequest(boolean triggerOnUpdateMergeRequest) {
+        this.triggerOnUpdateMergeRequest = triggerOnUpdateMergeRequest;
+    }
+    @DataBoundSetter
     public void setTriggerOnPipelineEvent(boolean triggerOnPipelineEvent) {
         this.triggerOnPipelineEvent = triggerOnPipelineEvent;
     }
@@ -440,11 +446,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     private void initializeTriggerHandler() {
-		mergeRequestHookTriggerHandler = newMergeRequestHookTriggerHandler(triggerOnMergeRequest,
-				triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest, triggerOpenMergeRequestOnPush,
+		mergeRequestHookTriggerHandler = newMergeRequestHookTriggerHandler(triggerOnOpenMergeRequest,
+				triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest,
 				skipWorkInProgressMergeRequest, triggerOnApprovedMergeRequest, cancelPendingBuildsOnUpdate);
         noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex);
-        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, triggerOpenMergeRequestOnPush, skipWorkInProgressMergeRequest);
+        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressMergeRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }
 

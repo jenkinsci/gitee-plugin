@@ -1,7 +1,5 @@
 package com.gitee.jenkins.trigger.handler.push;
 
-import com.gitee.jenkins.trigger.TriggerOpenMergeRequest;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,19 +10,15 @@ public final class PushHookTriggerHandlerFactory {
 
     private PushHookTriggerHandlerFactory() {}
 
-    public static PushHookTriggerHandler newPushHookTriggerHandler(boolean triggerOnPush,
-                                                                   TriggerOpenMergeRequest triggerOpenMergeRequestOnPush,
-                                                                   boolean skipWorkInProgressMergeRequest) {
-        if (triggerOnPush || triggerOpenMergeRequestOnPush == TriggerOpenMergeRequest.both) {
-            return new PushHookTriggerHandlerList(retrieveHandlers(triggerOnPush, triggerOpenMergeRequestOnPush, skipWorkInProgressMergeRequest));
+    public static PushHookTriggerHandler newPushHookTriggerHandler(boolean triggerOnPush, boolean skipWorkInProgressMergeRequest) {
+        if (triggerOnPush) {
+            return new PushHookTriggerHandlerList(retrieveHandlers(triggerOnPush, skipWorkInProgressMergeRequest));
         } else {
             return new NopPushHookTriggerHandler();
         }
     }
 
-    private static List<PushHookTriggerHandler> retrieveHandlers(boolean triggerOnPush,
-                                                                 TriggerOpenMergeRequest triggerOpenMergeRequestOnPush,
-                                                                 boolean skipWorkInProgressMergeRequest) {
+    private static List<PushHookTriggerHandler> retrieveHandlers(boolean triggerOnPush, boolean skipWorkInProgressMergeRequest) {
         List<PushHookTriggerHandler> result = new ArrayList<>();
         if (triggerOnPush) {
             result.add(new PushHookTriggerHandlerImpl());
