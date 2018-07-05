@@ -124,7 +124,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
 
     @Override
     protected RevisionParameterAction createRevisionParameter(PipelineHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook));
+        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
     }
 
     @Override

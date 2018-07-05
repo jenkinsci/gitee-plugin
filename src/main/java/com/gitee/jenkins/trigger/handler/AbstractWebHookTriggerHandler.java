@@ -16,10 +16,12 @@ import hudson.scm.SCM;
 import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,11 +78,24 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 
-    protected URIish retrieveUrIish(WebHook hook) {
+    protected URIish retrieveUrIish(WebHook hook, GitSCM gitSCM) {
+        List<URIish> uris = new ArrayList<URIish>();
         try {
             if (hook.getRepository() != null) {
-                return new URIish(hook.getRepository().getUrl());
+                uris.add(new URIish(hook.getRepository().getGitSshUrl()));
+                uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
             }
+            // uri 需与当前项目仓库个url一致，避免触发多个构建
+            for (RemoteConfig remote : gitSCM.getRepositories()) {
+                for (URIish remoteURL : remote.getURIs()) {
+                    for (URIish uri : uris) {
+                        if (remoteURL.equals(uri)) {
+                            return uri;
+                        }
+                    }
+                }
+            }
+
         } catch (URISyntaxException e) {
             LOGGER.log(Level.WARNING, "could not parse URL");
         }
