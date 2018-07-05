@@ -1,10 +1,10 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials" xmlns:st="jelly:stapler">
   <f:section title="${%Gitee.config}">
-    <f:entry title="${%Gitee.connections}">
+    <f:entry title="${%Gitee.connections}" >
       <f:repeatable var="connection" items="${descriptor.connections}" name="connections">
         <table width="100%">
-          <f:entry title="${%Connection.name}" field="name">
+          <f:entry title="${%Connection.name}" field="name" help="/plugin/gitee-plugin/help/help-gitee-connection.html">
             <f:textbox value="${connection.name}"/>
             <input type="hidden" name="id" value="${connection}"/>
           </f:entry>
