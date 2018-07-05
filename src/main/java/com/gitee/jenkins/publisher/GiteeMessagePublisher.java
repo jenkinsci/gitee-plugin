@@ -224,7 +224,7 @@ public class GiteeMessagePublisher extends MergeRequestNotifier {
         } else {
             String icon = getResultIcon(build.getResult());
             String buildUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
-            message = MessageFormat.format("{0} Jenkins Build {1}\n\nResults available at: [Jenkins [{2} #{3}]]({4})",
+            message = MessageFormat.format("{0} Jenkins Build {1}\n\nResults available at: [Jenkins [{2} # {3}]]({4})",
                                            icon, build.getResult().toString(), build.getParent().getDisplayName(), build.getNumber(), buildUrl);
         }
         return message;
