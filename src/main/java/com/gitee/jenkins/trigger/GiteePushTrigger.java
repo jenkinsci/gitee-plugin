@@ -76,6 +76,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean triggerOnUpdateMergeRequest = false;
     private boolean triggerOnClosedMergeRequest = false;
     private boolean triggerOnApprovedMergeRequest = false;
+    private boolean triggerOnTestedMergeRequest = false;
     private boolean triggerOnNoteRequest = true;
     private String noteRegex = "";
     private boolean ciSkip = true;
@@ -201,6 +202,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return triggerOnOpenMergeRequest;
     }
 
+    public boolean getTriggerOnTestedMergeRequest() {
+        return triggerOnTestedMergeRequest;
+    }
+
     public boolean getTriggerOnUpdateMergeRequest() {
         return triggerOnUpdateMergeRequest;
     }
@@ -279,6 +284,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @DataBoundSetter
     public void setTriggerOnApprovedMergeRequest(boolean triggerOnApprovedMergeRequest) {
         this.triggerOnApprovedMergeRequest = triggerOnApprovedMergeRequest;
+    }
+
+    @DataBoundSetter
+    public void setTriggerOnTestedMergeRequest(boolean triggerOnTestedMergeRequest) {
+        this.triggerOnTestedMergeRequest = triggerOnTestedMergeRequest;
     }
 
     @DataBoundSetter
@@ -448,7 +458,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private void initializeTriggerHandler() {
 		mergeRequestHookTriggerHandler = newMergeRequestHookTriggerHandler(triggerOnOpenMergeRequest,
 				triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest,
-				skipWorkInProgressMergeRequest, triggerOnApprovedMergeRequest, cancelPendingBuildsOnUpdate);
+				skipWorkInProgressMergeRequest, triggerOnApprovedMergeRequest, triggerOnTestedMergeRequest, cancelPendingBuildsOnUpdate);
         noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex);
         pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressMergeRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);

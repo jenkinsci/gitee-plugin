@@ -21,20 +21,41 @@ public final class MergeRequestHookTriggerHandlerFactory {
     		                                                                       boolean triggerOnClosedMergeRequest,
                                                                                    boolean skipWorkInProgressMergeRequest,
                                                                                    boolean triggerOnApprovedMergeRequest,
+                                                                                   boolean triggerOnTestedMergeRequest,
                                                                                    boolean cancelPendingBuildsOnUpdate) {
-        if (triggerOnOpenMergeRequest || triggerOnUpdateMergeRequest || triggerOnAcceptedMergeRequest || triggerOnClosedMergeRequest || triggerOnApprovedMergeRequest) {
-        	return new MergeRequestHookTriggerHandlerImpl(retrieveAllowedStates(triggerOnOpenMergeRequest, triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest),
-            											  retrieveAllowedActions(triggerOnOpenMergeRequest, triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest),
-                                                          skipWorkInProgressMergeRequest, cancelPendingBuildsOnUpdate);
+        if (triggerOnOpenMergeRequest
+            || triggerOnUpdateMergeRequest
+            || triggerOnAcceptedMergeRequest
+            || triggerOnClosedMergeRequest
+            || triggerOnApprovedMergeRequest
+            || triggerOnTestedMergeRequest) {
+
+        	return new MergeRequestHookTriggerHandlerImpl(
+        	    retrieveAllowedStates(triggerOnOpenMergeRequest,
+                    triggerOnUpdateMergeRequest,
+                    triggerOnAcceptedMergeRequest,
+                    triggerOnClosedMergeRequest,
+                    triggerOnApprovedMergeRequest,
+                    triggerOnTestedMergeRequest),
+                retrieveAllowedActions(triggerOnOpenMergeRequest,
+                    triggerOnUpdateMergeRequest,
+                    triggerOnAcceptedMergeRequest,
+                    triggerOnClosedMergeRequest,
+                    triggerOnApprovedMergeRequest,
+                    triggerOnTestedMergeRequest),
+                skipWorkInProgressMergeRequest,
+                cancelPendingBuildsOnUpdate);
         } else {
             return new NopMergeRequestHookTriggerHandler();
         }
     }
 
 	private static List<Action> retrieveAllowedActions(boolean triggerOnOpenMergeRequest,
-                                                      boolean triggerOnUpdateMergeRequest,
-                                                      boolean triggerOnAcceptedMergeRequest,
-                                                      boolean triggerOnClosedMergeRequest) {
+                                                       boolean triggerOnUpdateMergeRequest,
+                                                       boolean triggerOnAcceptedMergeRequest,
+                                                       boolean triggerOnClosedMergeRequest,
+                                                       boolean triggerOnApprovedMergeRequest,
+                                                       boolean triggerOnTestedMergeRequest) {
         List<Action> allowedActions =new ArrayList<>();
 
         if (triggerOnOpenMergeRequest) {
@@ -53,15 +74,29 @@ public final class MergeRequestHookTriggerHandlerFactory {
             allowedActions.add(Action.close);
         }
 
+        if (triggerOnApprovedMergeRequest) {
+            allowedActions.add(Action.approved);
+        }
+
+        if (triggerOnTestedMergeRequest) {
+            allowedActions.add(Action.tested);
+        }
+
 		return allowedActions;
 	}
 
 	private static List<State> retrieveAllowedStates(boolean triggerOnOpenMergeRequest,
-			                                         boolean triggerOnUpdateMergeRequest,
-			                                         boolean triggerOnAcceptedMergeRequest,
-			                                         boolean triggerOnClosedMergeRequest) {
+                                                     boolean triggerOnUpdateMergeRequest,
+                                                     boolean triggerOnAcceptedMergeRequest,
+                                                     boolean triggerOnClosedMergeRequest,
+                                                     boolean triggerOnApprovedMergeRequest,
+                                                     boolean triggerOnTestedMergeRequest) {
         List<State> result = new ArrayList<>();
-        if (triggerOnOpenMergeRequest || triggerOnUpdateMergeRequest) {
+        if (triggerOnOpenMergeRequest
+            || triggerOnUpdateMergeRequest
+            || triggerOnApprovedMergeRequest
+            || triggerOnTestedMergeRequest) {
+
             result.add(State.opened);
             result.add(State.open);
             result.add(State.reopened);
