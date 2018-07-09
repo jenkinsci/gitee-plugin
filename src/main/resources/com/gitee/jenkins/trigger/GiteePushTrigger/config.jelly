@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
-  <f:entry title="${%Enabled.Gitee.Triggers}">
+  <f:entry title="${%Enabled.Gitee.Triggers}" help="/plugin/gitee-plugin/help/help-pull-request-refspec.html">
     <table>
       <f:entry title="${%Push}" field="triggerOnPush">
         <f:checkbox default="true"/>
