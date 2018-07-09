@@ -26,6 +26,7 @@ public class MergeRequestObjectAttributes {
     private BranchData base;
     private String mergeStatus;
     private String mergeCommitSha;
+    private String mergeReferenceName;
     private String url;
     private Boolean workInProgress;
 
@@ -142,6 +143,14 @@ public class MergeRequestObjectAttributes {
         this.mergeCommitSha = mergeCommitSha;
     }
 
+    public String getMergeReferenceName() {
+        return mergeReferenceName;
+    }
+
+    public void setMergeReferenceName(String mergeReferenceName) {
+        this.mergeReferenceName = mergeReferenceName;
+    }
+
     public String getMergeStatus() {
         return mergeStatus;
     }
@@ -187,6 +196,7 @@ public class MergeRequestObjectAttributes {
             .append(head, that.head)
             .append(base, that.base)
             .append(mergeCommitSha, that.mergeCommitSha)
+            .append(mergeReferenceName, that.mergeReferenceName)
             .append(mergeStatus, that.mergeStatus)
             .append(url, that.url)
             .append(workInProgress, that.workInProgress)
@@ -208,6 +218,7 @@ public class MergeRequestObjectAttributes {
             .append(base)
             .append(mergeStatus)
             .append(mergeCommitSha)
+            .append(mergeReferenceName)
             .append(url)
             .append(workInProgress)
             .toHashCode();
@@ -227,6 +238,7 @@ public class MergeRequestObjectAttributes {
             .append("head", head)
             .append("base", base)
             .append("mergeCommitSha", mergeCommitSha)
+            .append("mergeReferenceName", mergeReferenceName)
             .append("mergeStatus", mergeStatus)
             .append("url", url)
             .append("workInProgress", workInProgress)

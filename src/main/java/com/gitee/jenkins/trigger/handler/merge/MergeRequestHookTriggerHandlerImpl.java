@@ -166,8 +166,8 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
 
     private String retrieveRevisionToBuild(MergeRequestHook hook) throws NoRevisionToBuildException {
         if (hook.getObjectAttributes() != null
-                && hook.getObjectAttributes().getMergeCommitSha() != null) {
-            return hook.getObjectAttributes().getMergeCommitSha();
+                && hook.getObjectAttributes().getMergeReferenceName() != null) {
+            return hook.getObjectAttributes().getMergeReferenceName();
         } else {
             throw new NoRevisionToBuildException();
         }
