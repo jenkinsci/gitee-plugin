@@ -14,7 +14,7 @@
   </properties>
 
   <artifactId>gitee-jenkins-plugin</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.5-SNAPSHOT</version>
   <name>Gitee Jenkins Plugin</name>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Gitee+Jenkins+Plugin</url>
   <packaging>hpi</packaging>
@@ -27,11 +27,6 @@
   </licenses>
 
   <developers>
-    <developer>
-      <id>owenmehegan</id>
-      <name>Owen Mehegan</name>
-      <email>owen@nerdnetworks.org</email>
-    </developer>
     <developer>
       <id>Yashin</id>
       <name>Yashin Luo</name>
@@ -53,9 +48,9 @@
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:ssh://gitee.com:yashin/Gitee-Plugin.git</connection>
-    <developerConnection>scm:git:git@gitee.com:yashin/Gitee-Plugin.git</developerConnection>
-    <url>https://gitee.com/yashin/Gitee-Plugin.git</url>
+    <connection>scm:git:ssh://gitee.com:oschina/Gitee-Jenkins-Plugin.git</connection>
+    <developerConnection>scm:git:git@gitee.com:oschina/Gitee-Jenkins-Plugin.git</developerConnection>
+    <url>https://gitee.com/oschina/Gitee-Jenkins-Plugin.git</url>
     <tag>HEAD</tag>
   </scm>
    <!--get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need-->

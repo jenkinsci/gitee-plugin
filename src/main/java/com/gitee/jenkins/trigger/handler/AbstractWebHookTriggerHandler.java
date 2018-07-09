@@ -82,8 +82,8 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
         List<URIish> uris = new ArrayList<URIish>();
         try {
             if (hook.getRepository() != null) {
-                uris.add(new URIish(hook.getRepository().getGitSshUrl()));
                 uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
+                uris.add(new URIish(hook.getRepository().getGitSshUrl()));
             }
             // uri 需与当前项目仓库个url一致，避免触发多个构建
             for (RemoteConfig remote : gitSCM.getRepositories()) {
@@ -95,7 +95,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
                     }
                 }
             }
-
+            return uris.get(0);
         } catch (URISyntaxException e) {
             LOGGER.log(Level.WARNING, "could not parse URL");
         }
