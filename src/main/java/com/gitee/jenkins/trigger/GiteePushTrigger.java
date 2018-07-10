@@ -154,8 +154,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     public static void migrateJobs() throws IOException {
         GiteePushTrigger.DescriptorImpl oldConfig = Trigger.all().get(GiteePushTrigger.DescriptorImpl.class);
         if (!oldConfig.jobsMigrated) {
-            GiteeConnectionConfig gitLabConfig = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
-            gitLabConfig.getConnections().add(new GiteeConnection(
+            GiteeConnectionConfig giteeConfig = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
+            giteeConfig.getConnections().add(new GiteeConnection(
                 oldConfig.giteeHostUrl,
                     oldConfig.giteeHostUrl,
                     oldConfig.GiteeApiToken,
@@ -164,7 +164,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     10,
                     10));
 
-            String defaultConnectionName = gitLabConfig.getConnections().get(0).getName();
+            String defaultConnectionName = giteeConfig.getConnections().get(0).getName();
             for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
@@ -172,7 +172,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     project.save();
                 }
             }
-            gitLabConfig.save();
+            giteeConfig.save();
             oldConfig.jobsMigrated = true;
             oldConfig.save();
         }

@@ -154,7 +154,7 @@ public class GiteeMessagePublisher extends MergeRequestNotifier {
 
         @Override
         public String getHelpFile() {
-            return "/plugin/gitee-plugin/help/help-messagesOnResult.html";
+            return "/plugin/gitee-jenkins-plugin/help/help-messagesOnResult.html";
         }
     }
 

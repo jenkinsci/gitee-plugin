@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
-  <f:entry title="${%Enabled.Gitee.Triggers}" help="/plugin/gitee-plugin/help/help-pull-request-refspec.html">
+  <f:entry title="${%Enabled.Gitee.Triggers}" help="/plugin/gitee-jenkins-plugin/help/help-pull-request-refspec.html">
     <table>
       <f:entry title="${%Push}" field="triggerOnPush">
         <f:checkbox default="true"/>
@@ -40,10 +40,10 @@
       <!--<f:section title="">-->
       <f:radioBlock name="branchFilterType" value="All" title="${%Allow.all.branches}"
                     checked="${instance.branchFilterType == null || instance.branchFilterType.toString() == 'All'}"
-                    inline="true" help="/plugin/gitee-plugin/help/help-noBranchFiltering.html"/>
+                    inline="true" help="/plugin/gitee-jenkins-plugin/help/help-noBranchFiltering.html"/>
       <f:radioBlock name="branchFilterType" value="NameBasedFilter" title="${%Filter.branches.by.name}"
                     checked="${instance.branchFilterType.toString() == 'NameBasedFilter'}" inline="true"
-                    help="/plugin/gitee-plugin/help/help-allowedBranches.html">
+                    help="/plugin/gitee-jenkins-plugin/help/help-allowedBranches.html">
         <f:entry title="${%Include}">
           <f:textbox name="includeBranchesSpec" field="includeBranchesSpec" autoCompleteDelimChar=","/>
         </f:entry>
@@ -54,14 +54,14 @@
 
       <f:radioBlock name="branchFilterType" value="RegexBasedFilter" title="${%Filter.branches.by.regex}"
                     checked="${instance.branchFilterType.toString() == 'RegexBasedFilter'}" inline="true"
-                    help="/plugin/gitee-plugin/help/help-filterBranchesByRegex.html">
+                    help="/plugin/gitee-jenkins-plugin/help/help-filterBranchesByRegex.html">
         <f:entry title="${%Target.Branch.Regex}">
           <f:textbox name="targetBranchRegex" field="targetBranchRegex"/>
         </f:entry>
       </f:radioBlock>
     </table>
   </f:entry>
-  <f:entry title="${%Secret.Token}" help="/plugin/gitee-plugin/help/help-secretToken.html">
+  <f:entry title="${%Secret.Token}" help="/plugin/gitee-jenkins-plugin/help/help-secretToken.html">
     <table>
       <f:readOnlyTextbox field="secretToken" id="secretToken"/>
       <f:validateButton title="${%Generate}" method="generateSecretToken"/>

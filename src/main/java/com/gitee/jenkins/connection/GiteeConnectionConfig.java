@@ -51,7 +51,7 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         connections = req.bindJSONToList(GiteeConnection.class, json.get("connections"));
-        useAuthenticatedEndpoint = json.getBoolean("useAuthenticatedEndpoint");
+//        useAuthenticatedEndpoint = json.getBoolean("useAuthenticatedEndpoint");
         refreshConnectionMap();
         save();
         return super.configure(req, json);
