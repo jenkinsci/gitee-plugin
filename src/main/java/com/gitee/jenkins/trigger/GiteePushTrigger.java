@@ -465,6 +465,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     private void initializeBranchFilter() {
+        if (branchFilterType == null) {
+            branchFilterType = StringUtils.isNotBlank(branchFilterName) ? BranchFilterType.valueOf(branchFilterName) : BranchFilterType.All;
+        }
+
         branchFilter = BranchFilterFactory.newBranchFilter(branchFilterConfig()
                 .withIncludeBranchesSpec(includeBranchesSpec)
                 .withExcludeBranchesSpec(excludeBranchesSpec)
@@ -478,9 +482,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     @Override
     protected Object readResolve() throws ObjectStreamException {
-        if (branchFilterType == null) {
-            branchFilterType = StringUtils.isNotBlank(branchFilterName) ? BranchFilterType.valueOf(branchFilterName) : BranchFilterType.All;
-        }
         initializeTriggerHandler();
         initializeBranchFilter();
         initializeMergeRequestLabelFilter();
