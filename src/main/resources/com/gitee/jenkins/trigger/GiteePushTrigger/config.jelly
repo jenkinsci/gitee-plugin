@@ -39,10 +39,10 @@
     <table>
       <!--<f:section title="">-->
       <f:radioBlock name="branchFilterType" value="All" title="${%Allow.all.branches}"
-                    checked="${instance.branchFilterType == null || instance.branchFilterType == 'All'}"
+                    checked="${instance.branchFilterType == null || instance.branchFilterType.toString() == 'All'}"
                     inline="true" help="/plugin/gitee-plugin/help/help-noBranchFiltering.html"/>
       <f:radioBlock name="branchFilterType" value="NameBasedFilter" title="${%Filter.branches.by.name}"
-                    checked="${instance.branchFilterType == 'NameBasedFilter'}" inline="true"
+                    checked="${instance.branchFilterType.toString() == 'NameBasedFilter'}" inline="true"
                     help="/plugin/gitee-plugin/help/help-allowedBranches.html">
         <f:entry title="${%Include}">
           <f:textbox name="includeBranchesSpec" field="includeBranchesSpec" autoCompleteDelimChar=","/>
@@ -53,7 +53,7 @@
       </f:radioBlock>
 
       <f:radioBlock name="branchFilterType" value="RegexBasedFilter" title="${%Filter.branches.by.regex}"
-                    checked="${instance.branchFilterType == 'RegexBasedFilter'}" inline="true"
+                    checked="${instance.branchFilterType.toString() == 'RegexBasedFilter'}" inline="true"
                     help="/plugin/gitee-plugin/help/help-filterBranchesByRegex.html">
         <f:entry title="${%Target.Branch.Regex}">
           <f:textbox name="targetBranchRegex" field="targetBranchRegex"/>
