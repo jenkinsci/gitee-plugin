@@ -37,7 +37,6 @@ import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem.SCMTriggerItems;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.AncestorInPath;
@@ -466,7 +465,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     private void initializeBranchFilter() {
         if (branchFilterType == null) {
-            branchFilterType = StringUtils.isNotBlank(branchFilterName) ? BranchFilterType.valueOf(branchFilterName) : BranchFilterType.All;
+            branchFilterType = BranchFilterType.All;
         }
 
         branchFilter = BranchFilterFactory.newBranchFilter(branchFilterConfig()
