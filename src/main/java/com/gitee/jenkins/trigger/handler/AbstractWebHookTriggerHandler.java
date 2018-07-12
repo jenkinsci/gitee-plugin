@@ -82,6 +82,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
         List<URIish> uris = new ArrayList<URIish>();
         try {
             if (hook.getRepository() != null) {
+                uris.add(new URIish(hook.getRepository().getUrl()));
                 uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
                 uris.add(new URIish(hook.getRepository().getGitSshUrl()));
             }
@@ -95,7 +96,6 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
                     }
                 }
             }
-            return uris.get(0);
         } catch (URISyntaxException e) {
             LOGGER.log(Level.WARNING, "could not parse URL");
         }

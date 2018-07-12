@@ -39,7 +39,7 @@ import static com.gitee.jenkins.gitee.api.GiteeClientBuilder.getAllGiteeClientBu
 @Extension
 public class GiteeConnectionConfig extends GlobalConfiguration {
 
-    private Boolean useAuthenticatedEndpoint = false;
+    private Boolean useAuthenticatedEndpoint = true;
     private List<GiteeConnection> connections = new ArrayList<>();
     private transient Map<String, GiteeConnection> connectionMap = new HashMap<>();
 
