@@ -56,8 +56,18 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 6. 点击 ``Advanced`` ，可配置是否忽略 SSL 错误（适您的Jenkins环境是否支持），并可设置链接测超时时间（适您的网络环境而定）
 7. 点击 ``Test Connection`` 测试链接是否成功，如失败请检查以上 3，5，6 步骤。
 
+配置成功后如图所示：
+![码云链接配置](https://images.gitee.com/uploads/images/2018/0716/185651_68707d16_58426.png "屏幕截图.png")
+
 ### 新建构建任务
 前往 Jenkins -> New Item , name 输入 'Gitee Test'，选择 ``Freestyle project`` 保存即可创建构建项目。
+
+### 任务全局配置
+
+任务全局配置中需要选择前一步中的码云链接。前往某个任务（如'Gitee Test'）的 Configure -> General，Gitee connection 中选择前面所配置的码云联机，如图：
+
+![任务全局配置](https://images.gitee.com/uploads/images/2018/0716/191715_9660237b_58426.png "屏幕截图.png")
+
 
 ### 源码管理配置
 
@@ -77,6 +87,9 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
         4. 设置 *Branch to merge to* 为 ``${ReleaseBranch}`` 即您要合并的默认分支（发布分支）
     2. 对于 PR 工作流，码云服务端已经将 PR 的原分支和目标分支作了预合并，您可以直接构建，如果目标分支不是默认分支（发布分支），您也可以进行上诉构建前合并。
 
+配置如图所示：
+
+![源码管理配置](https://images.gitee.com/uploads/images/2018/0716/191913_ef0995f4_58426.png "屏幕截图.png")
 
 ### 触发器配置
 
@@ -95,6 +108,8 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 4. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
 5. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
 
+![触发器配置](https://images.gitee.com/uploads/images/2018/0716/192115_d04fe4b0_58426.png "屏幕截图.png")
+
 ### 构建后步骤配置
 
 前往任务配置的构建后配置： Configure -> Post-build Actions 选项卡
@@ -108,6 +123,8 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 
 #### 构建成功自动合并PR
 点击 `Add post-build action` 下拉框选择：`Accept Gitee pull request on success`
+
+![构建后步骤配置](https://images.gitee.com/uploads/images/2018/0716/192304_0e323bc0_58426.png "屏幕截图.png")
 
 ### 新建码云项目WebHook
 进入源码管理配置中设置的码云项目中，进入 管理 -> WebHooks 
