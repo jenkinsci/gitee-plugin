@@ -2,10 +2,9 @@
 - [Introduction](#introduction)
 - [User support](#user-support)
 - [Known bugs/issues](#known-bugsissues)
-- [Defined variables](#defined-variables)
 - [Global plugin configuration](#global-plugin-configuration)
-  - [GitLab-to-Jenkins auth](#gitlab-to-jenkins-authentication)
-  - [Jenkins-to-GitLab auth](#jenkins-to-gitlab-authentication)
+  - [GitLab-to-Jenkins auth](#gitee-to-jenkins-authentication)
+  - [Jenkins-to-GitLab auth](#jenkins-to-gitee-authentication)
  - [Jenkins Job Configuration](#jenkins-job-configuration)
    - [Parameter configuration](#parameter-configuration)
    - [Git configuration](#git-configuration)
@@ -27,16 +26,17 @@
   - [Build when tags are pushed](#build-when-tags-are-pushed)
   - [Add a note to merge requests](#add-a-note-to-merge-requests)
 - [Contributing to the Plugin](#contributing-to-the-plugin)
-- [Testing With Docker](#testing-with-docker)
 - [Release Workflow](#release-workflow)
 
 # Introduction
 
-This plugin allows GitLab to trigger builds in Jenkins when code is committed or merge requests are opened/updated. It can also send build status back to GitLab.
+This plugin allows Gitee to trigger builds in Jenkins when code is committed or merge requests are opened/updated. It can also send build status back to Gitee.
 
 ### Seeking maintainers
 
-Most of the current maintainers of the plugin are no longer using GitLab on a daily basis, and therefore have less time to contribute to it. If you are a regular user and would like to help out, please consider volunteering as a maintainer. There are verified bugs that need fixes, open PRs that need review, and feature requests that range from simple to complex. If you are interested in contributing, contact Owen (email address in git log) for additional access.
+This plugin was developed base on [GitLab Plugin](https://github.com/jenkinsci/gitee-plugin) by [Gitee.com](https://gitee.com). [Gitee.com](https://gitee.com) will continue to maintain this plugin.  
+
+If you are a regular user and would like to help out, please consider volunteering as a maintainer. There are verified bugs that need fixes, open PRs that need review, and feature requests that range from simple to complex. If you are interested in contributing, contact Owen (email address in git log) for additional access.
 
 # User support
 
@@ -55,53 +55,18 @@ Version 1.2.0 of the plugin introduced improved logging for debugging purposes. 
 5. Then click on your Gitlab plugin log, click 'Clear this log' if necessary, and then use GitLab to trigger some actions
 6. Refresh the log page and you should see output
 
-You can also try chatting with us in the #gitlab-plugin channel on the Freenode IRC network.
+You can also try chatting with us in the #gitee-plugin channel on the Freenode IRC network.
 
 # Known bugs/issues
 
-This is not an exhaustive list of issues, but rather a place for us to note significant bugs that may impact your use of the plugin in certain circumstances. For most things, please search the [Issues](https://github.com/jenkinsci/gitlab-plugin/issues) section and open a new one if you don't find anything.
-* [#272](https://github.com/jenkinsci/gitlab-plugin/issues/272) - Plugin version 1.2.0+ does not work with GitLab Enterprise Edition < 8.8.3. Subsequent versions work fine.
+This is not an exhaustive list of issues, but rather a place for us to note significant bugs that may impact your use of the plugin in certain circumstances. For most things, please search the [Issues](https://github.com/jenkinsci/gitee-plugin/issues) section and open a new one if you don't find anything.
+* [#272](https://github.com/jenkinsci/gitee-plugin/issues/272) - Plugin version 1.2.0+ does not work with GitLab Enterprise Edition < 8.8.3. Subsequent versions work fine.
 * Jenkins versions 1.651.2 and 2.3 removed the ability of plugins to set arbitrary job parameters that are not specifically defined in each job's configuration. This was an important security update, but it has broken compatibility with some plugins, including ours. See [here](https://jenkins.io/blog/2016/05/11/security-update/) for more information and workarounds if you are finding parameters unset or empty that you expect to have values.
-* [#473](https://github.com/jenkinsci/gitlab-plugin/issues/473) - When upgrading from plugin versions older than 1.2.0, you must upgrade to that version first, and then to the latest version. Otherwise, you will get a NullPointerException in com.cloudbees.plugins.credentials.matchers.IdMatcher after you upgrade. See the linked issue for specific instructions.
-* [#608](https://github.com/jenkinsci/gitlab-plugin/issues/608) - GitLab 9.5.0 - 9.5.4 has a bug that causes the "Test Webhook" function to fail when it sends a test to Jenkins. This was fixed in 9.5.5.
-* [#730](https://github.com/jenkinsci/gitlab-plugin/issues/730) - GitLab 10.5.6 introduced an issue which can cause HTTP 500 errors when webhooks are triggered. See the linked issue for a workaround.
+* [#473](https://github.com/jenkinsci/gitee-plugin/issues/473) - When upgrading from plugin versions older than 1.2.0, you must upgrade to that version first, and then to the latest version. Otherwise, you will get a NullPointerException in com.cloudbees.plugins.credentials.matchers.IdMatcher after you upgrade. See the linked issue for specific instructions.
+* [#608](https://github.com/jenkinsci/gitee-plugin/issues/608) - GitLab 9.5.0 - 9.5.4 has a bug that causes the "Test Webhook" function to fail when it sends a test to Jenkins. This was fixed in 9.5.5.
+* [#730](https://github.com/jenkinsci/gitee-plugin/issues/730) - GitLab 10.5.6 introduced an issue which can cause HTTP 500 errors when webhooks are triggered. See the linked issue for a workaround.
 
-# Defined variables
 
-When GitLab triggers a build via the plugin, various environment variables are set based on the JSON payload that GitLab sends. You can use these throughout your job configuration. The available variables are:
-
-```
-gitlabBranch
-gitlabSourceBranch
-gitlabActionType
-gitlabUserName
-gitlabUserEmail
-gitlabSourceRepoHomepage
-gitlabSourceRepoName
-gitlabSourceNamespace
-gitlabSourceRepoURL
-gitlabSourceRepoSshUrl
-gitlabSourceRepoHttpUrl
-gitlabMergeRequestTitle
-gitlabMergeRequestDescription
-gitlabMergeRequestId
-gitlabMergeRequestIid
-gitlabMergeRequestState
-gitlabMergedByUser
-gitlabMergeRequestAssignee
-gitlabMergeRequestLastCommit
-gitlabMergeRequestTargetProjectId
-gitlabTargetBranch
-gitlabTargetRepoName
-gitlabTargetNamespace
-gitlabTargetRepoSshUrl
-gitlabTargetRepoHttpUrl
-gitlabBefore
-gitlabAfter
-gitlabTriggerPhrase
-```
-
- **NOTE:** These variables are not available in Pipeline Multibranch jobs. 
 
 # Global plugin configuration
 ## GitLab-to-Jenkins authentication
@@ -140,7 +105,7 @@ This plugin can be configured to send build status messages to GitLab, which sho
 4. Click on 'Access Tokens'
 5. Create a token named e.g. 'jenkins' with 'api' scope; expiration is optional
 6. Copy the token immediately, it cannot be accessed after you leave this page
-7. On the Global Configuration page in Jenkins, in the GitLab configuration section, supply the GitLab host URL, e.g. `http://your.gitlab.server` 
+7. On the Global Configuration page in Jenkins, in the GitLab configuration section, supply the GitLab host URL, e.g. `http://your.gitee.server` 
 8. Click the 'Add' button to add a credential, choose 'GitLab API token' as the kind of credential, and paste your GitLab user's API key into the 'API token' field
 9. Click the 'Test Connection' button; it should succeed
 
@@ -148,33 +113,6 @@ This plugin can be configured to send build status messages to GitLab, which sho
 
 There are two aspects of your Jenkins job that you may want to modify when using GitLab to trigger jobs. The first is the Git configuration, where Jenkins clones your git repo. The GitLab Plugin will set some environment variables when GitLab triggers a build, and you can use those to control what code is cloned from Git. The second is the configuration for sending the build status back to GitLab, where it will be visible in the commit and/or merge request UI.
 
-## Parameter configuration
-**If you want to be able to run jobs both manually *and* automatically via GitLab webhooks, you will need to configure parameters for those jobs.** If you only want to trigger jobs from GitLab, you can skip this section.
-
-Any GitLab parameters you create will always take precedence over the values that are sent by the webhook, unless you use the [EnvInject plugin](https://plugins.jenkins.io/envinject) to map the webhook values onto the job parameters. This is due to changes that were made to address [security vulnerabilities,](https://jenkins.io/security/advisory/2016-05-11/) with changes that landed in Jenkins 2.3.
-
-In your job configuration, click 'This build is parameterized' and add any parameters you want to use. See the [defined variables](#defined-variables) list for options - your parameter names must match these. Then, having installed EnvInject, click 'Prepare an environment for the run' and check:
-* Keep Jenkins Environment Variables
-* Keep Jenkins Build Variables
-* Override Build Parameters
-
-In the Groovy Script field insert something similar to:
-
-```
-import hudson.model.*
-def env = Thread.currentThread()?.executable.parent.builds[0].properties.get('envVars')
-def map = [:]
-
-if (env['gitlabSourceBranch'] != null) { 
-  map['gitlabSourceBranch'] = env['gitlabSourceBranch'] 
-}
-if (env['gitlabTargetBranch'] != null) { 
-  map['gitlabTargetBranch'] = env['gitlabTargetBranch'] 
-}
-// Add additional entries for any other parameters you have created
-
-return map
-```
 
 You will need to update this code anytime you add or remove parameters.
 
@@ -183,55 +121,23 @@ You will need to update this code anytime you add or remove parameters.
 In the *Source Code Management* section:
 
 1. Click *Git*
-2. Enter your *Repository URL*, such as ``git@your.gitlab.server:gitlab_group/gitlab_project.git``
+2. Enter your *Repository URL*, such as ``git@your.gitee.server:gitee_group/gitee_project.git``
     1. In the *Advanced* settings, set *Name* to ``origin`` and *Refspec* to ``+refs/heads/*:refs/remotes/origin/* +refs/pull/*/MERGE:refs/pull/*/MERGE``
 3. In *Branch Specifier* enter:
-    1. For single-repository workflows: ``origin/${gitlabSourceBranch}``
-    2. For forked repository workflows: ``merge-requests/${gitlabMergeRequestIid}``
+    1. For single-repository workflows: ``origin/${giteeSourceBranch}``
+    2. For forked repository workflows: ``merge-requests/${giteeMergeRequestIid}``
 4. In *Additional Behaviours*:
     1. Click the *Add* drop-down button
     2. Select *Merge before build* from the drop-down
     3. Set *Name of repository* to ``origin``
-    4. Set *Branch to merge* as ``${gitlabTargetBranch}``
+    4. Set *Branch to merge* as ``${giteeTargetBranch}``
 
-### Pipeline jobs
-* A Jenkins Pipeline bug will prevent the Git clone from working when you use a Pipeline script from SCM. It works if you use the Jenkins job config UI to edit the script. There is a workaround mentioned here: https://issues.jenkins-ci.org/browse/JENKINS-33719
 
-* Use the Snippet generator, General SCM step, to generate sample Groovy code for the git checkout/merge etc.
-* Example that performs merge before build:
-```
-checkout changelog: true, poll: true, scm: [
-    $class: 'GitSCM',
-    branches: [[name: "origin/${env.gitlabSourceBranch}"]],
-    doGenerateSubmoduleConfigurations: false,
-    extensions: [[$class: 'PreBuildMerge', options: [fastForwardMode: 'FF', mergeRemote: 'origin', mergeStrategy: 'default', mergeTarget: "${env.gitlabTargetBranch}"]]],
-    submoduleCfg: [],
-    userRemoteConfigs: [[name: 'origin', url: 'git@gitlab.example.com:foo/testrepo.git']]
-    ]
-```
 
-### Pipeline Multibranch jobs
-**Note:** There is no way to pass external data from GitLab to a Pipeline Multibranch job, so the GitLab environment variables are **not populated** for this job type. GitLab will just trigger branch indexing for the Jenkins project, and Jenkins will build branches accordingly without needing e.g. the git branch env var. **Due to this, the plugin just listens for GitLab Push Hooks for multibranch pipeline jobs; merge Request hooks are ignored.**
-
-1. Click **Add source**
-2. Select **Git**
-3. Enter your *Repository URL* (e.g.: ``git@your.gitlab.server:group/repo_name.git``)
-
-Example `Jenkinsfile` for multibranch pipeline jobs:
-```
-// Reference the GitLab connection name from your Jenkins Global configuration (http://JENKINS_URL/configure, GitLab section)
-properties([gitLabConnection('your-gitlab-connection-name')])
-
-node {
-  checkout scm // Jenkins will clone the appropriate git branch, no env vars needed
-
-  // Further build steps happen here
-}
-```
 
 ## Job trigger configuration
 ### Webhook URL
-When you configure the plugin to trigger your Jenkins job, by following the instructions below depending on job type, it will listen on a dedicated URL for JSON POSTs from GitLab's webhooks. That URL always takes the form ``http://JENKINS_URL/project/PROJECT_NAME``, or ``http://JENKINS_URL/project/FOLDER/PROJECT_NAME`` if the project is inside a folder in Jenkins. **You should not be using** ``http://JENKINS_URL/job/PROJECT_NAME/build`` or ``http://JENKINS_URL/job/gitlab-plugin/buildWithParameters``, as this will bypass the plugin completely.
+When you configure the plugin to trigger your Jenkins job, by following the instructions below depending on job type, it will listen on a dedicated URL for JSON POSTs from GitLab's webhooks. That URL always takes the form ``http://JENKINS_URL/project/PROJECT_NAME``, or ``http://JENKINS_URL/project/FOLDER/PROJECT_NAME`` if the project is inside a folder in Jenkins. **You should not be using** ``http://JENKINS_URL/job/PROJECT_NAME/build`` or ``http://JENKINS_URL/job/gitee-plugin/buildWithParameters``, as this will bypass the plugin completely.
 
 ### Freestyle and Pipeline jobs
 1. In the *Build Triggers* section:
@@ -245,70 +151,7 @@ When you configure the plugin to trigger your Jenkins job, by following the inst
 3. Click *Save* to preserve your changes in Jenkins
 4. Create a webhook in the relevant GitLab projects (consult the GitLab documentation for instructions on this), and use the URL you copied from the Jenkins job configuration UI. It should look something like `http://JENKINS_URL/project/yourbuildname`
 
-### Pipeline Multibranch jobs
-Unlike other job types, there is no 'Trigger' setting required for a Multibranch job configuration; just create a webhook in GitLab for push requests which points to [the project's webhook URL.](#webhook-url) When GitLab POSTs to this URL, it will trigger branch indexing for the Jenkins project, and Jenkins will handle starting any builds necessary.
 
-If you want to configure some of the trigger options, such as the secret token or CI skip functionality, you can use a `properties` step. For example:
-
-```
-// Define your secret project token here
-def project_token = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEF'
-
-// Reference the GitLab connection name from your Jenkins Global configuration (http://JENKINS_URL/configure, GitLab section)
-properties([
-    gitLabConnection('your-gitlab-connection-name'),
-    pipelineTriggers([
-        [
-            $class: 'GitLabPushTrigger',
-            branchFilterType: 'All',
-            triggerOnPush: true,
-            triggerOnMergeRequest: false,
-            triggerOpenMergeRequestOnPush: "never",
-            triggerOnNoteRequest: true,
-            noteRegex: "Jenkins please retry a build",
-            skipWorkInProgressMergeRequest: true,
-            secretToken: project_token
-            ciSkip: false,
-            setBuildDescription: true,
-            addNoteOnMergeRequest: true,
-            addCiMessage: true,
-            addVoteOnMergeRequest: true,
-            acceptMergeRequestOnSuccess: false,
-            branchFilterType: "NameBasedFilter",
-            includeBranchesSpec: "release/qat",
-            excludeBranchesSpec: "",
-        ]
-    ])
-])
-```
-
-### Multibranch Pipeline jobs with Job DSL
-
-You can use the [Dynamic DSL](https://github.com/jenkinsci/job-dsl-plugin/wiki/Dynamic-DSL) feature of Job DSL to configure the job trigger. See <https://github.com/jenkinsci/gitlab-plugin/blob/master/src/main/java/com/dabsquared/gitlabjenkins/GitLabPushTrigger.java> for the methods you can use.
-
-```groovy
-job('seed-job') {
-
-    description('Job that makes sure a service has a build pipeline available')
-
-    parameters {
-        // stringParam('gitlabSourceRepoURL', '', 'the git repository url, e.g. git@git.your-domain.com:kubernetes/cronjobs/cleanup-jenkins.git')
-    }
-
-    triggers {
-        gitlab {
-            secretToken(System.getenv("API_TOKEN"))
-            triggerOnNoteRequest(false)
-        }
-    }
-
-    steps {
-        dsl {
-            text(new File('/usr/share/jenkins/ref/jobdsl/multibranch-pipeline.groovy').getText('UTF-8'))
-        }
-    }
-}
-```
 
 ## Build status configuration
 You can optionally have your Jenkins jobs send their build status back to GitLab, where it will be displayed in the commit or merge request UI as appropriate. 
@@ -316,122 +159,6 @@ You can optionally have your Jenkins jobs send their build status back to GitLab
 ### Freestyle jobs
 Freestyle jobs can only send build status after the build steps are complete. To do this, choose 'Publish build status to GitLab' from the available 'Post-build actions' in your Jenkins job config. Also make sure you have chosen the appropriate GitLab instance from the 'GitLab connection' dropdown menu, if you have more than one.
 
-### Scripted Pipeline jobs
-**NOTE:** If you use Pipeline global libraries, or if you clone your project's Jenkinsfile from a repo different from the one that contains the relevant source code, you need to be careful about when you send project status. In short, make sure you put your `gitlabCommitStatus` or other similar steps *after* the SCM step that clones your project's source. Otherwise, you may get HTTP 400 errors, or you may find build status being sent to the wrong repo.
-
-* For Pipeline jobs, surround your build steps with the `gitlabCommitStatus` step like this:
-    ```
-    node() {
-        stage('Checkout') { checkout <your-scm-config> }
-
-        gitlabCommitStatus {
-           // The result of steps within this block is what will be sent to GitLab
-           sh 'mvn install'
-        }
-    }
-    ```
-* Or use the `updateGitlabCommitStatus` step to use a custom value for updating the commit status. You could use try/catch blocks or other logic to send fine-grained status of the build to GitLab. Valid statuses are defined by GitLab and documented here: https://docs.gitlab.com/ce/api/pipelines.html
-    ```
-    node() {
-        stage('Checkout') { checkout <your-scm-config> }
-
-        updateGitlabCommitStatus name: 'build', state: 'pending'
-        // Build steps
-        
-        updateGitlabCommitStatus name: 'build', state: 'success'
-    }
-    ```
-* Or you can mark several build stages as pending in GitLab, using the `gitlabBuilds` step:
-    ```
-    node() {
-        stage('Checkout') { checkout <your-scm-config> }
-
-        gitlabBuilds(builds: ["build", "test"]) {
-            stage("build") {
-              gitlabCommitStatus("build") {
-                  // your build steps
-              }
-            }
-
-            stage("test") {
-              gitlabCommitStatus("test") {
-                  // your test steps
-              }
-            }
-        }
-    }
-    ```
-
-### Declarative Pipeline jobs
-The example below configures the GitLab connection and job triggers. It also sends build status back to GitLab.
-
-**NOTE: You will need to run this job manually once, in order for Jenkins to read and set up the trigger configuration. Otherwise webhooks will fail to trigger the job.**
-
-```
-pipeline {
-    agent any
-    post {
-      failure {
-        updateGitlabCommitStatus name: 'build', state: 'failed'
-      }
-      success {
-        updateGitlabCommitStatus name: 'build', state: 'success'
-      }
-    }
-    options {
-      gitLabConnection('your-gitlab-connection-name')
-    }
-    triggers {
-        gitlab(triggerOnPush: true, triggerOnMergeRequest: true, branchFilterType: 'All')
-    }
-    stages {
-      stage("build") {
-        steps {
-          echo "hello world"
-        }
-      }
-    }
-   [...]
-}
-```
-
-If:
-1. You use the *"Merge When Pipeline Succeeds"* option for Merge Requests in GitLab, and 
-2. Your Declarative Pipeline jobs have more than one stage, and
-3. You use a `gitlabCommitStatus` step *in each stage* to send status to GitLab...
-
-Then:
-You will need to define those stages in an `options` block. Otherwise, when and if the first stage passes, GitLab will merge the change. For example, if you have three stages named build, test, and deploy:
-
-```
-    options {
-      gitLabConnection('your-gitlab-connection-name')
-      gitlabBuilds(builds: ['build', 'test', 'deploy'])
-    }
-```
-
-If you want to configure any of the optional job triggers that the plugin supports in a Declarative build, use a `triggers` block. The full list of configurable trigger options is as follows:
-
-```
-triggers {
-    gitlab(
-      triggerOnPush: false,
-      triggerOnMergeRequest: true, triggerOpenMergeRequestOnPush: "never",
-      triggerOnNoteRequest: true,
-      noteRegex: "Jenkins please retry a build",
-      skipWorkInProgressMergeRequest: true,
-      ciSkip: false,
-      setBuildDescription: true,
-      addNoteOnMergeRequest: true,
-      addCiMessage: true,
-      addVoteOnMergeRequest: true,
-      acceptMergeRequestOnSuccess: false,
-      branchFilterType: "NameBasedFilter",
-      includeBranchesSpec: "release/qat",
-      excludeBranchesSpec: "",
-      secretToken: "abcdefghijklmnopqrstuvwxyz0123456789ABCDEF")
-}
-```
 
 ### Matrix/Multi-configuration jobs
 
@@ -464,11 +191,11 @@ To add a note to GitLab merge requests after the build completes, select 'Add no
 
 # Contributing to the Plugin
 
-Plugin source code is hosted on [Github](https://github.com/jenkinsci/gitlab-plugin).
+Plugin source code is hosted on [Github](https://github.com/jenkinsci/gitee-plugin).
 New feature proposals and bug fix proposals should be submitted as
 [Github pull requests](https://help.github.com/articles/creating-a-pull-request).
 Fork the repository on Github, prepare your change on your forked
-copy, and submit a pull request (see [here](https://github.com/jenkinsci/gitlab-plugin/pulls) for open pull requests). Your pull request will be evaluated by the [Cloudbees Jenkins job](https://jenkins.ci.cloudbees.com/job/plugins/job/gitlab-plugin/).
+copy, and submit a pull request (see [here](https://github.com/jenkinsci/gitee-plugin/pulls) for open pull requests). Your pull request will be evaluated by the [Cloudbees Jenkins job](https://jenkins.ci.cloudbees.com/job/plugins/job/gitee-plugin/).
 
 If you are adding new features please make sure that they support the Jenkins Workflow Plugin.
 See [here](https://github.com/jenkinsci/workflow-plugin/blob/master/COMPATIBILITY.md) for some information.
@@ -483,10 +210,7 @@ Before submitting your change make sure that:
 * you updated the README
 * you have used findbugs to see if you haven't introduced any new warnings
 
-# Testing With Docker
-
-See https://github.com/jenkinsci/gitlab-plugin/tree/master/src/docker/README.md
 
 # Release Workflow
 
-To perform a full plugin release, maintainers can run ``mvn release:prepare release:perform`` To release a snapshot, e.g. with a bug fix for users to test, just run ``mvn deploy``
+To perform a plugin hpi file, maintainers can run ``mvn package`` To release a snapshot, e.g. with a bug fix for users to test, just run ``mvn hpi:run``
