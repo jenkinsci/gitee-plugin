@@ -110,6 +110,10 @@ public class MergeRequestObjectAttributes {
         this.description = description;
     }
 
+    public void setBody(String description) {
+        this.description = description;
+    }
+
     public Project getSource() {
         return head.getProject();
     }

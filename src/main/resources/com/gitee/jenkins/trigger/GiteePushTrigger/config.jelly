@@ -26,13 +26,10 @@
       </f:entry>
     </table>
   </f:entry>
-  <f:entry title="${%Enable.CI.Skip}" field="ciSkip">
+  <f:entry title="${%Enable.CI.Skip}" field="ciSkip" help="/plugin/gitee-jenkins-plugin/help/help-ci-skip.html">
     <f:checkbox default="true"/>
   </f:entry>
-  <f:entry title="${%Ignore.WIP.Merge.Requests}" field="skipWorkInProgressMergeRequest">
-    <f:checkbox default="true"/>
-  </f:entry>
-  <f:entry title="${%Set.Build.Desctiption}" field="setBuildDescription">
+  <f:entry title="${%Ignore.WIP.Merge.Requests}" field="skipWorkInProgressMergeRequest" help="/plugin/gitee-jenkins-plugin/help/help-wip-pull-request.html">
     <f:checkbox default="true"/>
   </f:entry>
   <f:entry title="${%Allowed.branches}">
