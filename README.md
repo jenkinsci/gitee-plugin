@@ -23,7 +23,7 @@ This plugin allows Gitee to trigger builds in Jenkins when code is committed or 
 
 ### Seeking maintainers
 
-This plugin was developed base on [GitLab Plugin](https://github.com/jenkinsci/gitee-plugin) by [Gitee.com](https://gitee.com). [Gitee.com](https://gitee.com) will continue to maintain this plugin.  
+This plugin was developed base on [GitLab Plugin](https://github.com/jenkinsci/gitlab-plugin) by [Gitee.com](https://gitee.com). [Gitee.com](https://gitee.com) will continue to maintain this plugin.  
 
 
 # User support
