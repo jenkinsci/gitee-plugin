@@ -13,9 +13,9 @@
     <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
 
-  <artifactId>gitee-jenkins-plugin</artifactId>
-  <version>1.0.10-SNAPSHOT</version>
-  <name>Gitee Jenkins Plugin</name>
+  <artifactId>gitee</artifactId>
+  <version>1.0.11-SNAPSHOT</version>
+  <name>Gitee Plugin</name>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Gitee+Jenkins+Plugin</url>
   <packaging>hpi</packaging>
 
