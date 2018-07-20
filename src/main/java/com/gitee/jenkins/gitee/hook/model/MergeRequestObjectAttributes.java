@@ -15,13 +15,13 @@ import java.util.Date;
 public class MergeRequestObjectAttributes {
 
     private Integer id;
-    private Integer iid;
+    private Integer number;
     private Integer authorId;
     private Integer assigneeId;
     private String title;
     private Date createdAt;
     private Date updatedAt;
-    private String description;
+    private String body;
     private BranchData head;
     private BranchData base;
     private String mergeStatus;
@@ -38,12 +38,12 @@ public class MergeRequestObjectAttributes {
         this.id = id;
     }
 
-    public Integer getIid() {
-        return iid;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setNumber(Integer iid) {
-        this.iid = iid;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public String getSourceBranch() {
@@ -55,11 +55,11 @@ public class MergeRequestObjectAttributes {
     }
 
     public Integer getSourceProjectId() {
-        return head.getProject().getId();
+        return head.getRepo().getId();
     }
 
     public Integer getTargetProjectId() {
-        return base.getProject().getId();
+        return base.getRepo().getId();
     }
 
     public Integer getAuthorId() {
@@ -102,20 +102,16 @@ public class MergeRequestObjectAttributes {
         this.updatedAt = updatedAt;
     }
 
-    public String getDescription() {
-        return description;
+    public String getBody() {
+        return body;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setBody(String description) {
-        this.description = description;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public Project getSource() {
-        return head.getProject();
+        return head.getRepo();
     }
 
     public BranchData getHead() {
@@ -135,7 +131,7 @@ public class MergeRequestObjectAttributes {
     }
 
     public Project getTarget() {
-        return base.getProject();
+        return base.getRepo();
     }
 
 
@@ -190,13 +186,13 @@ public class MergeRequestObjectAttributes {
         MergeRequestObjectAttributes that = (MergeRequestObjectAttributes) o;
         return new EqualsBuilder()
             .append(id, that.id)
-            .append(iid, that.iid)
+            .append(number, that.number)
             .append(authorId, that.authorId)
             .append(assigneeId, that.assigneeId)
             .append(title, that.title)
             .append(createdAt, that.createdAt)
             .append(updatedAt, that.updatedAt)
-            .append(description, that.description)
+            .append(body, that.body)
             .append(head, that.head)
             .append(base, that.base)
             .append(mergeCommitSha, that.mergeCommitSha)
@@ -211,13 +207,13 @@ public class MergeRequestObjectAttributes {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
             .append(id)
-            .append(iid)
+            .append(number)
             .append(authorId)
             .append(assigneeId)
             .append(title)
             .append(createdAt)
             .append(updatedAt)
-            .append(description)
+            .append(body)
             .append(head)
             .append(base)
             .append(mergeStatus)
@@ -232,13 +228,13 @@ public class MergeRequestObjectAttributes {
     public String toString() {
         return new ToStringBuilder(this)
             .append("id", id)
-            .append("iid", iid)
+            .append("number", number)
             .append("authorId", authorId)
             .append("assigneeId", assigneeId)
             .append("title", title)
             .append("createdAt", createdAt)
             .append("updatedAt", updatedAt)
-            .append("description", description)
+            .append("body", body)
             .append("head", head)
             .append("base", base)
             .append("mergeCommitSha", mergeCommitSha)

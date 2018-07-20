@@ -15,7 +15,7 @@ public class BranchData {
     private String ref;
     private String sha;
     private User user;
-    private Project project;
+    private Project repo;
 
     public String getLabel() {
         return label;
@@ -49,16 +49,12 @@ public class BranchData {
         this.user = user;
     }
 
-    public Project getProject() {
-        return project;
+    public Project getRepo() {
+        return repo;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public void setRepo(Project project) {
-        this.project = project;
+    public void setRepo(Project repo) {
+        this.repo = repo;
     }
 
     @Override
@@ -75,7 +71,7 @@ public class BranchData {
                 .append(sha, branchData.sha)
                 .append(ref, branchData.ref)
                 .append(user, branchData.user)
-                .append(project, branchData.project)
+                .append(repo, branchData.repo)
                 .isEquals();
     }
 
@@ -86,7 +82,7 @@ public class BranchData {
                 .append(sha)
                 .append(ref)
                 .append(user)
-                .append(project)
+                .append(repo)
                 .toHashCode();
     }
 
@@ -97,7 +93,7 @@ public class BranchData {
                 .append("sha", sha)
                 .append("ref", ref)
                 .append("user", user)
-                .append("project", project)
+                .append("repo", repo)
                 .toString();
     }
 }

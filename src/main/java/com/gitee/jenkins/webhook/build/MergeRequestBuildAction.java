@@ -35,21 +35,21 @@ public class MergeRequestBuildAction extends BuildWebHookAction {
 
     void processForCompatibility() {
         // url and homepage are introduced in 8.x versions of Gitee
-        final MergeRequestObjectAttributes attributes = this.mergeRequestHook.getObjectAttributes();
+        final MergeRequestObjectAttributes attributes = this.mergeRequestHook.getPullRequest();
         if (attributes != null) {
             final Project source = attributes.getSource();
-            if (source != null && source.getHttpUrl() != null) {
+            if (source != null && source.getGitHttpUrl() != null) {
                 if (source.getUrl() == null) {
-                    source.setUrl(source.getHttpUrl());
+                    source.setUrl(source.getGitHttpUrl());
                 }
                 if (source.getHomepage() == null) {
-                    source.setHomepage(source.getHttpUrl().substring(0, source.getHttpUrl().lastIndexOf(".git")));
+                    source.setHomepage(source.getGitHttpUrl().substring(0, source.getGitHttpUrl().lastIndexOf(".git")));
                 }
             }
 
             // The MergeRequestHookTriggerHandlerImpl is looking for Project
-            if (mergeRequestHook.getProject() == null && attributes.getTarget() != null) {
-                mergeRequestHook.setProject(attributes.getTarget());
+            if (mergeRequestHook.getRepo() == null && attributes.getTarget() != null) {
+                mergeRequestHook.setRepo(attributes.getTarget());
             }
         }
     }

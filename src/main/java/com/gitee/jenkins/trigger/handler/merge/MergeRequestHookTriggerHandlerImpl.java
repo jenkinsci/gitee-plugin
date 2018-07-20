@@ -57,10 +57,10 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
 
     @Override
     public void handle(Job<?, ?> job, MergeRequestHook hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
-        MergeRequestObjectAttributes objectAttributes = hook.getObjectAttributes();
+        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
 
         try {
-            LOGGER.log(Level.INFO, "request hook  state=" + hook.getState() + ", action = " + hook.getAction() + " pr iid = " + objectAttributes.getIid() + " hook name = " + hook.getHookName());
+            LOGGER.log(Level.INFO, "request hook  state=" + hook.getState() + ", action = " + hook.getAction() + " pr iid = " + objectAttributes.getNumber() + " hook name = " + hook.getHookName());
             if (isAllowedByConfig(hook)
                 && isLastCommitNotYetBuild(job, hook)
                 && isNotSkipWorkInProgressMergeRequest(objectAttributes)) {
@@ -88,9 +88,9 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
 
     @Override
     protected boolean isCiSkip(MergeRequestHook hook) {
-        return hook.getObjectAttributes() != null
-                && hook.getObjectAttributes().getDescription() != null
-                && hook.getObjectAttributes().getDescription().contains("[ci-skip]");
+        return hook.getPullRequest() != null
+                && hook.getPullRequest().getBody() != null
+                && hook.getPullRequest().getBody().contains("[ci-skip]");
     }
 
     @Override
@@ -101,12 +101,12 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
         if (!hook.getAction().equals(Action.update)) {
             return;
         }
-        this.pendingBuildsHandler.cancelPendingBuilds(job, hook.getObjectAttributes().getSourceProjectId(), hook.getObjectAttributes().getSourceBranch());
+        this.pendingBuildsHandler.cancelPendingBuilds(job, hook.getPullRequest().getSourceProjectId(), hook.getPullRequest().getSourceBranch());
     }
 
     @Override
     protected String getTargetBranch(MergeRequestHook hook) {
-        return hook.getObjectAttributes() == null ? null : hook.getObjectAttributes().getTargetBranch();
+        return hook.getPullRequest() == null ? null : hook.getPullRequest().getTargetBranch();
     }
 
     @Override
@@ -118,35 +118,35 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     protected CauseData retrieveCauseData(MergeRequestHook hook) {
         return   causeData()
                 .withActionType(CauseData.ActionType.MERGE)
-                .withSourceProjectId(hook.getObjectAttributes().getSourceProjectId())
-                .withTargetProjectId(hook.getObjectAttributes().getTargetProjectId())
-                .withBranch(hook.getObjectAttributes().getSourceBranch())
-                .withSourceBranch(hook.getObjectAttributes().getSourceBranch())
-                .withUserName(hook.getObjectAttributes().getHead().getUser().getName())
-                .withUserEmail(hook.getObjectAttributes().getHead().getUser().getEmail())
-                .withSourceRepoHomepage(hook.getObjectAttributes().getSource().getHomepage())
-                .withSourceRepoName(hook.getObjectAttributes().getSource().getName())
-                .withSourceNamespace(hook.getObjectAttributes().getSource().getNamespace())
-                .withSourceRepoUrl(hook.getObjectAttributes().getSource().getUrl())
-                .withSourceRepoSshUrl(hook.getObjectAttributes().getSource().getSshUrl())
-                .withSourceRepoHttpUrl(hook.getObjectAttributes().getSource().getHttpUrl())
-                .withMergeRequestTitle(hook.getObjectAttributes().getTitle())
-                .withMergeRequestDescription(hook.getObjectAttributes().getDescription())
-                .withMergeRequestId(hook.getObjectAttributes().getId())
-                .withMergeRequestIid(hook.getObjectAttributes().getIid())
+                .withSourceProjectId(hook.getPullRequest().getSourceProjectId())
+                .withTargetProjectId(hook.getPullRequest().getTargetProjectId())
+                .withBranch(hook.getPullRequest().getSourceBranch())
+                .withSourceBranch(hook.getPullRequest().getSourceBranch())
+                .withUserName(hook.getPullRequest().getHead().getUser().getName())
+                .withUserEmail(hook.getPullRequest().getHead().getUser().getEmail())
+                .withSourceRepoHomepage(hook.getPullRequest().getSource().getHomepage())
+                .withSourceRepoName(hook.getPullRequest().getSource().getName())
+                .withSourceNamespace(hook.getPullRequest().getSource().getNamespace())
+                .withSourceRepoUrl(hook.getPullRequest().getSource().getUrl())
+                .withSourceRepoSshUrl(hook.getPullRequest().getSource().getSshUrl())
+                .withSourceRepoHttpUrl(hook.getPullRequest().getSource().getGitHttpUrl())
+                .withMergeRequestTitle(hook.getPullRequest().getTitle())
+                .withMergeRequestDescription(hook.getPullRequest().getBody())
+                .withMergeRequestId(hook.getPullRequest().getId())
+                .withMergeRequestIid(hook.getPullRequest().getNumber())
                 .withMergeRequestState(hook.getState().toString())
                 .withMergedByUser(hook.getUser() == null ? null : hook.getUser().getUsername())
                 .withMergeRequestAssignee(hook.getAssignee() == null ? null : hook.getAssignee().getUsername())
-                .withMergeRequestTargetProjectId(hook.getObjectAttributes().getTargetProjectId())
-                .withTargetBranch(hook.getObjectAttributes().getTargetBranch())
-                .withTargetRepoName(hook.getObjectAttributes().getTarget().getName())
-                .withTargetNamespace(hook.getObjectAttributes().getTarget().getNamespace())
-                .withTargetRepoSshUrl(hook.getObjectAttributes().getTarget().getSshUrl())
-                .withTargetRepoHttpUrl(hook.getObjectAttributes().getTarget().getHttpUrl())
-                .withTriggeredByUser(hook.getObjectAttributes().getHead().getUser().getName())
-                .withLastCommit(hook.getObjectAttributes().getMergeCommitSha())
-                .withTargetProjectUrl(hook.getObjectAttributes().getTarget().getUrl())
-                .withPathWithNamespace(hook.getProject().getPathWithNamespace())
+                .withMergeRequestTargetProjectId(hook.getPullRequest().getTargetProjectId())
+                .withTargetBranch(hook.getPullRequest().getTargetBranch())
+                .withTargetRepoName(hook.getPullRequest().getTarget().getName())
+                .withTargetNamespace(hook.getPullRequest().getTarget().getNamespace())
+                .withTargetRepoSshUrl(hook.getPullRequest().getTarget().getSshUrl())
+                .withTargetRepoHttpUrl(hook.getPullRequest().getTarget().getGitHttpUrl())
+                .withTriggeredByUser(hook.getPullRequest().getHead().getUser().getName())
+                .withLastCommit(hook.getPullRequest().getMergeCommitSha())
+                .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
+                .withPathWithNamespace(hook.getRepo().getPathWithNamespace())
                 .build();
     }
 
@@ -158,23 +158,23 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     @Override
     protected BuildStatusUpdate retrieveBuildStatusUpdate(MergeRequestHook hook) {
         return buildStatusUpdate()
-            .withProjectId(hook.getObjectAttributes().getSourceProjectId())
-            .withSha(hook.getObjectAttributes().getMergeCommitSha())
-            .withRef(hook.getObjectAttributes().getSourceBranch())
+            .withProjectId(hook.getPullRequest().getSourceProjectId())
+            .withSha(hook.getPullRequest().getMergeCommitSha())
+            .withRef(hook.getPullRequest().getSourceBranch())
             .build();
     }
 
     private String retrieveRevisionToBuild(MergeRequestHook hook) throws NoRevisionToBuildException {
-        if (hook.getObjectAttributes() != null
-                && hook.getObjectAttributes().getMergeReferenceName() != null) {
-            return hook.getObjectAttributes().getMergeReferenceName();
+        if (hook.getPullRequest() != null
+                && hook.getPullRequest().getMergeReferenceName() != null) {
+            return hook.getPullRequest().getMergeReferenceName();
         } else {
             throw new NoRevisionToBuildException();
         }
     }
 
     private boolean isLastCommitNotYetBuild(Job<?, ?> project, MergeRequestHook hook) {
-        MergeRequestObjectAttributes objectAttributes = hook.getObjectAttributes();
+        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
         if (hook != null && hook.getAction() == Action.approved) {
             LOGGER.log(Level.FINEST, "Skipping LastCommitNotYetBuild check for approve action");
             return true;
@@ -203,7 +203,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     private boolean isNotSkipWorkInProgressMergeRequest(MergeRequestObjectAttributes objectAttributes) {
         Boolean workInProgress = objectAttributes.getWorkInProgress();
         if (skipWorkInProgressMergeRequest && workInProgress != null && workInProgress) {
-            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getIid(), objectAttributes.getTitle()));
+            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
             return false;
         }
         return true;

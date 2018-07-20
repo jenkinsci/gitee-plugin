@@ -40,8 +40,8 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     @Override
     protected boolean isCiSkip(NoteHook hook) {
         return hook.getMergeRequest() != null
-                && hook.getMergeRequest().getDescription() != null
-                && hook.getMergeRequest().getDescription().contains("[ci-skip]");
+                && hook.getMergeRequest().getBody() != null
+                && hook.getMergeRequest().getBody().contains("[ci-skip]");
     }
 
     @Override
@@ -69,17 +69,17 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 .withSourceNamespace(hook.getMergeRequest().getSource().getNamespace())
                 .withSourceRepoUrl(hook.getMergeRequest().getSource().getUrl())
                 .withSourceRepoSshUrl(hook.getMergeRequest().getSource().getSshUrl())
-                .withSourceRepoHttpUrl(hook.getMergeRequest().getSource().getHttpUrl())
+                .withSourceRepoHttpUrl(hook.getMergeRequest().getSource().getGitHttpUrl())
                 .withMergeRequestTitle(hook.getMergeRequest().getTitle())
-                .withMergeRequestDescription(hook.getMergeRequest().getDescription())
+                .withMergeRequestDescription(hook.getMergeRequest().getBody())
                 .withMergeRequestId(hook.getMergeRequest().getId())
-                .withMergeRequestIid(hook.getMergeRequest().getIid())
+                .withMergeRequestIid(hook.getMergeRequest().getNumber())
                 .withMergeRequestTargetProjectId(hook.getMergeRequest().getTargetProjectId())
                 .withTargetBranch(hook.getMergeRequest().getTargetBranch())
                 .withTargetRepoName(hook.getMergeRequest().getTarget().getName())
                 .withTargetNamespace(hook.getMergeRequest().getTarget().getNamespace())
                 .withTargetRepoSshUrl(hook.getMergeRequest().getTarget().getSshUrl())
-                .withTargetRepoHttpUrl(hook.getMergeRequest().getTarget().getHttpUrl())
+                .withTargetRepoHttpUrl(hook.getMergeRequest().getTarget().getGitHttpUrl())
                 .withTriggeredByUser(hook.getMergeRequest().getHead().getUser().getName())
                 .withLastCommit(hook.getMergeRequest().getMergeCommitSha())
                 .withTargetProjectUrl(hook.getMergeRequest().getTarget().getUrl())

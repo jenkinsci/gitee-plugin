@@ -23,7 +23,7 @@ public class Project {
     private String homepage;
     private String url;
     private String sshUrl;
-    private String httpUrl;
+    private String gitHttpUrl;
 
     public String getName() {
         return name;
@@ -113,12 +113,12 @@ public class Project {
         this.sshUrl = sshUrl;
     }
 
-    public String getHttpUrl() {
-        return httpUrl;
+    public String getGitHttpUrl() {
+        return gitHttpUrl;
     }
 
-    public void setGitHttpUrl(String httpUrl) {
-        this.httpUrl = httpUrl;
+    public void setGitHttpUrl(String gitHttpUrl) {
+        this.gitHttpUrl = gitHttpUrl;
     }
 
     public Integer getId() {
@@ -151,7 +151,7 @@ public class Project {
                 .append(homepage, project.homepage)
                 .append(url, project.url)
                 .append(sshUrl, project.sshUrl)
-                .append(httpUrl, project.httpUrl)
+                .append(gitHttpUrl, project.gitHttpUrl)
                 .isEquals();
     }
 
@@ -170,7 +170,7 @@ public class Project {
                 .append(homepage)
                 .append(url)
                 .append(sshUrl)
-                .append(httpUrl)
+                .append(gitHttpUrl)
                 .toHashCode();
     }
 
@@ -189,7 +189,7 @@ public class Project {
                 .append("homepage", homepage)
                 .append("url", url)
                 .append("sshUrl", sshUrl)
-                .append("httpUrl", httpUrl)
+                .append("gitHttpUrl", gitHttpUrl)
                 .toString();
     }
 }

@@ -17,10 +17,10 @@ public class MergeRequestHook extends WebHook {
 
     private User user;
     private User assignee;
-    private Project project;
+    private Project repo;
     private Action action;
     private State state;
-    private MergeRequestObjectAttributes objectAttributes;
+    private MergeRequestObjectAttributes pullRequest;
     private List<MergeRequestLabel> labels;
 
     public Action getAction() {
@@ -55,30 +55,20 @@ public class MergeRequestHook extends WebHook {
         this.assignee = assignee;
     }
 
-    public Project getProject() {
-        return project;
+    public Project getRepo() {
+        return repo;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setRepo(Project repo) {
+        this.repo = repo;
     }
 
-    // adapt gitee hook
-    public void setRepo(Project project) {
-        this.project = project;
+    public MergeRequestObjectAttributes getPullRequest() {
+        return pullRequest;
     }
 
-    public MergeRequestObjectAttributes getObjectAttributes() {
-        return objectAttributes;
-    }
-
-    public void setObjectAttributes(MergeRequestObjectAttributes objectAttributes) {
-        this.objectAttributes = objectAttributes;
-    }
-
-    // adapt gitee hook
-    public void setPullRequest(MergeRequestObjectAttributes objectAttributes) {
-        this.objectAttributes = objectAttributes;
+    public void setPullRequest(MergeRequestObjectAttributes pullRequest) {
+        this.pullRequest = pullRequest;
     }
 
     public List<MergeRequestLabel> getLabels() {
@@ -90,7 +80,7 @@ public class MergeRequestHook extends WebHook {
     }
 
     public String getWebHookDescription() {
-        return getHookName() + " iid = " + objectAttributes.getIid() + " merge commit sha = " + objectAttributes.getMergeCommitSha();
+        return getHookName() + " iid = " + pullRequest.getNumber() + " merge commit sha = " + pullRequest.getMergeCommitSha();
     }
 
     @Override
@@ -105,10 +95,10 @@ public class MergeRequestHook extends WebHook {
         return new EqualsBuilder()
                 .append(user, that.user)
                 .append(assignee, that.assignee)
-                .append(project, that.project)
+                .append(repo, that.repo)
                 .append(action, that.action)
                 .append(state, that.state)
-                .append(objectAttributes, that.objectAttributes)
+                .append(pullRequest, that.pullRequest)
                 .append(labels, that.labels)
                 .isEquals();
     }
@@ -118,8 +108,8 @@ public class MergeRequestHook extends WebHook {
         return new HashCodeBuilder(17, 37)
                 .append(user)
                 .append(assignee)
-                .append(project)
-                .append(objectAttributes)
+                .append(repo)
+                .append(pullRequest)
                 .append(labels)
                 .append(state)
                 .append(action)
@@ -131,10 +121,10 @@ public class MergeRequestHook extends WebHook {
         return new ToStringBuilder(this)
                 .append("user", user)
                 .append("assignee", assignee)
-                .append("project", project)
+                .append("repo", repo)
                 .append("state", state)
                 .append("action", action)
-                .append("objectAttributes", objectAttributes)
+                .append("pullRequest", pullRequest)
                 .append("labels", labels)
                 .toString();
     }
