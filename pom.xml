@@ -14,7 +14,7 @@
   </properties>
 
   <artifactId>gitee</artifactId>
-  <version>1.0.11-SNAPSHOT</version>
+  <version>1.0.11</version>
   <name>Gitee Plugin</name>
   <url>https://wiki.jenkins.io/display/JENKINS/Gitee+Plugin</url>
   <packaging>hpi</packaging>
@@ -51,7 +51,7 @@
     <connection>scm:git:ssh://github.com:jenkinsci/gitee-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/gitee-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/gitee-plugin</url>
-    <tag>HEAD</tag>
+    <tag>gitee-1.0.11</tag>
   </scm>
    <!--get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need-->
   <repositories>
