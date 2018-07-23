@@ -16,6 +16,7 @@
   <artifactId>gitee</artifactId>
   <version>1.0.12-SNAPSHOT</version>
   <name>Gitee Plugin</name>
+  <description>This plugin integrates Gitee to Jenkins by faking a Gitee CI Server. This plugin allows Gitee to trigger builds in Jenkins when code is committed or merge requests are opened/updated. It can also send build status back to Gitee.</description>
   <url>https://wiki.jenkins.io/display/JENKINS/Gitee+Plugin</url>
   <packaging>hpi</packaging>
 

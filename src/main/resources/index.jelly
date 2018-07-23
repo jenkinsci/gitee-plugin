@@ -3,4 +3,6 @@
   This plugin integrates
   <a href="http://gitee.com/">Gitee</a>
   to Jenkins by faking a Gitee CI Server.
+  This plugin allows Gitee to trigger builds in Jenkins when code is committed or merge requests are opened/updated.
+  It can also send build status back to Gitee.
 </div>
