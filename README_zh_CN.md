@@ -2,6 +2,7 @@
 - [简介](#简介)
   - [目前支持特性](#目前支持特性)
   - [计划中特性](#计划中特性)
+- [插件安装](#插件安装)
 - [插件配置](#插件配置)
   - [添加码云链接配置](#添加码云链接配置)
   - [添加码云APIV5私人令牌](#添加码云APIV5私人令牌)
@@ -39,6 +40,23 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 - PR 审查并测试通过触发构建
 - PR 评论可通过 WebHook 触发构建（用于 PR 触发构建失败是便于从码云平台评论重新触发构建）
 - PR 合并或关闭时删除相应的构建结果，且支持添加后续处理脚本（便于节省 Jenkins 磁盘空间，且可以配合维护持续构建生成测试环境）
+
+# 插件安装
+1. 在线安装
+    - 前往 Manage Jenkins -> Manage Plugins -> Available
+    - 右侧 Filter 输入： Gitee
+    - 下方可选列表中勾选 Gitee（如列表中不存在 Gitee，则点击 Check now 更新插件列表）
+    - 点击 Download now and install after restart
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/112748_b81a1ee3_58426.png "屏幕截图.png")
+
+2. 手动安装
+    - 从 [release](https://gitee.com/oschina/Gitee-Jenkins-Plugin/releases) 列表中进入最新发行版，下载对应的 XXX.hpi 文件
+    - 前往 Manage Jenkins -> Manage Plugins -> Advanced
+    - Upload Plugin File 中选择刚才下载的 XXX.hpi 点击 Upload
+    - 后续页面中勾选 Restart Jenkins when installation is complete and no jobs are running
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/113303_2a1d0a03_58426.png "屏幕截图.png")
 
 # 插件配置
 
