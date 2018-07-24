@@ -41,17 +41,19 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
 
     private final Collection<State> allowedStates;
     private final boolean skipWorkInProgressMergeRequest;
+    private final boolean skipLastCommitHasBuild;
 	private final Collection<Action> allowedActions;
     private final boolean cancelPendingBuildsOnUpdate;
 
-    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressMergeRequest, boolean cancelPendingBuildsOnUpdate) {
-        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressMergeRequest, cancelPendingBuildsOnUpdate);
+    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressMergeRequest, boolean skipLastCommitHasBuild, boolean cancelPendingBuildsOnUpdate) {
+        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressMergeRequest, skipLastCommitHasBuild, cancelPendingBuildsOnUpdate);
     }
 
-    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressMergeRequest, boolean cancelPendingBuildsOnUpdate) {
+    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressMergeRequest, boolean skipLastCommitHasBuild, boolean cancelPendingBuildsOnUpdate) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
         this.skipWorkInProgressMergeRequest = skipWorkInProgressMergeRequest;
+        this.skipLastCommitHasBuild = skipLastCommitHasBuild;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
     }
 
@@ -174,11 +176,11 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     }
 
     private boolean isLastCommitNotYetBuild(Job<?, ?> project, MergeRequestHook hook) {
-        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
-        if (hook != null && hook.getAction() == Action.approved) {
-            LOGGER.log(Level.FINEST, "Skipping LastCommitNotYetBuild check for approve action");
+        if (!skipLastCommitHasBuild) {
             return true;
         }
+
+        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
 
         if (objectAttributes != null && objectAttributes.getMergeCommitSha() != null) {
             Run<?, ?> mergeBuild = BuildUtil.getBuildBySHA1IncludingMergeBuilds(project, objectAttributes.getMergeCommitSha());
@@ -200,12 +202,13 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
         	&& allowedActions.contains(hook.getAction());
 	}
 
+	// Gitee 无此状态，暂时屏蔽
     private boolean isNotSkipWorkInProgressMergeRequest(MergeRequestObjectAttributes objectAttributes) {
-        Boolean workInProgress = objectAttributes.getWorkInProgress();
-        if (skipWorkInProgressMergeRequest && workInProgress != null && workInProgress) {
-            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
-            return false;
-        }
+//        Boolean workInProgress = objectAttributes.getWorkInProgress();
+//        if (skipWorkInProgressMergeRequest && workInProgress != null && workInProgress) {
+//            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
+//            return false;
+//        }
         return true;
     }
 }

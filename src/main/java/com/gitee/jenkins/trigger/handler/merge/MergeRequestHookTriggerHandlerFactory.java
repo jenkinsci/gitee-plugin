@@ -20,6 +20,7 @@ public final class MergeRequestHookTriggerHandlerFactory {
     		                                                                       boolean triggerOnAcceptedMergeRequest,
     		                                                                       boolean triggerOnClosedMergeRequest,
                                                                                    boolean skipWorkInProgressMergeRequest,
+                                                                                   boolean skipLastCommitHasBuild,
                                                                                    boolean triggerOnApprovedMergeRequest,
                                                                                    boolean triggerOnTestedMergeRequest,
                                                                                    boolean cancelPendingBuildsOnUpdate) {
@@ -44,6 +45,7 @@ public final class MergeRequestHookTriggerHandlerFactory {
                     triggerOnApprovedMergeRequest,
                     triggerOnTestedMergeRequest),
                 skipWorkInProgressMergeRequest,
+                skipLastCommitHasBuild,
                 cancelPendingBuildsOnUpdate);
         } else {
             return new NopMergeRequestHookTriggerHandler();
