@@ -29,7 +29,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 - 推送代码到码云时，由配置的 WebHook 触发 Jenkins 任务构建。
 - 提交 Pull Request 到码云项目时，由配置的 WebHook 触发 Jenkins 任务构建，支持PR动作：新建，更新，接受，关闭，审查通过，测试通过
 - 支持 [ci-skip] 指令过滤
-- 过滤正在进行构建的PR
+- 过滤已经构建的 Commit 版本
 - 按分支名过滤触发器
 - 正则表达式过滤可触发的分支
 - 设置 WebHook 验证密码
@@ -122,11 +122,10 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
     - Approved Pull Requests ： 审查通过 PR 事件
     - Tested Pull Requests ：测试通过 PR 事件
 2. `Enable [ci-skip]` 该选项可以开启支持 `[ci-skip]` 指令，只要commit message 中包含 `[ci-skip]`，当前commit 即可跳过构建触发。
-3. `Ignore WIP Merge Requests` 该选项可以跳过正在进行构建的 PR 进行重复构建。
+3. `Ignore last commit has build` 该选项可以跳过已经构建过的 Commit 版本。
 4. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
 5. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
-
-![触发器配置](https://images.gitee.com/uploads/images/2018/0716/192115_d04fe4b0_58426.png "屏幕截图.png")
+![触发器配置](https://images.gitee.com/uploads/images/2018/0724/120539_106f7480_58426.png "屏幕截图.png")
 
 ### 构建后步骤配置
 
