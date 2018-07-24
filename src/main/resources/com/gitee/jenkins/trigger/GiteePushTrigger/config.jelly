@@ -30,15 +30,9 @@
     <f:checkbox default="true"/>
   </f:entry>
 
-  <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
-      <f:checkbox default="false"/>
-  </f:entry>
-
-  <!--
-  <f:entry title="${%Ignore.WIP.Merge.Requests}" field="skipWorkInProgressMergeRequest" help="/plugin/gitee/help/help-skip-last-commit.html">
+  <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
     <f:checkbox default="true"/>
   </f:entry>
-  -->
   <f:entry title="${%Allowed.branches}">
     <table>
       <!--<f:section title="">-->

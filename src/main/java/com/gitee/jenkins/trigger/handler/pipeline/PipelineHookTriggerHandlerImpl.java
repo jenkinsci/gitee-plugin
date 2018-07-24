@@ -28,6 +28,8 @@ import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpd
 
 /**
  * @author Milena Zachow
+ * @author Yashin Luo
+ *
  */
 
 // fixme ？？？？
@@ -42,7 +44,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
     }
 
     @Override
-    public void handle(Job<?, ?> job, PipelineHook hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PipelineHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
         PipelineEventObjectAttributes objectAttributes = hook.getObjectAttributes();
         try {
             if (job instanceof AbstractProject<?, ?>) {
@@ -77,6 +79,11 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
     @Override
     protected boolean isCiSkip(PipelineHook hook) {
         //we don't get a commit message or suchlike that could contain ci-skip
+        return false;
+    }
+
+    @Override
+    protected boolean isCommitSkip(Job<?, ?> project, PipelineHook hook) {
         return false;
     }
 

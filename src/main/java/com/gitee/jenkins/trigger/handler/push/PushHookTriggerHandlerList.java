@@ -19,9 +19,9 @@ class PushHookTriggerHandlerList implements PushHookTriggerHandler {
     }
 
     @Override
-    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
         for (PushHookTriggerHandler handler : handlers) {
-            handler.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+            handler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
         }
     }
 }

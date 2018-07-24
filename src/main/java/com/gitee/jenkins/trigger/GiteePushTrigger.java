@@ -80,7 +80,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private String noteRegex = "";
     private boolean ciSkip = true;
     private boolean skipWorkInProgressMergeRequest;
-    private boolean skipLastCommitHasBuild;
+    private boolean skipLastCommitHasBeenBuild;
     private boolean setBuildDescription = true;
     private transient boolean addNoteOnMergeRequest;
     private transient boolean addCiMessage;
@@ -240,12 +240,16 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return ciSkip;
     }
 
+    public boolean getSkipLastCommitHasBeenBuild() {
+        return skipLastCommitHasBeenBuild;
+    }
+
     public boolean isSkipWorkInProgressMergeRequest() {
         return skipWorkInProgressMergeRequest;
     }
 
     public boolean isSkipLastCommitHasBuild() {
-        return skipLastCommitHasBuild;
+        return skipLastCommitHasBeenBuild;
     }
 
     public BranchFilterType getBranchFilterType() {
@@ -331,8 +335,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setSkipLastCommitHasBuild(boolean skipLastCommitHasBuild) {
-        this.skipLastCommitHasBuild = skipLastCommitHasBuild;
+    public void setSkipLastCommitHasBeenBuild(boolean skipLastCommitHasBeenBuild) {
+        this.skipLastCommitHasBeenBuild = skipLastCommitHasBeenBuild;
     }
 
 
@@ -427,7 +431,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pushHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pushHookTriggerHandler.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+        pushHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
     }
 
     // executes when the Trigger receives a merge request
@@ -441,7 +445,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (mergeRequestHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        mergeRequestHookTriggerHandler.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+        mergeRequestHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
     }
 
     // executes when the Trigger receives a note request
@@ -455,7 +459,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (noteHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        noteHookTriggerHandler.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+        noteHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pipeline event
@@ -463,13 +467,13 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pipelineTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pipelineTriggerHandler.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+        pipelineTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
     }
 
     private void initializeTriggerHandler() {
 		mergeRequestHookTriggerHandler = newMergeRequestHookTriggerHandler(triggerOnOpenMergeRequest,
 				triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest,
-				skipWorkInProgressMergeRequest, skipLastCommitHasBuild, triggerOnApprovedMergeRequest, triggerOnTestedMergeRequest, cancelPendingBuildsOnUpdate);
+				skipWorkInProgressMergeRequest, triggerOnApprovedMergeRequest, triggerOnTestedMergeRequest, cancelPendingBuildsOnUpdate);
         noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex);
         pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressMergeRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
@@ -579,7 +583,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             save();
             return super.configure(req, formData);
         }
-
 
         public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {
             byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token

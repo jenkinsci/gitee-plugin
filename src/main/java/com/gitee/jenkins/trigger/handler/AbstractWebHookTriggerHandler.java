@@ -34,9 +34,14 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected PendingBuildsHandler pendingBuildsHandler = new PendingBuildsHandler();
 
     @Override
-    public void handle(Job<?, ?> job, H hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, H hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
         if (ciSkip && isCiSkip(hook)) {
             LOGGER.log(Level.INFO, "Skipping due to ci-skip.");
+            return;
+        }
+
+        if (skipLastCommitHasBeenBuild && isCommitSkip(job, hook)) {
+            LOGGER.log(Level.INFO, "Skipping due to ignore last commit has been build.");
             return;
         }
 
@@ -53,6 +58,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected abstract String getTriggerType();
 
     protected abstract boolean isCiSkip(H hook);
+    protected abstract boolean isCommitSkip(Job<?, ?> job, H hook);
 
     protected Action[] createActions(Job<?, ?> job, H hook) {
         ArrayList<Action> actions = new ArrayList<>();

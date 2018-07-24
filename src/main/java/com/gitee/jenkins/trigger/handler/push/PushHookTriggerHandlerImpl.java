@@ -1,6 +1,7 @@
 package com.gitee.jenkins.trigger.handler.push;
 
 import com.gitee.jenkins.cause.CauseData;
+import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.hook.model.Commit;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
@@ -8,26 +9,31 @@ import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
-import org.eclipse.jgit.util.StringUtils;
-
+import com.gitee.jenkins.util.BuildUtil;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import static com.gitee.jenkins.cause.CauseDataBuilder.causeData;
 import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpdateBuilder.buildStatusUpdate;
 
 /**
- * @author Robin Müller
+ * @author Robin MüllerPushHookTriggerHandlerImpl
+ * @author Yashin Luo
  */
 class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook> implements PushHookTriggerHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(PushHookTriggerHandlerImpl.class.getName());
 
     private static final String NO_COMMIT = "0000000000000000000000000000000000000000";
 
     @Override
-    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
         if (isNoRemoveBranchPush(hook)) {
-            super.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
         }
     }
 
@@ -38,6 +44,19 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                !commits.isEmpty() &&
                commits.get(commits.size() - 1).getMessage() != null &&
                commits.get(commits.size() - 1).getMessage().contains("[ci-skip]");
+    }
+
+    @Override
+    protected boolean isCommitSkip(Job<?, ?> project, PushHook hook) {
+        String sha = hook.getAfter();
+        if (hook != null && sha != null) {
+            Run<?, ?> pushBuild = BuildUtil.getBuildBySHA1IncludingMergeBuilds(project, sha);
+            if (pushBuild != null && StringUtils.equals(getRefFromBuild(pushBuild), hook.getRef())) {
+                LOGGER.log(Level.INFO, "Last commit in push has already been built sha=" + sha);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -75,6 +94,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                 .withTriggeredByUser(retrievePushedBy(hook))
                 .withBefore(hook.getBefore())
                 .withAfter(hook.getAfter())
+                .withRef(hook.getRef())
                 .withLastCommit(hook.getAfter())
                 .withTargetProjectUrl(hook.getProject().getUrl())
                 .build();
@@ -107,7 +127,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
     private String retrievePushedBy(final PushHook hook) {
 
         final String userName = hook.getUserName();
-        if (!StringUtils.isEmptyOrNull(userName)) {
+        if (StringUtils.isNotBlank(userName)) {
             return userName;
         }
 
@@ -138,5 +158,10 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
 
     private boolean isNoRemoveBranchPush(PushHook hook) {
         return hook.getAfter() != null && !hook.getAfter().equals(NO_COMMIT);
+    }
+
+    private String getRefFromBuild(Run<?, ?> pushBuild) {
+        GiteeWebHookCause cause = pushBuild.getCause(GiteeWebHookCause.class);
+        return cause == null ? null : cause.getData().getRef();
     }
 }

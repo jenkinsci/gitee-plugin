@@ -2,15 +2,19 @@ package com.gitee.jenkins.trigger.handler.note;
 
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
+import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
+import com.gitee.jenkins.util.BuildUtil;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -19,6 +23,7 @@ import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpd
 
 /**
  * @author Nikolay Ustinov
+ * @author Yashin Luo
  */
 class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook> implements NoteHookTriggerHandler {
 
@@ -31,9 +36,9 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     @Override
-    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
         if (isValidTriggerPhrase(hook.getObjectAttributes().getNote())) {
-            super.handle(job, hook, ciSkip, branchFilter, mergeRequestLabelFilter);
+            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
         }
     }
 
@@ -44,6 +49,10 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 && hook.getMergeRequest().getBody().contains("[ci-skip]");
     }
 
+    @Override
+    protected boolean isCommitSkip(Job<?, ?> project, NoteHook hook) {
+        return false;
+    }
     @Override
     protected String getTargetBranch(NoteHook hook) {
         return hook.getMergeRequest() == null ? null : hook.getMergeRequest().getTargetBranch();
