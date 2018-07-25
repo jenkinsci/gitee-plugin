@@ -1,4 +1,4 @@
-package com.gitee.jenkins.trigger.handler.merge;
+package com.gitee.jenkins.trigger.handler.pull;
 
 import com.gitee.jenkins.gitee.hook.model.Action;
 import com.gitee.jenkins.gitee.hook.model.State;

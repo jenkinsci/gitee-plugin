@@ -80,7 +80,7 @@ public class PullRequestHook extends WebHook {
     }
 
     public String getWebHookDescription() {
-        return getHookName() + " iid = " + pullRequest.getNumber() + " merge commit sha = " + pullRequest.getMergeCommitSha();
+        return getHookName() + " iid = " + pullRequest.getNumber() + " pull commit sha = " + pullRequest.getMergeCommitSha();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.gitee.jenkins.trigger.handler.merge;
+package com.gitee.jenkins.trigger.handler.pull;
 
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.cause.GiteeWebHookCause;
@@ -7,7 +7,6 @@ import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.hook.model.*;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
-import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
@@ -71,13 +70,13 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
                 // 若pr不可自动合并则评论至pr
                 if (!objectAttributes.can_be_merged()) {
-                    LOGGER.log(Level.INFO, "This pull request can not be merge");
+                    LOGGER.log(Level.INFO, "This pull request can not be pull");
                     GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
                     if (publisher != null) {
                         GiteeClient client = getClient(job);
                         PullRequest pullRequest = new PullRequest(objectAttributes);
                         LOGGER.log(Level.INFO, "sending message to gitee.....");
-                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
+                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be pull! The build will not be triggered. Please manual pull conflict.");
                     }
                     return;
                 } else if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {

@@ -16,7 +16,7 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Path("/repos/{ownerPath}/{repoPath}/pulls/{prNumber}/merge")
+    @Path("/repos/{ownerPath}/{repoPath}/pulls/{prNumber}/pull")
     void acceptPullRequest(@PathParam("ownerPath") String ownerPath,
                             @PathParam("repoPath") String repoPath,
                             @PathParam("prNumber") Integer prNumber);

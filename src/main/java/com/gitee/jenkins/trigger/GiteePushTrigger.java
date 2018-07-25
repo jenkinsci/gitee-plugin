@@ -12,7 +12,7 @@ import com.gitee.jenkins.publisher.GiteeAcceptPullRequestPublisher;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.filter.*;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilterConfig;
-import com.gitee.jenkins.trigger.handler.merge.PullRequestHookTriggerHandler;
+import com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandler;
@@ -47,7 +47,7 @@ import java.io.ObjectStreamException;
 import java.security.SecureRandom;
 
 import static com.gitee.jenkins.trigger.filter.BranchFilterConfig.BranchFilterConfigBuilder.branchFilterConfig;
-import static com.gitee.jenkins.trigger.handler.merge.PullRequestHookTriggerHandlerFactory.newPullRequestHookTriggerHandler;
+import static com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandlerFactory.newPullRequestHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandlerFactory.newNoteHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandlerFactory.newPipelineHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFactory.newPushHookTriggerHandler;
