@@ -1,8 +1,8 @@
 package com.gitee.jenkins.webhook.build;
 
+import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.trigger.GiteePushTrigger;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestHook;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestObjectAttributes;
+import com.gitee.jenkins.gitee.hook.model.PullRequestObjectAttributes;
 import com.gitee.jenkins.gitee.hook.model.Project;
 import com.gitee.jenkins.util.JsonUtil;
 import hudson.model.Item;
@@ -19,23 +19,23 @@ import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
 /**
  * @author Robin Müller
  */
-public class MergeRequestBuildAction extends BuildWebHookAction {
+public class PullRequestBuildAction extends BuildWebHookAction {
 
-    private final static Logger LOGGER = Logger.getLogger(MergeRequestBuildAction.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(PullRequestBuildAction.class.getName());
     private Item project;
-    private MergeRequestHook mergeRequestHook;
+    private PullRequestHook pullRequestHook;
     private final String secretToken;
 
-    public MergeRequestBuildAction(Item project, String json, String secretToken) {
-        LOGGER.log(Level.FINE, "MergeRequest: {0}", toPrettyPrint(json));
+    public PullRequestBuildAction(Item project, String json, String secretToken) {
+        LOGGER.log(Level.FINE, "PullRequest: {0}", toPrettyPrint(json));
         this.project = project;
-        this.mergeRequestHook = JsonUtil.read(json, MergeRequestHook.class);
+        this.pullRequestHook = JsonUtil.read(json, PullRequestHook.class);
         this.secretToken = secretToken;
     }
 
     void processForCompatibility() {
         // url and homepage are introduced in 8.x versions of Gitee
-        final MergeRequestObjectAttributes attributes = this.mergeRequestHook.getPullRequest();
+        final PullRequestObjectAttributes attributes = this.pullRequestHook.getPullRequest();
         if (attributes != null) {
             final Project source = attributes.getSource();
             if (source != null && source.getGitHttpUrl() != null) {
@@ -47,9 +47,9 @@ public class MergeRequestBuildAction extends BuildWebHookAction {
                 }
             }
 
-            // The MergeRequestHookTriggerHandlerImpl is looking for Project
-            if (mergeRequestHook.getRepo() == null && attributes.getTarget() != null) {
-                mergeRequestHook.setRepo(attributes.getTarget());
+            // The PullRequestHookTriggerHandlerImpl is looking for Project
+            if (pullRequestHook.getRepo() == null && attributes.getTarget() != null) {
+                pullRequestHook.setRepo(attributes.getTarget());
             }
         }
     }
@@ -61,9 +61,9 @@ public class MergeRequestBuildAction extends BuildWebHookAction {
         ACL.impersonate(ACL.SYSTEM, new TriggerNotifier(project, secretToken, Jenkins.getAuthentication()) {
             @Override
             protected void performOnPost(GiteePushTrigger trigger) {
-                trigger.onPost(mergeRequestHook);
+                trigger.onPost(pullRequestHook);
             }
         });
-        throw responseWithHook(mergeRequestHook);
+        throw responseWithHook(pullRequestHook);
     }
 }

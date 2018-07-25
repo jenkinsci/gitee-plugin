@@ -10,15 +10,15 @@ public final class PushHookTriggerHandlerFactory {
 
     private PushHookTriggerHandlerFactory() {}
 
-    public static PushHookTriggerHandler newPushHookTriggerHandler(boolean triggerOnPush, boolean skipWorkInProgressMergeRequest) {
+    public static PushHookTriggerHandler newPushHookTriggerHandler(boolean triggerOnPush, boolean skipWorkInProgressPullRequest) {
         if (triggerOnPush) {
-            return new PushHookTriggerHandlerList(retrieveHandlers(triggerOnPush, skipWorkInProgressMergeRequest));
+            return new PushHookTriggerHandlerList(retrieveHandlers(triggerOnPush, skipWorkInProgressPullRequest));
         } else {
             return new NopPushHookTriggerHandler();
         }
     }
 
-    private static List<PushHookTriggerHandler> retrieveHandlers(boolean triggerOnPush, boolean skipWorkInProgressMergeRequest) {
+    private static List<PushHookTriggerHandler> retrieveHandlers(boolean triggerOnPush, boolean skipWorkInProgressPullRequest) {
         List<PushHookTriggerHandler> result = new ArrayList<>();
         if (triggerOnPush) {
             result.add(new PushHookTriggerHandlerImpl());

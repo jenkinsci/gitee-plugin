@@ -2,14 +2,15 @@ package com.gitee.jenkins.trigger.handler.merge;
 
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.cause.GiteeWebHookCause;
-import com.gitee.jenkins.gitee.hook.model.Action;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestHook;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestObjectAttributes;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestLabel;
-import com.gitee.jenkins.gitee.hook.model.State;
+import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
+import com.gitee.jenkins.gitee.hook.model.*;
+import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
+import com.gitee.jenkins.publisher.GiteeMessagePublisher;
+import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
 import hudson.model.Job;
@@ -27,48 +28,60 @@ import java.util.logging.Logger;
 
 import static com.gitee.jenkins.cause.CauseDataBuilder.causeData;
 import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpdateBuilder.buildStatusUpdate;
+import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
 /**
  * @author Robin Müller
  * @author Yashin Luo
  */
-class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<MergeRequestHook> implements MergeRequestHookTriggerHandler {
+class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PullRequestHook> implements PullRequestHookTriggerHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(MergeRequestHookTriggerHandlerImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PullRequestHookTriggerHandlerImpl.class.getName());
 
     private final Collection<State> allowedStates;
-    private final boolean skipWorkInProgressMergeRequest;
+    private final boolean skipWorkInProgressPullRequest;
 	private final Collection<Action> allowedActions;
     private final boolean cancelPendingBuildsOnUpdate;
 
-    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressMergeRequest, boolean cancelPendingBuildsOnUpdate) {
-        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressMergeRequest, cancelPendingBuildsOnUpdate);
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate) {
+        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate);
     }
 
-    MergeRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressMergeRequest, boolean cancelPendingBuildsOnUpdate) {
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
-        this.skipWorkInProgressMergeRequest = skipWorkInProgressMergeRequest;
+        this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
     }
 
     @Override
-    public void handle(Job<?, ?> job, MergeRequestHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
-        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
+    public void handle(Job<?, ?> job, PullRequestHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+        PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
 
         try {
             LOGGER.log(Level.INFO, "request hook  state=" + hook.getState() + ", action = " + hook.getAction() + " pr iid = " + objectAttributes.getNumber() + " hook name = " + hook.getHookName());
             if (isAllowedByConfig(hook)
-                && isNotSkipWorkInProgressMergeRequest(objectAttributes)) {
+                && isNotSkipWorkInProgressPullRequest(objectAttributes)) {
                 List<String> labelsNames = new ArrayList<>();
                 if (hook.getLabels() != null) {
-                    for (MergeRequestLabel label : hook.getLabels()) {
+                    for (PullRequestLabel label : hook.getLabels()) {
                         labelsNames.add(label.getTitle());
                     }
                 }
 
-                if (mergeRequestLabelFilter.isMergeRequestAllowed(labelsNames)) {
-                    super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+                // 若pr不可自动合并则评论至pr
+                if (!objectAttributes.can_be_merged()) {
+                    LOGGER.log(Level.INFO, "This pull request can not be merge");
+                    GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
+                    if (publisher != null) {
+                        GiteeClient client = getClient(job);
+                        PullRequest pullRequest = new PullRequest(objectAttributes);
+                        LOGGER.log(Level.INFO, "sending message to gitee.....");
+                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! Please manual merge conflict.");
+                    }
+                    return;
+                } else if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
+                    super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
                 }
             }
             else {
@@ -82,15 +95,15 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     }
 
     @Override
-    protected boolean isCiSkip(MergeRequestHook hook) {
+    protected boolean isCiSkip(PullRequestHook hook) {
         return hook.getPullRequest() != null
                 && hook.getPullRequest().getBody() != null
                 && hook.getPullRequest().getBody().contains("[ci-skip]");
     }
 
     @Override
-    protected boolean isCommitSkip(Job<?, ?> project, MergeRequestHook hook) {
-        MergeRequestObjectAttributes objectAttributes = hook.getPullRequest();
+    protected boolean isCommitSkip(Job<?, ?> project, PullRequestHook hook) {
+        PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
 
         if (objectAttributes != null && objectAttributes.getMergeCommitSha() != null) {
             Run<?, ?> mergeBuild = BuildUtil.getBuildBySHA1IncludingMergeBuilds(project, objectAttributes.getMergeCommitSha());
@@ -103,7 +116,7 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     }
 
     @Override
-    protected void cancelPendingBuildsIfNecessary(Job<?, ?> job, MergeRequestHook hook) {
+    protected void cancelPendingBuildsIfNecessary(Job<?, ?> job, PullRequestHook hook) {
         if (!this.cancelPendingBuildsOnUpdate) {
             return;
         }
@@ -114,17 +127,17 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     }
 
     @Override
-    protected String getTargetBranch(MergeRequestHook hook) {
+    protected String getTargetBranch(PullRequestHook hook) {
         return hook.getPullRequest() == null ? null : hook.getPullRequest().getTargetBranch();
     }
 
     @Override
     protected String getTriggerType() {
-        return "merge request";
+        return "pull request";
     }
 
     @Override
-    protected CauseData retrieveCauseData(MergeRequestHook hook) {
+    protected CauseData retrieveCauseData(PullRequestHook hook) {
         return   causeData()
                 .withActionType(CauseData.ActionType.MERGE)
                 .withSourceProjectId(hook.getPullRequest().getSourceProjectId())
@@ -139,14 +152,14 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
                 .withSourceRepoUrl(hook.getPullRequest().getSource().getUrl())
                 .withSourceRepoSshUrl(hook.getPullRequest().getSource().getSshUrl())
                 .withSourceRepoHttpUrl(hook.getPullRequest().getSource().getGitHttpUrl())
-                .withMergeRequestTitle(hook.getPullRequest().getTitle())
-                .withMergeRequestDescription(hook.getPullRequest().getBody())
-                .withMergeRequestId(hook.getPullRequest().getId())
-                .withMergeRequestIid(hook.getPullRequest().getNumber())
-                .withMergeRequestState(hook.getState().toString())
+                .withPullRequestTitle(hook.getPullRequest().getTitle())
+                .withPullRequestDescription(hook.getPullRequest().getBody())
+                .withPullRequestId(hook.getPullRequest().getId())
+                .withPullRequestIid(hook.getPullRequest().getNumber())
+                .withPullRequestState(hook.getState().toString())
                 .withMergedByUser(hook.getUser() == null ? null : hook.getUser().getUsername())
-                .withMergeRequestAssignee(hook.getAssignee() == null ? null : hook.getAssignee().getUsername())
-                .withMergeRequestTargetProjectId(hook.getPullRequest().getTargetProjectId())
+                .withPullRequestAssignee(hook.getAssignee() == null ? null : hook.getAssignee().getUsername())
+                .withPullRequestTargetProjectId(hook.getPullRequest().getTargetProjectId())
                 .withTargetBranch(hook.getPullRequest().getTargetBranch())
                 .withTargetRepoName(hook.getPullRequest().getTarget().getName())
                 .withTargetNamespace(hook.getPullRequest().getTarget().getNamespace())
@@ -160,12 +173,12 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
     }
 
     @Override
-    protected RevisionParameterAction createRevisionParameter(MergeRequestHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
+    protected RevisionParameterAction createRevisionParameter(PullRequestHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
         return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
     }
 
     @Override
-    protected BuildStatusUpdate retrieveBuildStatusUpdate(MergeRequestHook hook) {
+    protected BuildStatusUpdate retrieveBuildStatusUpdate(PullRequestHook hook) {
         return buildStatusUpdate()
             .withProjectId(hook.getPullRequest().getSourceProjectId())
             .withSha(hook.getPullRequest().getMergeCommitSha())
@@ -173,9 +186,9 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
             .build();
     }
 
-    private String retrieveRevisionToBuild(MergeRequestHook hook) throws NoRevisionToBuildException {
+    private String retrieveRevisionToBuild(PullRequestHook hook) throws NoRevisionToBuildException {
         if (hook.getPullRequest() != null
-                && hook.getPullRequest().getMergeReferenceName() != null) {
+            && hook.getPullRequest().getMergeReferenceName() != null) {
             return hook.getPullRequest().getMergeReferenceName();
         } else {
             throw new NoRevisionToBuildException();
@@ -187,15 +200,15 @@ class MergeRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<M
         return cause == null ? null : cause.getData().getTargetBranch();
     }
 
-	private boolean isAllowedByConfig(MergeRequestHook hook) {
+	private boolean isAllowedByConfig(PullRequestHook hook) {
 		return allowedStates.contains(hook.getState())
         	&& allowedActions.contains(hook.getAction());
 	}
 
 	// Gitee 无此状态，暂时屏蔽
-    private boolean isNotSkipWorkInProgressMergeRequest(MergeRequestObjectAttributes objectAttributes) {
+    private boolean isNotSkipWorkInProgressPullRequest(PullRequestObjectAttributes objectAttributes) {
 //        Boolean workInProgress = objectAttributes.getWorkInProgress();
-//        if (skipWorkInProgressMergeRequest && workInProgress != null && workInProgress) {
+//        if (skipWorkInProgressPullRequest && workInProgress != null && workInProgress) {
 //            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
 //            return false;
 //        }

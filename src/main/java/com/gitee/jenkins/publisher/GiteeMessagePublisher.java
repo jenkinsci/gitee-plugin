@@ -2,16 +2,17 @@ package com.gitee.jenkins.publisher;
 
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
+import com.gitee.jenkins.trigger.GiteePushTrigger;
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.AbstractProject;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.triggers.Trigger;
 import jenkins.model.Jenkins;
+import jenkins.model.ParameterizedJobMixIn;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -26,7 +27,7 @@ import java.util.logging.Logger;
 /**
  * @author Nikolay Ustinov
  */
-public class GiteeMessagePublisher extends MergeRequestNotifier {
+public class GiteeMessagePublisher extends PullRequestNotifier {
     private static final Logger LOGGER = Logger.getLogger(GiteeMessagePublisher.class.getName());
     private boolean onlyForFailure = false;
     private boolean replaceSuccessNote = false;
@@ -57,6 +58,20 @@ public class GiteeMessagePublisher extends MergeRequestNotifier {
 
     @DataBoundConstructor
     public GiteeMessagePublisher() { }
+
+    public static GiteeMessagePublisher getFromJob(Job<?, ?> job) {
+        GiteeMessagePublisher publisher = null;
+        if (job instanceof ParameterizedJobMixIn.ParameterizedJob) {
+            AbstractProject p = (AbstractProject) job;
+            Map<Descriptor<Publisher>, Publisher> map = p.getPublishersList().toMap();
+            for (Publisher n : map.values()) {
+                if (n instanceof GiteeMessagePublisher) {
+                    publisher = (GiteeMessagePublisher) n;
+                }
+            }
+        }
+        return publisher;
+    }
 
     public boolean isOnlyForFailure() {
         return onlyForFailure;
@@ -159,14 +174,14 @@ public class GiteeMessagePublisher extends MergeRequestNotifier {
     }
 
     @Override
-    protected void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, MergeRequest mergeRequest) {
+    protected void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, PullRequest pullRequest) {
         try {
             if (!onlyForFailure || build.getResult() == Result.FAILURE || build.getResult() == Result.UNSTABLE) {
-                client.createMergeRequestNote(mergeRequest, getNote(build, listener));
+                client.createPullRequestNote(pullRequest, getNote(build, listener));
             }
         } catch (WebApplicationException | ProcessingException e) {
-            listener.getLogger().printf("Failed to add comment on Merge Request for project '%s': %s%n", mergeRequest.getProjectId(), e.getMessage());
-            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Merge Request for project '%s'", mergeRequest.getProjectId()), e);
+            listener.getLogger().printf("Failed to add comment on Merge Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
+            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Merge Request for project '%s'", pullRequest.getProjectId()), e);
         }
     }
 

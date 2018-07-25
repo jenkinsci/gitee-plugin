@@ -4,19 +4,15 @@ package com.gitee.jenkins.trigger;
 import com.gitee.jenkins.connection.GiteeConnection;
 import com.gitee.jenkins.connection.GiteeConnectionConfig;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
-import com.gitee.jenkins.gitee.hook.model.MergeRequestHook;
+import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
 import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
-import com.gitee.jenkins.publisher.GiteeAcceptMergeRequestPublisher;
+import com.gitee.jenkins.publisher.GiteeAcceptPullRequestPublisher;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
-import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.BranchFilterFactory;
-import com.gitee.jenkins.trigger.filter.BranchFilterType;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilterConfig;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilterFactory;
-import com.gitee.jenkins.trigger.handler.merge.MergeRequestHookTriggerHandler;
+import com.gitee.jenkins.trigger.filter.*;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilterConfig;
+import com.gitee.jenkins.trigger.handler.merge.PullRequestHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandler;
@@ -51,7 +47,7 @@ import java.io.ObjectStreamException;
 import java.security.SecureRandom;
 
 import static com.gitee.jenkins.trigger.filter.BranchFilterConfig.BranchFilterConfigBuilder.branchFilterConfig;
-import static com.gitee.jenkins.trigger.handler.merge.MergeRequestHookTriggerHandlerFactory.newMergeRequestHookTriggerHandler;
+import static com.gitee.jenkins.trigger.handler.merge.PullRequestHookTriggerHandlerFactory.newPullRequestHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandlerFactory.newNoteHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandlerFactory.newPipelineHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFactory.newPushHookTriggerHandler;
@@ -69,82 +65,82 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private boolean triggerOnPush = true;
-    private boolean triggerOnOpenMergeRequest = true;
+    private boolean triggerOnOpenPullRequest = true;
     private boolean triggerOnPipelineEvent = false;
-    private boolean triggerOnAcceptedMergeRequest = false;
-    private boolean triggerOnUpdateMergeRequest = false;
-    private boolean triggerOnClosedMergeRequest = false;
-    private boolean triggerOnApprovedMergeRequest = false;
-    private boolean triggerOnTestedMergeRequest = false;
+    private boolean triggerOnAcceptedPullRequest = false;
+    private boolean triggerOnUpdatePullRequest = false;
+    private boolean triggerOnClosedPullRequest = false;
+    private boolean triggerOnApprovedPullRequest = false;
+    private boolean triggerOnTestedPullRequest = false;
     private boolean triggerOnNoteRequest = true;
     private String noteRegex = "";
     private boolean ciSkip = true;
-    private boolean skipWorkInProgressMergeRequest;
+    private boolean skipWorkInProgressPullRequest;
     private boolean skipLastCommitHasBeenBuild;
     private boolean setBuildDescription = true;
-    private transient boolean addNoteOnMergeRequest;
+    private transient boolean addNoteOnPullRequest;
     private transient boolean addCiMessage;
-    private transient boolean addVoteOnMergeRequest;
+    private transient boolean addVoteOnPullRequest;
     private transient boolean allowAllBranches = false;
     private transient String branchFilterName;
     private BranchFilterType branchFilterType;
     private String includeBranchesSpec;
     private String excludeBranchesSpec;
     private String targetBranchRegex;
-    private MergeRequestLabelFilterConfig mergeRequestLabelFilterConfig;
+    private PullRequestLabelFilterConfig pullRequestLabelFilterConfig;
     private volatile Secret secretToken;
     private String pendingBuildName;
     private boolean cancelPendingBuildsOnUpdate;
 
     private transient BranchFilter branchFilter;
     private transient PushHookTriggerHandler pushHookTriggerHandler;
-    private transient MergeRequestHookTriggerHandler mergeRequestHookTriggerHandler;
+    private transient PullRequestHookTriggerHandler pullRequestHookTriggerHandler;
     private transient NoteHookTriggerHandler noteHookTriggerHandler;
     private transient PipelineHookTriggerHandler pipelineTriggerHandler;
-    private transient boolean acceptMergeRequestOnSuccess;
-    private transient MergeRequestLabelFilter mergeRequestLabelFilter;
+    private transient boolean acceptPullRequestOnSuccess;
+    private transient PullRequestLabelFilter pullRequestLabelFilter;
 
     /**
      * @deprecated use {@link #GiteePushTrigger()} with setters to configure an instance of this class.
      */
     @Deprecated
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-    public GiteePushTrigger(boolean triggerOnPush, boolean triggerOnOpenMergeRequest, boolean triggerOnUpdateMergeRequest, boolean triggerOnAcceptedMergeRequest, boolean triggerOnClosedMergeRequest,
+    public GiteePushTrigger(boolean triggerOnPush, boolean triggerOnOpenPullRequest, boolean triggerOnUpdatePullRequest, boolean triggerOnAcceptedPullRequest, boolean triggerOnClosedPullRequest,
                             boolean triggerOnNoteRequest, String noteRegex,
-                            boolean skipWorkInProgressMergeRequest, boolean ciSkip,
-                            boolean setBuildDescription, boolean addNoteOnMergeRequest, boolean addCiMessage, boolean addVoteOnMergeRequest,
-                            boolean acceptMergeRequestOnSuccess, BranchFilterType branchFilterType,
+                            boolean skipWorkInProgressPullRequest, boolean ciSkip,
+                            boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage, boolean addVoteOnPullRequest,
+                            boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
                             String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
-                            MergeRequestLabelFilterConfig mergeRequestLabelFilterConfig, String secretToken, boolean triggerOnPipelineEvent,
-                            boolean triggerOnApprovedMergeRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate) {
+                            PullRequestLabelFilterConfig pullRequestLabelFilterConfig, String secretToken, boolean triggerOnPipelineEvent,
+                            boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate) {
         this.triggerOnPush = triggerOnPush;
-        this.triggerOnOpenMergeRequest = triggerOnOpenMergeRequest;
-        this.triggerOnUpdateMergeRequest = triggerOnUpdateMergeRequest;
-        this.triggerOnAcceptedMergeRequest = triggerOnAcceptedMergeRequest;
-        this.triggerOnClosedMergeRequest = triggerOnClosedMergeRequest;
+        this.triggerOnOpenPullRequest = triggerOnOpenPullRequest;
+        this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
+        this.triggerOnAcceptedPullRequest = triggerOnAcceptedPullRequest;
+        this.triggerOnClosedPullRequest = triggerOnClosedPullRequest;
         this.triggerOnNoteRequest = triggerOnNoteRequest;
         this.noteRegex = noteRegex;
         this.triggerOnPipelineEvent = triggerOnPipelineEvent;
         this.ciSkip = ciSkip;
-        this.skipWorkInProgressMergeRequest = skipWorkInProgressMergeRequest;
+        this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.setBuildDescription = setBuildDescription;
-        this.addNoteOnMergeRequest = addNoteOnMergeRequest;
+        this.addNoteOnPullRequest = addNoteOnPullRequest;
         this.addCiMessage = addCiMessage;
-        this.addVoteOnMergeRequest = addVoteOnMergeRequest;
+        this.addVoteOnPullRequest = addVoteOnPullRequest;
         this.branchFilterType = branchFilterType;
         this.includeBranchesSpec = includeBranchesSpec;
         this.excludeBranchesSpec = excludeBranchesSpec;
         this.targetBranchRegex = targetBranchRegex;
-        this.acceptMergeRequestOnSuccess = acceptMergeRequestOnSuccess;
-        this.mergeRequestLabelFilterConfig = mergeRequestLabelFilterConfig;
+        this.acceptPullRequestOnSuccess = acceptPullRequestOnSuccess;
+        this.pullRequestLabelFilterConfig = pullRequestLabelFilterConfig;
         this.secretToken = Secret.fromString(secretToken);
-        this.triggerOnApprovedMergeRequest = triggerOnApprovedMergeRequest;
+        this.triggerOnApprovedPullRequest = triggerOnApprovedPullRequest;
         this.pendingBuildName = pendingBuildName;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
 
         initializeTriggerHandler();
         initializeBranchFilter();
-        initializeMergeRequestLabelFilter();
+        initializePullRequestLabelFilter();
     }
 
     @DataBoundConstructor
@@ -180,11 +176,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
-                    if (trigger.addNoteOnMergeRequest) {
+                    if (trigger.addNoteOnPullRequest) {
                         project.getPublishersList().add(new GiteeMessagePublisher());
                     }
-                    if (trigger.acceptMergeRequestOnSuccess) {
-                        project.getPublishersList().add(new GiteeAcceptMergeRequestPublisher());
+                    if (trigger.acceptPullRequestOnSuccess) {
+                        project.getPublishersList().add(new GiteeAcceptPullRequestPublisher());
                     }
                     project.save();
                 }
@@ -194,32 +190,34 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
     }
 
+    public boolean getAddNoteOnPullRequest() { return addNoteOnPullRequest; }
+
     public boolean getTriggerOnPush() {
         return triggerOnPush;
     }
 
-    public boolean getTriggerOnOpenMergeRequest() {
-        return triggerOnOpenMergeRequest;
+    public boolean getTriggerOnOpenPullRequest() {
+        return triggerOnOpenPullRequest;
     }
 
-    public boolean getTriggerOnTestedMergeRequest() {
-        return triggerOnTestedMergeRequest;
+    public boolean getTriggerOnTestedPullRequest() {
+        return triggerOnTestedPullRequest;
     }
 
-    public boolean getTriggerOnUpdateMergeRequest() {
-        return triggerOnUpdateMergeRequest;
+    public boolean getTriggerOnUpdatePullRequest() {
+        return triggerOnUpdatePullRequest;
     }
 
-    public boolean isTriggerOnAcceptedMergeRequest() {
-        return triggerOnAcceptedMergeRequest;
+    public boolean isTriggerOnAcceptedPullRequest() {
+        return triggerOnAcceptedPullRequest;
     }
 
-    public boolean isTriggerOnApprovedMergeRequest() {
-		return triggerOnApprovedMergeRequest;
+    public boolean isTriggerOnApprovedPullRequest() {
+		return triggerOnApprovedPullRequest;
 	}    
     
-    public boolean isTriggerOnClosedMergeRequest() {
-        return triggerOnClosedMergeRequest;
+    public boolean isTriggerOnClosedPullRequest() {
+        return triggerOnClosedPullRequest;
     }
 
     public boolean getTriggerOnNoteRequest() {
@@ -244,8 +242,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return skipLastCommitHasBeenBuild;
     }
 
-    public boolean isSkipWorkInProgressMergeRequest() {
-        return skipWorkInProgressMergeRequest;
+    public boolean isSkipWorkInProgressPullRequest() {
+        return skipWorkInProgressPullRequest;
     }
 
     public boolean isSkipLastCommitHasBuild() {
@@ -268,8 +266,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return targetBranchRegex;
     }
 
-    public MergeRequestLabelFilterConfig getMergeRequestLabelFilterConfig() {
-        return mergeRequestLabelFilterConfig;
+    public PullRequestLabelFilterConfig getPullRequestLabelFilterConfig() {
+        return pullRequestLabelFilterConfig;
     }
 
     public String getSecretToken() {
@@ -290,28 +288,28 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
     
     @DataBoundSetter
-    public void setTriggerOnApprovedMergeRequest(boolean triggerOnApprovedMergeRequest) {
-        this.triggerOnApprovedMergeRequest = triggerOnApprovedMergeRequest;
+    public void setTriggerOnApprovedPullRequest(boolean triggerOnApprovedPullRequest) {
+        this.triggerOnApprovedPullRequest = triggerOnApprovedPullRequest;
     }
 
     @DataBoundSetter
-    public void setTriggerOnTestedMergeRequest(boolean triggerOnTestedMergeRequest) {
-        this.triggerOnTestedMergeRequest = triggerOnTestedMergeRequest;
+    public void setTriggerOnTestedPullRequest(boolean triggerOnTestedPullRequest) {
+        this.triggerOnTestedPullRequest = triggerOnTestedPullRequest;
     }
 
     @DataBoundSetter
-    public void setTriggerOnOpenMergeRequest(boolean triggerOnOpenMergeRequest) {
-        this.triggerOnOpenMergeRequest = triggerOnOpenMergeRequest;
+    public void setTriggerOnOpenPullRequest(boolean triggerOnOpenPullRequest) {
+        this.triggerOnOpenPullRequest = triggerOnOpenPullRequest;
     }
 
     @DataBoundSetter
-    public void setTriggerOnAcceptedMergeRequest(boolean triggerOnAcceptedMergeRequest) {
-        this.triggerOnAcceptedMergeRequest = triggerOnAcceptedMergeRequest;
+    public void setTriggerOnAcceptedPullRequest(boolean triggerOnAcceptedPullRequest) {
+        this.triggerOnAcceptedPullRequest = triggerOnAcceptedPullRequest;
     }
 
     @DataBoundSetter
-    public void setTriggerOnClosedMergeRequest(boolean triggerOnClosedMergeRequest) {
-        this.triggerOnClosedMergeRequest = triggerOnClosedMergeRequest;
+    public void setTriggerOnClosedPullRequest(boolean triggerOnClosedPullRequest) {
+        this.triggerOnClosedPullRequest = triggerOnClosedPullRequest;
     }
 
     @DataBoundSetter
@@ -330,8 +328,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setSkipWorkInProgressMergeRequest(boolean skipWorkInProgressMergeRequest) {
-        this.skipWorkInProgressMergeRequest = skipWorkInProgressMergeRequest;
+    public void setSkipWorkInProgressPullRequest(boolean skipWorkInProgressPullRequest) {
+        this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
     }
 
     @DataBoundSetter
@@ -347,8 +345,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setAddNoteOnMergeRequest(boolean addNoteOnMergeRequest) {
-        this.addNoteOnMergeRequest = addNoteOnMergeRequest;
+    public void setAddNoteOnPullRequest(boolean addNoteOnPullRequest) {
+        this.addNoteOnPullRequest = addNoteOnPullRequest;
     }
 
     @DataBoundSetter
@@ -357,8 +355,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setAddVoteOnMergeRequest(boolean addVoteOnMergeRequest) {
-        this.addVoteOnMergeRequest = addVoteOnMergeRequest;
+    public void setAddVoteOnPullRequest(boolean addVoteOnPullRequest) {
+        this.addVoteOnPullRequest = addVoteOnPullRequest;
     }
 
     @DataBoundSetter
@@ -387,8 +385,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setMergeRequestLabelFilterConfig(MergeRequestLabelFilterConfig mergeRequestLabelFilterConfig) {
-        this.mergeRequestLabelFilterConfig = mergeRequestLabelFilterConfig;
+    public void setPullRequestLabelFilterConfig(PullRequestLabelFilterConfig pullRequestLabelFilterConfig) {
+        this.pullRequestLabelFilterConfig = pullRequestLabelFilterConfig;
     }
 
     @DataBoundSetter
@@ -397,13 +395,13 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setAcceptMergeRequestOnSuccess(boolean acceptMergeRequestOnSuccess) {
-        this.acceptMergeRequestOnSuccess = acceptMergeRequestOnSuccess;
+    public void setAcceptPullRequestOnSuccess(boolean acceptPullRequestOnSuccess) {
+        this.acceptPullRequestOnSuccess = acceptPullRequestOnSuccess;
     }
 
     @DataBoundSetter
-    public void setTriggerOnUpdateMergeRequest(boolean triggerOnUpdateMergeRequest) {
-        this.triggerOnUpdateMergeRequest = triggerOnUpdateMergeRequest;
+    public void setTriggerOnUpdatePullRequest(boolean triggerOnUpdatePullRequest) {
+        this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
     }
     @DataBoundSetter
     public void setTriggerOnPipelineEvent(boolean triggerOnPipelineEvent) {
@@ -425,27 +423,27 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (branchFilter == null) {
             initializeBranchFilter();
         }
-        if (mergeRequestLabelFilter == null) {
-            initializeMergeRequestLabelFilter();
+        if (pullRequestLabelFilter == null) {
+            initializePullRequestLabelFilter();
         }
         if (pushHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pushHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+        pushHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
-    // executes when the Trigger receives a merge request
-    public void onPost(final MergeRequestHook hook) {
+    // executes when the Trigger receives a pull request
+    public void onPost(final PullRequestHook hook) {
         if (branchFilter == null) {
             initializeBranchFilter();
         }
-        if (mergeRequestLabelFilter == null) {
-            initializeMergeRequestLabelFilter();
+        if (pullRequestLabelFilter == null) {
+            initializePullRequestLabelFilter();
         }
-        if (mergeRequestHookTriggerHandler == null) {
+        if (pullRequestHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        mergeRequestHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+        pullRequestHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a note request
@@ -453,13 +451,13 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (branchFilter == null) {
             initializeBranchFilter();
         }
-        if (mergeRequestLabelFilter == null) {
-            initializeMergeRequestLabelFilter();
+        if (pullRequestLabelFilter == null) {
+            initializePullRequestLabelFilter();
         }
         if (noteHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        noteHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+        noteHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pipeline event
@@ -467,15 +465,15 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pipelineTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pipelineTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+        pipelineTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     private void initializeTriggerHandler() {
-		mergeRequestHookTriggerHandler = newMergeRequestHookTriggerHandler(triggerOnOpenMergeRequest,
-				triggerOnUpdateMergeRequest, triggerOnAcceptedMergeRequest, triggerOnClosedMergeRequest,
-				skipWorkInProgressMergeRequest, triggerOnApprovedMergeRequest, triggerOnTestedMergeRequest, cancelPendingBuildsOnUpdate);
+		pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(triggerOnOpenPullRequest,
+				triggerOnUpdatePullRequest, triggerOnAcceptedPullRequest, triggerOnClosedPullRequest,
+				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate);
         noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex);
-        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressMergeRequest);
+        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }
 
@@ -491,15 +489,15 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                 .build(branchFilterType));
     }
 
-    private void initializeMergeRequestLabelFilter() {
-        mergeRequestLabelFilter = MergeRequestLabelFilterFactory.newMergeRequestLabelFilter(mergeRequestLabelFilterConfig);
+    private void initializePullRequestLabelFilter() {
+        pullRequestLabelFilter = PullRequestLabelFilterFactory.newPullRequestLabelFilter(pullRequestLabelFilterConfig);
     }
 
     @Override
     protected Object readResolve() throws ObjectStreamException {
         initializeTriggerHandler();
         initializeBranchFilter();
-        initializeMergeRequestLabelFilter();
+        initializePullRequestLabelFilter();
         return super.readResolve();
     }
 

@@ -6,22 +6,22 @@ import org.kohsuke.stapler.DataBoundSetter;
 /**
  * @author Robin Müller
  */
-public class MergeRequestLabelFilterConfig {
+public class PullRequestLabelFilterConfig {
 
     private String include;
     private String exclude;
 
     /**
-     * @deprecated use {@link #MergeRequestLabelFilterConfig()} with setters to configure an instance of this class.
+     * @deprecated use {@link #PullRequestLabelFilterConfig()} with setters to configure an instance of this class.
      */
     @Deprecated
-    public MergeRequestLabelFilterConfig(String include, String exclude) {
+    public PullRequestLabelFilterConfig(String include, String exclude) {
         this.include = include;
         this.exclude = exclude;
     }
 
     @DataBoundConstructor
-    public MergeRequestLabelFilterConfig() { }
+    public PullRequestLabelFilterConfig() { }
 
     public String getInclude() {
         return include;

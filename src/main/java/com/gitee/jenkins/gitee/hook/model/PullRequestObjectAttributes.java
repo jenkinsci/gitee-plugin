@@ -1,6 +1,7 @@
 package com.gitee.jenkins.gitee.hook.model;
 
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -12,8 +13,11 @@ import java.util.Date;
  * @author Yashin
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-public class MergeRequestObjectAttributes {
+public class PullRequestObjectAttributes {
 
+    private final static String UNCHECKED = "unchecked";
+    private final static String CAN_BE_MERGED = "can_be_merged";
+    private final static String CANNOT_BE_MERGED = "cannot_be_merged";
     private Integer id;
     private Integer number;
     private Integer authorId;
@@ -175,6 +179,10 @@ public class MergeRequestObjectAttributes {
         this.workInProgress = workInProgress;
     }
 
+    public boolean can_be_merged() {
+        return StringUtils.isNotBlank(mergeCommitSha) && !StringUtils.equals(CANNOT_BE_MERGED, mergeStatus);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -183,7 +191,7 @@ public class MergeRequestObjectAttributes {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MergeRequestObjectAttributes that = (MergeRequestObjectAttributes) o;
+        PullRequestObjectAttributes that = (PullRequestObjectAttributes) o;
         return new EqualsBuilder()
             .append(id, that.id)
             .append(number, that.number)

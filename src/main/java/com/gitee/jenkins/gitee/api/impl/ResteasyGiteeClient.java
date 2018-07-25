@@ -9,12 +9,13 @@ import com.google.common.base.Function;
 final class ResteasyGiteeClient implements GiteeClient {
     private final String hostUrl;
     private final GiteeApiProxy api;
-    private final Function<MergeRequest, Integer> mergeRequestIdProvider;
+    private final Function<PullRequest, Integer> pullRequestIdProvider;
 
-    ResteasyGiteeClient(String hostUrl, GiteeApiProxy api, Function<MergeRequest, Integer> mergeRequestIdProvider) {
+
+    ResteasyGiteeClient(String hostUrl, GiteeApiProxy api, Function<PullRequest, Integer> pullRequestIdProvider) {
         this.hostUrl = hostUrl;
         this.api = api;
-        this.mergeRequestIdProvider = mergeRequestIdProvider;
+        this.pullRequestIdProvider = pullRequestIdProvider;
     }
 
     @Override
@@ -24,13 +25,13 @@ final class ResteasyGiteeClient implements GiteeClient {
 
     // Gitee v5 don't support commit message and remove source branch
     @Override
-    public void acceptMergeRequest(MergeRequest mr, String mergeCommitMessage, boolean shouldRemoveSourceBranch) {
-        api.acceptMergeRequest(mr.getRepoOwner(), mr.getRepoPath(), mergeRequestIdProvider.apply(mr));
+    public void acceptPullRequest(PullRequest mr, String mergeCommitMessage, boolean shouldRemoveSourceBranch) {
+        api.acceptPullRequest(mr.getRepoOwner(), mr.getRepoPath(), mr.getIid());
     }
 
     @Override
-    public void createMergeRequestNote(MergeRequest mr, String body) {
-        api.createMergeRequestNote(mr.getRepoOwner(), mr.getRepoPath(), mergeRequestIdProvider.apply(mr), body);
+    public void createPullRequestNote(PullRequest mr, String body) {
+        api.createPullRequestNote(mr.getRepoOwner(), mr.getRepoPath(), mr.getIid(), body);
     }
 
     @Override

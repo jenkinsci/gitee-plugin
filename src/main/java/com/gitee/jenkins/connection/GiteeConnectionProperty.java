@@ -47,6 +47,15 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
         return null;
     }
 
+    public static GiteeClient getClient(Job<?, ?> job) {
+        final GiteeConnectionProperty connectionProperty = job.getProperty(GiteeConnectionProperty.class);
+        if (connectionProperty != null) {
+            return connectionProperty.getClient();
+        }
+        return null;
+    }
+
+
     @Extension
     @Symbol("giteeConnection")
     public static class DescriptorImpl extends JobPropertyDescriptor {

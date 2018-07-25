@@ -9,18 +9,18 @@ import java.util.Set;
 /**
  * @author Robin Müller
  */
-class MergeRequestLabelFilterImpl implements MergeRequestLabelFilter {
+class PullRequestLabelFilterImpl implements PullRequestLabelFilter {
 
     private final Set<String> includeLabels;
     private final Set<String> excludeLabels;
 
-    public MergeRequestLabelFilterImpl(String includeLabels, String excludeLabels) {
+    public PullRequestLabelFilterImpl(String includeLabels, String excludeLabels) {
         this.includeLabels = convert(includeLabels);
         this.excludeLabels = convert(excludeLabels);
     }
 
     @Override
-    public boolean isMergeRequestAllowed(Collection<String> labels) {
+    public boolean isPullRequestAllowed(Collection<String> labels) {
         return containsNoExcludeLabel(labels) && containsIncludeLabel(labels);
     }
 

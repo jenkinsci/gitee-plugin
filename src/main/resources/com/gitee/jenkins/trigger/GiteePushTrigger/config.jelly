@@ -6,22 +6,22 @@
       <f:entry title="${%Push}" field="triggerOnPush">
         <f:checkbox default="true"/>
       </f:entry>
-      <f:entry title="${%Opened.Pull.Request}" field="triggerOnOpenMergeRequest">
+      <f:entry title="${%Opened.Pull.Request}" field="triggerOnOpenPullRequest">
         <f:checkbox default="true"/>
       </f:entry>
-      <f:entry title="${%Updated.Pull.Request}" field="triggerOnUpdateMergeRequest">
+      <f:entry title="${%Updated.Pull.Request}" field="triggerOnUpdatePullRequest">
         <f:checkbox default="true"/>
       </f:entry>
-      <f:entry title="${%Accepted.Pull.Request}" field="triggerOnAcceptedMergeRequest">
+      <f:entry title="${%Accepted.Pull.Request}" field="triggerOnAcceptedPullRequest">
         <f:checkbox default="false"/>
       </f:entry>
-      <f:entry title="${%Closed.Pull.Request}" field="triggerOnClosedMergeRequest">
+      <f:entry title="${%Closed.Pull.Request}" field="triggerOnClosedPullRequest">
         <f:checkbox default="false"/>
       </f:entry>
-      <f:entry title="${%Approved.Pull.Request}" field="triggerOnApprovedMergeRequest">
+      <f:entry title="${%Approved.Pull.Request}" field="triggerOnApprovedPullRequest">
         <f:checkbox default="false"/>
       </f:entry>
-      <f:entry title="${%Tested.Pull.Request}" field="triggerOnTestedMergeRequest">
+      <f:entry title="${%Tested.Pull.Request}" field="triggerOnTestedPullRequest">
         <f:checkbox default="false"/>
       </f:entry>
     </table>

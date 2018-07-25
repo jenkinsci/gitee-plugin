@@ -23,7 +23,7 @@ public class Label {
     private String description;
     private long openIssuesCount;
     private long closedIssuesCount;
-    private long openMergeRequestsCount;
+    private long openPullRequestsCount;
 
     public String getName() {
         return name;
@@ -65,12 +65,12 @@ public class Label {
         this.closedIssuesCount = closedIssuesCount;
     }
 
-    public long getOpenMergeRequestsCount() {
-        return openMergeRequestsCount;
+    public long getOpenPullRequestsCount() {
+        return openPullRequestsCount;
     }
 
-    public void setOpenMergeRequestsCount(long openMergeRequestsCount) {
-        this.openMergeRequestsCount = openMergeRequestsCount;
+    public void setOpenPullRequestsCount(long openPullRequestsCount) {
+        this.openPullRequestsCount = openPullRequestsCount;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Label {
         return new EqualsBuilder()
             .append(openIssuesCount, label.openIssuesCount)
             .append(closedIssuesCount, label.closedIssuesCount)
-            .append(openMergeRequestsCount, label.openMergeRequestsCount)
+            .append(openPullRequestsCount, label.openPullRequestsCount)
             .append(name, label.name)
             .append(color, label.color)
             .append(description, label.description)
@@ -100,7 +100,7 @@ public class Label {
             .append(description)
             .append(openIssuesCount)
             .append(closedIssuesCount)
-            .append(openMergeRequestsCount)
+            .append(openPullRequestsCount)
             .toHashCode();
     }
 
@@ -112,7 +112,7 @@ public class Label {
             .append("description", description)
             .append("openIssuesCount", openIssuesCount)
             .append("closedIssuesCount", closedIssuesCount)
-            .append("openMergeRequestsCount", openMergeRequestsCount)
+            .append("openPullRequestsCount", openPullRequestsCount)
             .toString();
     }
 }

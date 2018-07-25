@@ -1,5 +1,6 @@
 package com.gitee.jenkins.gitee.api.model;
 
+import com.gitee.jenkins.gitee.hook.model.PullRequestObjectAttributes;
 import com.gitee.jenkins.gitee.hook.model.State;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -12,7 +13,7 @@ import java.util.List;
  * @author Robin Müller
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-public class MergeRequest {
+public class PullRequest {
     private Integer id;
     private Integer iid;
     private String sourceBranch;
@@ -34,11 +35,11 @@ public class MergeRequest {
     private String repoOwner;
     private String repoPath;
 
-    public MergeRequest() { /* default-constructor for Resteasy-based-api-proxies */ }
+    public PullRequest() { /* default-constructor for Resteasy-based-api-proxies */ }
 
-    public MergeRequest(int id, int iid, String sourceBranch, String targetBranch, String title,
-                        int sourceProjectId, int targetProjectId,
-                        String description, String mergeStatus) {
+    public PullRequest(int id, int iid, String sourceBranch, String targetBranch, String title,
+                       int sourceProjectId, int targetProjectId,
+                       String description, String mergeStatus) {
         this.id = id;
         this.iid= iid;
         this.sourceBranch = sourceBranch;
@@ -50,9 +51,29 @@ public class MergeRequest {
         this.mergeStatus = mergeStatus;
     }
 
-    public MergeRequest(int id, int iid, String sourceBranch, String targetBranch, String title,
-                        int sourceProjectId, int targetProjectId,
-                        String description, String mergeStatus, String pathWithNamespace) {
+    public PullRequest(PullRequestObjectAttributes objectAttributes) {
+        this.id = objectAttributes.getId();
+        this.iid= objectAttributes.getNumber();
+        this.sourceBranch = objectAttributes.getSourceBranch();
+        this.targetBranch = objectAttributes.getTargetBranch();
+        this.title = objectAttributes.getTitle();
+        this.sourceProjectId = objectAttributes.getSourceProjectId();
+        this.projectId = objectAttributes.getTargetProjectId();
+        this.description = objectAttributes.getBody();
+        this.mergeStatus = objectAttributes.getMergeStatus();
+
+//        try {
+            String[] path = objectAttributes.getTarget().getPathWithNamespace().split("/");
+            this.repoOwner = path[0];
+            this.repoPath = path[1];
+//        } catch (Exception e) {
+//            // do nothing
+//        }
+    }
+
+    public PullRequest(int id, int iid, String sourceBranch, String targetBranch, String title,
+                       int sourceProjectId, int targetProjectId,
+                       String description, String mergeStatus, String pathWithNamespace) {
         this.id = id;
         this.iid= iid;
         this.sourceBranch = sourceBranch;
@@ -64,10 +85,8 @@ public class MergeRequest {
         this.mergeStatus = mergeStatus;
         try {
             String[] path = pathWithNamespace.split("/");
-            String repoOwner = path[0];
-            String repoPath = path[1];
-            this.repoOwner = repoOwner;
-            this.repoPath = repoPath;
+            this.repoOwner = path[0];
+            this.repoPath = path[1];
         } catch (Exception e) {
             // do nothing
         }
@@ -241,7 +260,7 @@ public class MergeRequest {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MergeRequest that = (MergeRequest) o;
+        PullRequest that = (PullRequest) o;
         return new EqualsBuilder()
                 .append(id, that.id)
                 .append(iid, that.iid)

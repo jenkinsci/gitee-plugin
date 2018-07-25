@@ -2,7 +2,7 @@ package com.gitee.jenkins.trigger.handler.note;
 
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import hudson.model.Job;
 
 /**
@@ -10,7 +10,7 @@ import hudson.model.Job;
  */
 class NopNoteHookTriggerHandler implements NoteHookTriggerHandler {
     @Override
-    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         // nothing to do
     }
 }

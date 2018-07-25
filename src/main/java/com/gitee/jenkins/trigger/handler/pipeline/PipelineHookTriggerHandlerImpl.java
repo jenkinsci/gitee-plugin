@@ -8,7 +8,7 @@ import com.gitee.jenkins.gitee.hook.model.PipelineEventObjectAttributes;
 import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
 import com.gitee.jenkins.util.LoggerUtil;
@@ -44,7 +44,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
     }
 
     @Override
-    public void handle(Job<?, ?> job, PipelineHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PipelineHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         PipelineEventObjectAttributes objectAttributes = hook.getObjectAttributes();
         try {
             if (job instanceof AbstractProject<?, ?>) {
@@ -109,7 +109,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
                 .withSourceNamespace(hook.getProject()==null||hook.getProject().getNamespace()==null?"":hook.getProject().getNamespace())
                 .withSourceRepoSshUrl(hook.getRepository()==null||hook.getRepository().getGitSshUrl()==null?"":hook.getRepository().getGitSshUrl())
                 .withSourceRepoHttpUrl(hook.getRepository()==null||hook.getRepository()==null?"":hook.getRepository().getGitHttpUrl())
-                .withMergeRequestTitle("")
+                .withPullRequestTitle("")
                 .withTargetProjectId(hook.getProjectId())
                 .withTargetBranch(getTargetBranch(hook)==null?"":getTargetBranch(hook))
                 .withTargetRepoName("")

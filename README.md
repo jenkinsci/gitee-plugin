@@ -14,12 +14,12 @@
      - [Freestyle jobs](#freestyle-jobs-1)
 - [Advanced features](#advanced-features)
   - [Branch filtering](#branch-filtering)
-  - [Add a note to merge requests](#add-a-note-to-merge-requests)
+  - [Add a note to pull requests](#add-a-note-to-merge-requests)
 - [Release Workflow](#release-workflow)
 
 # Introduction
 
-This plugin allows Gitee to trigger builds in Jenkins when code is committed or merge requests are opened/updated. It can also send build status back to Gitee.
+This plugin allows Gitee to trigger builds in Jenkins when code is committed or pull requests are opened/updated. It can also send build status back to Gitee.
 
 ### Seeking maintainers
 
@@ -109,7 +109,7 @@ When you configure the plugin to trigger your Jenkins job, by following the inst
     * Select *Build when a change is pushed to Gitee*
     * Copy the *Gitee webhook URL* shown in the UI (see [here](#webhook-url) for guidance)
     * Use the check boxes to trigger builds on *Push Events* and/or *Created Pull Request Events* and/or *Accepted Pull Request Events* and/or *Closed Pull Request Events*
-    * Optionally use *Rebuild open Pull Requests* to enable re-building open merge requests after a push to the source branch
+    * Optionally use *Rebuild open Pull Requests* to enable re-building open pull requests after a push to the source branch
     * If you selected *Rebuild open Pull Requests* other than *None*, check *Comments*, and specify the *Comment for triggering a build*.  A new build will be triggered when this phrase appears in a commit comment.  In addition to a literal phrase, you can also specify a Java regular expression
 2. Configure any other pre build, build or post build actions as necessary
 3. Click *Save* to preserve your changes in Jenkins
@@ -117,7 +117,7 @@ When you configure the plugin to trigger your Jenkins job, by following the inst
 
 
 ## Build status configuration
-You can optionally have your Jenkins jobs send their build status back to Gitee, where it will be displayed in the commit or merge request UI as appropriate. 
+You can optionally have your Jenkins jobs send their build status back to Gitee, where it will be displayed in the commit or pull request UI as appropriate. 
 
 ### Freestyle jobs
 Freestyle jobs can only send build status after the build steps are complete. To do this, choose 'Publish build status to Gitee' from the available 'Post-build actions' in your Jenkins job config. Also make sure you have chosen the appropriate Gitee instance from the 'Gitee connection' dropdown menu, if you have more than one.
@@ -130,8 +130,8 @@ Triggers may be filtered based on the branch name, i.e. the build will only be a
 **Note:** This functionality requires access to Gitee and a git repository url already saved in the project configuration. In other words, when creating a new project, the configuration needs to be saved *once* before being able to add branch filters. For Pipeline jobs, the configuration must be saved *and* the job must be run once before the list is populated.
 
 
-## Add a note to merge requests
-To add a note to Gitee merge requests after the build completes, select 'Add note with build status on Gitee merge requests' from the optional Post-build actions. Optionally, click the 'Advanced' button to customize the content of the note depending on the build result.
+## Add a note to pull requests
+To add a note to Gitee pull requests after the build completes, select 'Add note with build status on Gitee pull requests' from the optional Post-build actions. Optionally, click the 'Advanced' button to customize the content of the note depending on the build result.
 
 
 # Release Workflow

@@ -10,18 +10,15 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousStepExecution;
-import org.jenkinsci.plugins.workflow.steps.Step;
-import org.jenkinsci.plugins.workflow.steps.StepContext;
-import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
-import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.jenkinsci.plugins.workflow.steps.*;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.export.ExportedBean;
 
 import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.google.common.collect.ImmutableSet;
 
 import hudson.Extension;
@@ -32,39 +29,39 @@ import hudson.model.TaskListener;
  * @author <a href="mailto:robin.mueller@1und1.de">Robin Müller</a>
  */
 @ExportedBean
-public class AddGiteeMergeRequestCommentStep extends Step {
+public class AcceptGiteePullRequestStep extends Step {
 
-    private static final Logger LOGGER = Logger.getLogger(AddGiteeMergeRequestCommentStep.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AcceptGiteePullRequestStep.class.getName());
 
-    private String comment;
+    private String mergeCommitMessage;
 
     @DataBoundConstructor
-    public AddGiteeMergeRequestCommentStep(String comment) {
-        this.comment = StringUtils.isEmpty(comment) ? null : comment;
+    public AcceptGiteePullRequestStep(String mergeCommitMessage) {
+        this.mergeCommitMessage = StringUtils.isEmpty(mergeCommitMessage) ? null : mergeCommitMessage;
     }
 
 	@Override
 	public StepExecution start(StepContext context) throws Exception {
-		return new AddGiteeMergeRequestCommentStepExecution(context, this);
+		return new AcceptGiteePullRequestStepExecution(context, this);
 	}
 	
-    public String getComment() {
-        return comment;
+    public String getMergeCommitMessage() {
+        return mergeCommitMessage;
     }
 
     @DataBoundSetter
-    public void setComment(String comment) {
-        this.comment = StringUtils.isEmpty(comment) ? null : comment;
+    public void setMergeCommitMessage(String mergeCommitMessage) {
+        this.mergeCommitMessage = StringUtils.isEmpty(mergeCommitMessage) ? null : mergeCommitMessage;
     }
 
-    public static class AddGiteeMergeRequestCommentStepExecution extends AbstractSynchronousStepExecution<Void> {
+    public static class AcceptGiteePullRequestStepExecution extends AbstractSynchronousStepExecution<Void> {
         private static final long serialVersionUID = 1;
 
         private final transient Run<?, ?> run;
 
-        private final transient AddGiteeMergeRequestCommentStep step;
+        private final transient AcceptGiteePullRequestStep step;
 
-        AddGiteeMergeRequestCommentStepExecution(StepContext context, AddGiteeMergeRequestCommentStep step) throws Exception {
+        AcceptGiteePullRequestStepExecution(StepContext context, AcceptGiteePullRequestStep step) throws Exception {
             super(context);
             this.step = step;
             run = context.get(Run.class);
@@ -74,17 +71,17 @@ public class AddGiteeMergeRequestCommentStep extends Step {
         protected Void run() throws Exception {
             GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
             if (cause != null) {
-                MergeRequest mergeRequest = cause.getData().getMergeRequest();
-                if (mergeRequest != null) {
+                PullRequest pullRequest = cause.getData().getPullRequest();
+                if (pullRequest != null) {
                     GiteeClient client = getClient(run);
                     if (client == null) {
                         println("No Gitee connection configured");
                     } else {
                         try {
-                            client.createMergeRequestNote(mergeRequest, step.getComment());
+                            client.acceptPullRequest(pullRequest, step.mergeCommitMessage, false);
                         } catch (WebApplicationException | ProcessingException e) {
-                            printf("Failed to add comment on Merge Request for project '%s': %s%n", mergeRequest.getProjectId(), e.getMessage());
-                            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Merge Request for project '%s'", mergeRequest.getProjectId()), e);
+                            printf("Failed to accept pull request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
+                            LOGGER.log(Level.SEVERE, String.format("Failed to accept pull request for project '%s'", pullRequest.getProjectId()), e);
                         }
                     }
                 }
@@ -128,12 +125,12 @@ public class AddGiteeMergeRequestCommentStep extends Step {
 
         @Override
         public String getDisplayName() {
-            return "Add comment on Gitee Merge Request";
+            return "Accept Gitee Merge Request";
         }
 
         @Override
         public String getFunctionName() {
-            return "addGiteeMRComment";
+            return "acceptGiteeMR";
         }
         
 		@Override

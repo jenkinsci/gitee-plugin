@@ -2,19 +2,15 @@ package com.gitee.jenkins.trigger.handler.note;
 
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
-import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
-import com.gitee.jenkins.util.BuildUtil;
 import hudson.model.Job;
-import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -36,17 +32,17 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     @Override
-    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isValidTriggerPhrase(hook.getObjectAttributes().getNote())) {
-            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
     @Override
     protected boolean isCiSkip(NoteHook hook) {
-        return hook.getMergeRequest() != null
-                && hook.getMergeRequest().getBody() != null
-                && hook.getMergeRequest().getBody().contains("[ci-skip]");
+        return hook.getPullRequest() != null
+                && hook.getPullRequest().getBody() != null
+                && hook.getPullRequest().getBody().contains("[ci-skip]");
     }
 
     @Override
@@ -55,7 +51,7 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
     @Override
     protected String getTargetBranch(NoteHook hook) {
-        return hook.getMergeRequest() == null ? null : hook.getMergeRequest().getTargetBranch();
+        return hook.getPullRequest() == null ? null : hook.getPullRequest().getTargetBranch();
     }
 
     @Override
@@ -67,31 +63,31 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     protected CauseData retrieveCauseData(NoteHook hook) {
         return causeData()
                 .withActionType(CauseData.ActionType.NOTE)
-                .withSourceProjectId(hook.getMergeRequest().getSourceProjectId())
-                .withTargetProjectId(hook.getMergeRequest().getTargetProjectId())
-                .withBranch(hook.getMergeRequest().getSourceBranch())
-                .withSourceBranch(hook.getMergeRequest().getSourceBranch())
-                .withUserName(hook.getMergeRequest().getHead().getUser().getName())
-                .withUserEmail(hook.getMergeRequest().getHead().getUser().getEmail())
-                .withSourceRepoHomepage(hook.getMergeRequest().getSource().getHomepage())
-                .withSourceRepoName(hook.getMergeRequest().getSource().getName())
-                .withSourceNamespace(hook.getMergeRequest().getSource().getNamespace())
-                .withSourceRepoUrl(hook.getMergeRequest().getSource().getUrl())
-                .withSourceRepoSshUrl(hook.getMergeRequest().getSource().getSshUrl())
-                .withSourceRepoHttpUrl(hook.getMergeRequest().getSource().getGitHttpUrl())
-                .withMergeRequestTitle(hook.getMergeRequest().getTitle())
-                .withMergeRequestDescription(hook.getMergeRequest().getBody())
-                .withMergeRequestId(hook.getMergeRequest().getId())
-                .withMergeRequestIid(hook.getMergeRequest().getNumber())
-                .withMergeRequestTargetProjectId(hook.getMergeRequest().getTargetProjectId())
-                .withTargetBranch(hook.getMergeRequest().getTargetBranch())
-                .withTargetRepoName(hook.getMergeRequest().getTarget().getName())
-                .withTargetNamespace(hook.getMergeRequest().getTarget().getNamespace())
-                .withTargetRepoSshUrl(hook.getMergeRequest().getTarget().getSshUrl())
-                .withTargetRepoHttpUrl(hook.getMergeRequest().getTarget().getGitHttpUrl())
-                .withTriggeredByUser(hook.getMergeRequest().getHead().getUser().getName())
-                .withLastCommit(hook.getMergeRequest().getMergeCommitSha())
-                .withTargetProjectUrl(hook.getMergeRequest().getTarget().getUrl())
+                .withSourceProjectId(hook.getPullRequest().getSourceProjectId())
+                .withTargetProjectId(hook.getPullRequest().getTargetProjectId())
+                .withBranch(hook.getPullRequest().getSourceBranch())
+                .withSourceBranch(hook.getPullRequest().getSourceBranch())
+                .withUserName(hook.getPullRequest().getHead().getUser().getName())
+                .withUserEmail(hook.getPullRequest().getHead().getUser().getEmail())
+                .withSourceRepoHomepage(hook.getPullRequest().getSource().getHomepage())
+                .withSourceRepoName(hook.getPullRequest().getSource().getName())
+                .withSourceNamespace(hook.getPullRequest().getSource().getNamespace())
+                .withSourceRepoUrl(hook.getPullRequest().getSource().getUrl())
+                .withSourceRepoSshUrl(hook.getPullRequest().getSource().getSshUrl())
+                .withSourceRepoHttpUrl(hook.getPullRequest().getSource().getGitHttpUrl())
+                .withPullRequestTitle(hook.getPullRequest().getTitle())
+                .withPullRequestDescription(hook.getPullRequest().getBody())
+                .withPullRequestId(hook.getPullRequest().getId())
+                .withPullRequestIid(hook.getPullRequest().getNumber())
+                .withPullRequestTargetProjectId(hook.getPullRequest().getTargetProjectId())
+                .withTargetBranch(hook.getPullRequest().getTargetBranch())
+                .withTargetRepoName(hook.getPullRequest().getTarget().getName())
+                .withTargetNamespace(hook.getPullRequest().getTarget().getNamespace())
+                .withTargetRepoSshUrl(hook.getPullRequest().getTarget().getSshUrl())
+                .withTargetRepoHttpUrl(hook.getPullRequest().getTarget().getGitHttpUrl())
+                .withTriggeredByUser(hook.getPullRequest().getHead().getUser().getName())
+                .withLastCommit(hook.getPullRequest().getMergeCommitSha())
+                .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withTriggerPhrase(hook.getObjectAttributes().getNote())
                 .build();
     }
@@ -104,17 +100,17 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     @Override
     protected BuildStatusUpdate retrieveBuildStatusUpdate(NoteHook hook) {
         return buildStatusUpdate()
-            .withProjectId(hook.getMergeRequest().getSourceProjectId())
-            .withSha(hook.getMergeRequest().getMergeCommitSha())
-            .withRef(hook.getMergeRequest().getSourceBranch())
+            .withProjectId(hook.getPullRequest().getSourceProjectId())
+            .withSha(hook.getPullRequest().getMergeCommitSha())
+            .withRef(hook.getPullRequest().getSourceBranch())
             .build();
     }
 
     private String retrieveRevisionToBuild(NoteHook hook) throws NoRevisionToBuildException {
-        if (hook.getMergeRequest() != null
-                && hook.getMergeRequest().getMergeCommitSha() != null) {
+        if (hook.getPullRequest() != null
+                && hook.getPullRequest().getMergeCommitSha() != null) {
 
-            return hook.getMergeRequest().getMergeCommitSha();
+            return hook.getPullRequest().getMergeCommitSha();
         } else {
             throw new NoRevisionToBuildException();
         }

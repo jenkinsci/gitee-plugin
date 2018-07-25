@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Benjamin ROBIN
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-public class MergeRequestLabel {
+public class PullRequestLabel {
 
     /*
         "id": 206,
@@ -124,7 +124,7 @@ public class MergeRequestLabel {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MergeRequestLabel that = (MergeRequestLabel) o;
+        PullRequestLabel that = (PullRequestLabel) o;
         return new EqualsBuilder()
             .append(id, that.id)
             .append(title, that.title)

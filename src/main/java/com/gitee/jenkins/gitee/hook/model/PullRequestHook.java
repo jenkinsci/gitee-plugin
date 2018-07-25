@@ -13,15 +13,15 @@ import java.util.List;
  * @author Yashin Luo
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-public class MergeRequestHook extends WebHook {
+public class PullRequestHook extends WebHook {
 
     private User user;
     private User assignee;
     private Project repo;
     private Action action;
     private State state;
-    private MergeRequestObjectAttributes pullRequest;
-    private List<MergeRequestLabel> labels;
+    private PullRequestObjectAttributes pullRequest;
+    private List<PullRequestLabel> labels;
 
     public Action getAction() {
         return action;
@@ -63,19 +63,19 @@ public class MergeRequestHook extends WebHook {
         this.repo = repo;
     }
 
-    public MergeRequestObjectAttributes getPullRequest() {
+    public PullRequestObjectAttributes getPullRequest() {
         return pullRequest;
     }
 
-    public void setPullRequest(MergeRequestObjectAttributes pullRequest) {
+    public void setPullRequest(PullRequestObjectAttributes pullRequest) {
         this.pullRequest = pullRequest;
     }
 
-    public List<MergeRequestLabel> getLabels() {
+    public List<PullRequestLabel> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<MergeRequestLabel> labels) {
+    public void setLabels(List<PullRequestLabel> labels) {
         this.labels = labels;
     }
 
@@ -91,7 +91,7 @@ public class MergeRequestHook extends WebHook {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MergeRequestHook that = (MergeRequestHook) o;
+        PullRequestHook that = (PullRequestHook) o;
         return new EqualsBuilder()
                 .append(user, that.user)
                 .append(assignee, that.assignee)

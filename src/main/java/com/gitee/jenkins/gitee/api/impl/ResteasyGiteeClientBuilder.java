@@ -4,7 +4,7 @@ package com.gitee.jenkins.gitee.api.impl;
 import com.gitee.jenkins.gitee.JacksonConfig;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.GiteeClientBuilder;
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.util.JsonUtil;
 import com.gitee.jenkins.util.LoggerUtil;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -67,12 +67,12 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
     }
 
     private final Class<? extends GiteeApiProxy> apiProxyClass;
-    private final Function<MergeRequest, Integer> mergeRequestIdProvider;
+    private final Function<PullRequest, Integer> pullRequestIdProvider;
 
-    ResteasyGiteeClientBuilder(String id, int ordinal, Class<? extends GiteeApiProxy> apiProxyClass, Function<MergeRequest, Integer> mergeRequestIdProvider) {
+    ResteasyGiteeClientBuilder(String id, int ordinal, Class<? extends GiteeApiProxy> apiProxyClass, Function<PullRequest, Integer> pullRequestIdProvider) {
         super(id, ordinal);
         this.apiProxyClass = apiProxyClass;
-        this.mergeRequestIdProvider = mergeRequestIdProvider;
+        this.pullRequestIdProvider = pullRequestIdProvider;
     }
 
     @Nonnull
@@ -124,7 +124,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
             .classloader(apiProxyClass.getClassLoader())
             .build();
 
-        return new ResteasyGiteeClient(url, apiProxy, mergeRequestIdProvider);
+        return new ResteasyGiteeClient(url, apiProxy, pullRequestIdProvider);
     }
 
     private String getHost(String url) {

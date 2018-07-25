@@ -2,7 +2,7 @@ package com.gitee.jenkins.publisher;
 
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Result;
@@ -21,11 +21,11 @@ import java.util.logging.Logger;
 /**
  * @author Robin Müller
  */
-public class GiteeAcceptMergeRequestPublisher extends MergeRequestNotifier {
-    private static final Logger LOGGER = Logger.getLogger(GiteeAcceptMergeRequestPublisher.class.getName());
+public class GiteeAcceptPullRequestPublisher extends PullRequestNotifier {
+    private static final Logger LOGGER = Logger.getLogger(GiteeAcceptPullRequestPublisher.class.getName());
 
     @DataBoundConstructor
-    public GiteeAcceptMergeRequestPublisher() { }
+    public GiteeAcceptPullRequestPublisher() { }
 
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
@@ -41,19 +41,19 @@ public class GiteeAcceptMergeRequestPublisher extends MergeRequestNotifier {
 
         @Override
         public String getDisplayName() {
-            return Messages.GiteeAcceptMergeRequestPublisher_DisplayName();
+            return Messages.GiteeAcceptPullRequestPublisher_DisplayName();
         }
     }
 
     @Override
-    protected void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, MergeRequest mergeRequest) {
+    protected void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, PullRequest pullRequest) {
         try {
             if (build.getResult() == Result.SUCCESS) {
-                client.acceptMergeRequest(mergeRequest, "Merge Request accepted by jenkins build success", false);
+                client.acceptPullRequest(pullRequest, "Merge Request accepted by jenkins build success", false);
             }
         } catch (WebApplicationException | ProcessingException e) {
-            listener.getLogger().printf("Failed to accept merge request for project '%s': %s%n", mergeRequest.getProjectId(), e.getMessage());
-            LOGGER.log(Level.SEVERE, String.format("Failed to accept merge request for project '%s'", mergeRequest.getProjectId()), e);
+            listener.getLogger().printf("Failed to accept pull request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
+            LOGGER.log(Level.SEVERE, String.format("Failed to accept pull request for project '%s'", pullRequest.getProjectId()), e);
         }
     }
 }

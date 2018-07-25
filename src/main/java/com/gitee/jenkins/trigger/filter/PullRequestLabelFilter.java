@@ -5,6 +5,6 @@ import java.util.Collection;
 /**
  * @author Robin Müller
  */
-public interface MergeRequestLabelFilter {
-    boolean isMergeRequestAllowed(Collection<String> labels);
+public interface PullRequestLabelFilter {
+    boolean isPullRequestAllowed(Collection<String> labels);
 }

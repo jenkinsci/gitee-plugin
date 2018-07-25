@@ -17,7 +17,7 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Path("/repos/{ownerPath}/{repoPath}/pulls/{prNumber}/merge")
-    void acceptMergeRequest(@PathParam("ownerPath") String ownerPath,
+    void acceptPullRequest(@PathParam("ownerPath") String ownerPath,
                             @PathParam("repoPath") String repoPath,
                             @PathParam("prNumber") Integer prNumber);
 
@@ -25,7 +25,7 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Path("/repos/{ownerPath}/{repoPath}/pulls/{prNumber}/comments")
-    void createMergeRequestNote(@PathParam("ownerPath") String ownerPath,
+    void createPullRequestNote(@PathParam("ownerPath") String ownerPath,
                                 @PathParam("repoPath") String repoPath,
                                 @PathParam("prNumber") Integer prNumber,
                                 @FormParam("body") String body);

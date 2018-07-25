@@ -2,7 +2,7 @@ package com.gitee.jenkins.publisher;
 
 import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
@@ -21,7 +21,7 @@ import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 /**
  * @author Robin Müller
  */
-public abstract class MergeRequestNotifier extends Notifier implements MatrixAggregatable {
+public abstract class PullRequestNotifier extends Notifier implements MatrixAggregatable {
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
@@ -34,9 +34,9 @@ public abstract class MergeRequestNotifier extends Notifier implements MatrixAgg
             return true;
         }
 
-        MergeRequest mergeRequest = getMergeRequest(build);
-        if (mergeRequest != null) {
-            perform(build, listener, client, mergeRequest);
+        PullRequest pullRequest = getPullRequest(build);
+        if (pullRequest != null) {
+            perform(build, listener, client, pullRequest);
         }
         return true;
     }
@@ -51,11 +51,11 @@ public abstract class MergeRequestNotifier extends Notifier implements MatrixAgg
         };
     }
 
-    protected abstract void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, MergeRequest mergeRequest);
+    protected abstract void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, PullRequest pullRequest);
 
-    MergeRequest getMergeRequest(Run<?, ?> run) {
+    PullRequest getPullRequest(Run<?, ?> run) {
         GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
-        return cause == null ? null : cause.getData().getMergeRequest();
+        return cause == null ? null : cause.getData().getPullRequest();
 
     }
 }

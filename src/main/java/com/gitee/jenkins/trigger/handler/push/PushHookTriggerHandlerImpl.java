@@ -6,7 +6,7 @@ import com.gitee.jenkins.gitee.hook.model.Commit;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -31,9 +31,9 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
     private static final String NO_COMMIT = "0000000000000000000000000000000000000000";
 
     @Override
-    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isNoRemoveBranchPush(hook)) {
-            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, mergeRequestLabelFilter);
+            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
@@ -78,14 +78,14 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                 .withSourceRepoUrl(hook.getProject().getUrl())
                 .withSourceRepoSshUrl(hook.getProject().getSshUrl())
                 .withSourceRepoHttpUrl(hook.getProject().getGitHttpUrl())
-                .withMergeRequestTitle("")
-                .withMergeRequestDescription("")
-                .withMergeRequestId(null)
-                .withMergeRequestIid(null)
-                .withMergeRequestState(null)
+                .withPullRequestTitle("")
+                .withPullRequestDescription("")
+                .withPullRequestId(null)
+                .withPullRequestIid(null)
+                .withPullRequestState(null)
                 .withMergedByUser("")
-                .withMergeRequestAssignee("")
-                .withMergeRequestTargetProjectId(null)
+                .withPullRequestAssignee("")
+                .withPullRequestTargetProjectId(null)
                 .withTargetBranch(getTargetBranch(hook))
                 .withTargetRepoName("")
                 .withTargetNamespace("")

@@ -1,7 +1,7 @@
 package com.gitee.jenkins.webhook;
 
 import com.gitee.jenkins.util.ACLUtil;
-import com.gitee.jenkins.webhook.build.MergeRequestBuildAction;
+import com.gitee.jenkins.webhook.build.PullRequestBuildAction;
 import com.gitee.jenkins.webhook.build.NoteBuildAction;
 import com.gitee.jenkins.webhook.build.PipelineBuildAction;
 import com.gitee.jenkins.webhook.build.PushBuildAction;
@@ -107,7 +107,7 @@ public class ActionResolver {
         String tokenHeader = request.getHeader("X-Gitee-Token");
         switch (eventHeader) {
             case "Merge Request Hook":
-                return new MergeRequestBuildAction(project, getRequestBody(request), tokenHeader);
+                return new PullRequestBuildAction(project, getRequestBody(request), tokenHeader);
             case "Push Hook":
             case "Tag Push Hook":
                 return new PushBuildAction(project, getRequestBody(request), tokenHeader);

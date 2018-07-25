@@ -6,8 +6,8 @@ import com.gitee.jenkins.gitee.api.model.*;
 
 
 interface GiteeApiProxy {
-    void createMergeRequestNote(String owner, String repo, Integer mergeRequestId, String body);
+    void createPullRequestNote(String owner, String repo, Integer pullRequestId, String body);
     void headCurrentUser();
-    void acceptMergeRequest(String owner, String repo, Integer mergeRequestId);
+    void acceptPullRequest(String owner, String repo, Integer pullRequestId);
     User getCurrentUser();
 }

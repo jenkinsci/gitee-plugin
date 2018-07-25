@@ -5,9 +5,9 @@ import java.util.Collection;
 /**
  * @author Robin Müller
  */
-class NopMergeRequestLabelFilter implements MergeRequestLabelFilter {
+class NopPullRequestLabelFilter implements PullRequestLabelFilter {
     @Override
-    public boolean isMergeRequestAllowed(Collection<String> labels) {
+    public boolean isPullRequestAllowed(Collection<String> labels) {
         return true;
     }
 }

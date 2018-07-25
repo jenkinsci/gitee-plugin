@@ -14,7 +14,7 @@ public class NoteHook extends WebHook {
 
     private User user;
     private Project project;
-    private MergeRequestObjectAttributes mergeRequest;
+    private PullRequestObjectAttributes pullRequest;
     private NoteObjectAttributes objectAttributes;
 
     public User getUser() {
@@ -41,12 +41,12 @@ public class NoteHook extends WebHook {
         this.objectAttributes = objectAttributes;
     }
 
-    public MergeRequestObjectAttributes getMergeRequest() {
-        return mergeRequest;
+    public PullRequestObjectAttributes getPullRequest() {
+        return pullRequest;
     }
 
-    public void setMergeRequest(MergeRequestObjectAttributes mergeRequest) {
-        this.mergeRequest = mergeRequest;
+    public void setPullRequest(PullRequestObjectAttributes pullRequest) {
+        this.pullRequest = pullRequest;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class NoteHook extends WebHook {
                 .append(user, that.user)
                 .append(project, that.project)
                 .append(objectAttributes, that.objectAttributes)
-                .append(mergeRequest, that.mergeRequest)
+                .append(pullRequest, that.pullRequest)
                 .isEquals();
     }
 
@@ -72,7 +72,7 @@ public class NoteHook extends WebHook {
                 .append(user)
                 .append(project)
                 .append(objectAttributes)
-                .append(mergeRequest)
+                .append(pullRequest)
                 .toHashCode();
     }
 
@@ -82,7 +82,7 @@ public class NoteHook extends WebHook {
                 .append("user", user)
                 .append("project", project)
                 .append("objectAttributes", objectAttributes)
-                .append("mergeRequest", mergeRequest)
+                .append("pullRequest", pullRequest)
                 .toString();
     }
 }

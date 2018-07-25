@@ -5,7 +5,7 @@ import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.hook.model.WebHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
-import com.gitee.jenkins.trigger.filter.MergeRequestLabelFilter;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.util.LoggerUtil;
 import hudson.model.Action;
 import hudson.model.CauseAction;
@@ -34,7 +34,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected PendingBuildsHandler pendingBuildsHandler = new PendingBuildsHandler();
 
     @Override
-    public void handle(Job<?, ?> job, H hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, MergeRequestLabelFilter mergeRequestLabelFilter) {
+    public void handle(Job<?, ?> job, H hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (ciSkip && isCiSkip(hook)) {
             LOGGER.log(Level.INFO, "Skipping due to ci-skip.");
             return;

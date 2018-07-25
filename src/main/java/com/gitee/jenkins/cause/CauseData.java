@@ -1,6 +1,6 @@
 package com.gitee.jenkins.cause;
 
-import com.gitee.jenkins.gitee.api.model.MergeRequest;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
 import hudson.markup.EscapedMarkupFormatter;
 import jenkins.model.Jenkins;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
@@ -31,14 +31,14 @@ public final class CauseData {
     private final String sourceRepoUrl;
     private final String sourceRepoSshUrl;
     private final String sourceRepoHttpUrl;
-    private final String mergeRequestTitle;
-    private final String mergeRequestDescription;
-    private final Integer mergeRequestId;
-    private final Integer mergeRequestIid;
-    private final String mergeRequestState;
+    private final String pullRequestTitle;
+    private final String pullRequestDescription;
+    private final Integer pullRequestId;
+    private final Integer pullRequestIid;
+    private final String pullRequestState;
     private final String mergedByUser;
-    private final String mergeRequestAssignee;
-    private final Integer mergeRequestTargetProjectId;
+    private final String pullRequestAssignee;
+    private final Integer pullRequestTargetProjectId;
     private final String targetBranch;
     private final String targetRepoName;
     private final String targetNamespace;
@@ -63,10 +63,10 @@ public final class CauseData {
     @GeneratePojoBuilder(withFactoryMethod = "*")
     CauseData(ActionType actionType, Integer sourceProjectId, Integer targetProjectId, String branch, String sourceBranch, String userName,
               String userEmail, String sourceRepoHomepage, String sourceRepoName, String sourceNamespace, String sourceRepoUrl,
-              String sourceRepoSshUrl, String sourceRepoHttpUrl, String mergeRequestTitle, String mergeRequestDescription, Integer mergeRequestId,
-              Integer mergeRequestIid, Integer mergeRequestTargetProjectId, String targetBranch, String targetRepoName, String targetNamespace, String targetRepoSshUrl,
+              String sourceRepoSshUrl, String sourceRepoHttpUrl, String pullRequestTitle, String pullRequestDescription, Integer pullRequestId,
+              Integer pullRequestIid, Integer pullRequestTargetProjectId, String targetBranch, String targetRepoName, String targetNamespace, String targetRepoSshUrl,
               String targetRepoHttpUrl, String triggeredByUser, String before, String after, String lastCommit, String targetProjectUrl,
-              String triggerPhrase, String mergeRequestState, String mergedByUser, String mergeRequestAssignee, String ref, String isTag,
+              String triggerPhrase, String pullRequestState, String mergedByUser, String pullRequestAssignee, String ref, String isTag,
               String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt, String buildDuration, String pathWithNamespace) {
         this.actionType = checkNotNull(actionType, "actionType must not be null.");
         this.sourceProjectId = checkNotNull(sourceProjectId, "sourceProjectId must not be null.");
@@ -81,14 +81,14 @@ public final class CauseData {
         this.sourceRepoUrl = sourceRepoUrl == null ? sourceRepoSshUrl : sourceRepoUrl;
         this.sourceRepoSshUrl = checkNotNull(sourceRepoSshUrl, "sourceRepoSshUrl must not be null.");
         this.sourceRepoHttpUrl = checkNotNull(sourceRepoHttpUrl, "sourceRepoHttpUrl must not be null.");
-        this.mergeRequestTitle = checkNotNull(mergeRequestTitle, "mergeRequestTitle must not be null.");
-        this.mergeRequestDescription = mergeRequestDescription == null ? "" : mergeRequestDescription;
-        this.mergeRequestId = mergeRequestId;
-        this.mergeRequestIid = mergeRequestIid;
-        this.mergeRequestState = mergeRequestState == null ? "" : mergeRequestState;
+        this.pullRequestTitle = checkNotNull(pullRequestTitle, "pullRequestTitle must not be null.");
+        this.pullRequestDescription = pullRequestDescription == null ? "" : pullRequestDescription;
+        this.pullRequestId = pullRequestId;
+        this.pullRequestIid = pullRequestIid;
+        this.pullRequestState = pullRequestState == null ? "" : pullRequestState;
         this.mergedByUser = mergedByUser == null ? "" : mergedByUser;
-        this.mergeRequestAssignee = mergeRequestAssignee == null ? "" : mergeRequestAssignee;
-        this.mergeRequestTargetProjectId = mergeRequestTargetProjectId;
+        this.pullRequestAssignee = pullRequestAssignee == null ? "" : pullRequestAssignee;
+        this.pullRequestTargetProjectId = pullRequestTargetProjectId;
         this.targetBranch = checkNotNull(targetBranch, "targetBranch must not be null.");
         this.targetRepoName = checkNotNull(targetRepoName, "targetRepoName must not be null.");
         this.targetNamespace = checkNotNull(targetNamespace, "targetNamespace must not be null.");
@@ -97,7 +97,9 @@ public final class CauseData {
         this.triggeredByUser = checkNotNull(triggeredByUser, "triggeredByUser must not be null.");
         this.before = before == null ? "" : before;
         this.after = after == null ? "" : after;
-        this.lastCommit = checkNotNull(lastCommit, "lastCommit must not be null");
+//        this.lastCommit = checkNotNull(lastCommit, "lastCommit must not be null");
+        // 直接checkout到分支，而非commit sha，暂时不需要确保lastCommit 非空
+        this.lastCommit = lastCommit;
         this.targetProjectUrl = targetProjectUrl;
         this.triggerPhrase = triggerPhrase;
         this.ref = ref;
@@ -125,15 +127,15 @@ public final class CauseData {
         variables.put("giteeSourceRepoURL", sourceRepoUrl);
         variables.put("giteeSourceRepoSshUrl", sourceRepoSshUrl);
         variables.put("giteeSourceRepoHttpUrl", sourceRepoHttpUrl);
-        variables.put("giteeMergeRequestTitle", mergeRequestTitle);
-        variables.put("giteeMergeRequestDescription", mergeRequestDescription);
-        variables.put("giteeMergeRequestId", mergeRequestId == null ? "" : mergeRequestId.toString());
-        variables.put("giteeMergeRequestIid", mergeRequestIid == null ? "" : mergeRequestIid.toString());
-        variables.put("giteeMergeRequestTargetProjectId", mergeRequestTargetProjectId == null ? "" : mergeRequestTargetProjectId.toString());
-        variables.put("giteeMergeRequestLastCommit", lastCommit);
-        variables.putIfNotNull("giteeMergeRequestState", mergeRequestState);
+        variables.put("giteePullRequestTitle", pullRequestTitle);
+        variables.put("giteePullRequestDescription", pullRequestDescription);
+        variables.put("giteePullRequestId", pullRequestId == null ? "" : pullRequestId.toString());
+        variables.put("giteePullRequestIid", pullRequestIid == null ? "" : pullRequestIid.toString());
+        variables.put("giteePullRequestTargetProjectId", pullRequestTargetProjectId == null ? "" : pullRequestTargetProjectId.toString());
+        variables.put("giteePullRequestLastCommit", lastCommit);
+        variables.putIfNotNull("giteePullRequestState", pullRequestState);
         variables.putIfNotNull("giteeMergedByUser", mergedByUser);
-        variables.putIfNotNull("giteeMergeRequestAssignee", mergeRequestAssignee);
+        variables.putIfNotNull("giteePullRequestAssignee", pullRequestAssignee);
         variables.put("giteeTargetBranch", targetBranch);
         variables.put("giteeTargetRepoName", targetRepoName);
         variables.put("giteeTargetNamespace", targetNamespace);
@@ -206,26 +208,26 @@ public final class CauseData {
         return sourceRepoHttpUrl;
     }
 
-    public String getMergeRequestTitle() {
-        return mergeRequestTitle;
+    public String getPullRequestTitle() {
+        return pullRequestTitle;
     }
 
-    public String getMergeRequestDescription() {
-        return mergeRequestDescription;
+    public String getPullRequestDescription() {
+        return pullRequestDescription;
     }
 
     public String getPathWithNamespace() { return pathWithNamespace; }
 
-    public Integer getMergeRequestId() {
-        return mergeRequestId;
+    public Integer getPullRequestId() {
+        return pullRequestId;
     }
 
-    public Integer getMergeRequestIid() {
-        return mergeRequestIid;
+    public Integer getPullRequestIid() {
+        return pullRequestIid;
     }
 
-    public Integer getMergeRequestTargetProjectId() {
-        return mergeRequestTargetProjectId;
+    public Integer getPullRequestTargetProjectId() {
+        return pullRequestTargetProjectId;
     }
 
     public String getTargetBranch() {
@@ -291,25 +293,25 @@ public final class CauseData {
         return actionType.getShortDescription(this);
     }
 
-    public String getMergeRequestState() {
-		return mergeRequestState;
+    public String getPullRequestState() {
+		return pullRequestState;
 	}
 
 	public String getMergedByUser() {
 		return mergedByUser;
 	}
 
-	public String getMergeRequestAssignee() {
-		return mergeRequestAssignee;
+	public String getPullRequestAssignee() {
+		return pullRequestAssignee;
 	}
 
-	public MergeRequest getMergeRequest() {
-        if (mergeRequestId == null) {
+	public PullRequest getPullRequest() {
+        if (pullRequestId == null) {
             return null;
         }
 
-        return new MergeRequest(mergeRequestId, mergeRequestIid, sourceBranch, targetBranch, mergeRequestTitle,
-            sourceProjectId, targetProjectId, mergeRequestDescription, mergeRequestState, pathWithNamespace);
+        return new PullRequest(pullRequestId, pullRequestIid, sourceBranch, targetBranch, pullRequestTitle,
+            sourceProjectId, targetProjectId, pullRequestDescription, pullRequestState, pathWithNamespace);
     }
 
     @Override
@@ -335,14 +337,14 @@ public final class CauseData {
             .append(sourceRepoUrl, causeData.sourceRepoUrl)
             .append(sourceRepoSshUrl, causeData.sourceRepoSshUrl)
             .append(sourceRepoHttpUrl, causeData.sourceRepoHttpUrl)
-            .append(mergeRequestTitle, causeData.mergeRequestTitle)
-            .append(mergeRequestDescription, causeData.mergeRequestDescription)
-            .append(mergeRequestId, causeData.mergeRequestId)
-            .append(mergeRequestIid, causeData.mergeRequestIid)
-            .append(mergeRequestState, causeData.mergeRequestState)
+            .append(pullRequestTitle, causeData.pullRequestTitle)
+            .append(pullRequestDescription, causeData.pullRequestDescription)
+            .append(pullRequestId, causeData.pullRequestId)
+            .append(pullRequestIid, causeData.pullRequestIid)
+            .append(pullRequestState, causeData.pullRequestState)
             .append(mergedByUser, causeData.mergedByUser)
-            .append(mergeRequestAssignee, causeData.mergeRequestAssignee)
-            .append(mergeRequestTargetProjectId, causeData.mergeRequestTargetProjectId)
+            .append(pullRequestAssignee, causeData.pullRequestAssignee)
+            .append(pullRequestTargetProjectId, causeData.pullRequestTargetProjectId)
             .append(targetBranch, causeData.targetBranch)
             .append(targetRepoName, causeData.targetRepoName)
             .append(targetNamespace, causeData.targetNamespace)
@@ -382,14 +384,14 @@ public final class CauseData {
             .append(sourceRepoUrl)
             .append(sourceRepoSshUrl)
             .append(sourceRepoHttpUrl)
-            .append(mergeRequestTitle)
-            .append(mergeRequestDescription)
-            .append(mergeRequestId)
-            .append(mergeRequestIid)
-            .append(mergeRequestState)
+            .append(pullRequestTitle)
+            .append(pullRequestDescription)
+            .append(pullRequestId)
+            .append(pullRequestIid)
+            .append(pullRequestState)
             .append(mergedByUser)
-            .append(mergeRequestAssignee)
-            .append(mergeRequestTargetProjectId)
+            .append(pullRequestAssignee)
+            .append(pullRequestTargetProjectId)
             .append(targetBranch)
             .append(targetRepoName)
             .append(targetNamespace)
@@ -429,14 +431,14 @@ public final class CauseData {
             .append("sourceRepoUrl", sourceRepoUrl)
             .append("sourceRepoSshUrl", sourceRepoSshUrl)
             .append("sourceRepoHttpUrl", sourceRepoHttpUrl)
-            .append("mergeRequestTitle", mergeRequestTitle)
-            .append("mergeRequestDescription", mergeRequestDescription)
-            .append("mergeRequestId", mergeRequestId)
-            .append("mergeRequestIid", mergeRequestIid)
-            .append("mergeRequestState", mergeRequestState)
+            .append("pullRequestTitle", pullRequestTitle)
+            .append("pullRequestDescription", pullRequestDescription)
+            .append("pullRequestId", pullRequestId)
+            .append("pullRequestIid", pullRequestIid)
+            .append("pullRequestState", pullRequestState)
             .append("mergedByUser", mergedByUser)
-            .append("mergeRequestAssignee", mergeRequestAssignee)
-            .append("mergeRequestTargetProjectId", mergeRequestTargetProjectId)
+            .append("pullRequestAssignee", pullRequestAssignee)
+            .append("pullRequestTargetProjectId", pullRequestTargetProjectId)
             .append("targetBranch", targetBranch)
             .append("targetRepoName", targetRepoName)
             .append("targetNamespace", targetNamespace)
@@ -476,11 +478,11 @@ public final class CauseData {
             String getShortDescription(CauseData data) {
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
                 if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
-                    return Messages.GiteeWebHookCause_ShortDescription_MergeRequestHook_plain(String.valueOf(data.getMergeRequestIid()),
+                    return Messages.GiteeWebHookCause_ShortDescription_PullRequestHook_plain(String.valueOf(data.getPullRequestIid()),
                                                                                                forkNamespace + data.getSourceBranch(),
                                                                                                data.getTargetBranch());
                 } else {
-                    return Messages.GiteeWebHookCause_ShortDescription_MergeRequestHook_html(String.valueOf(data.getMergeRequestIid()),
+                    return Messages.GiteeWebHookCause_ShortDescription_PullRequestHook_html(String.valueOf(data.getPullRequestIid()),
                                                                                               forkNamespace + data.getSourceBranch(),
                                                                                               data.getTargetBranch(),
                                                                                               data.getTargetProjectUrl());
@@ -493,12 +495,12 @@ public final class CauseData {
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
                 if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
                     return Messages.GiteeWebHookCause_ShortDescription_NoteHook_plain(triggeredBy,
-                        String.valueOf(data.getMergeRequestIid()),
+                        String.valueOf(data.getPullRequestIid()),
                         forkNamespace + data.getSourceBranch(),
                         data.getTargetBranch());
                 } else {
                     return Messages.GiteeWebHookCause_ShortDescription_NoteHook_html(triggeredBy,
-                        String.valueOf(data.getMergeRequestIid()),
+                        String.valueOf(data.getPullRequestIid()),
                         forkNamespace + data.getSourceBranch(),
                         data.getTargetBranch(),
                         data.getTargetProjectUrl());
