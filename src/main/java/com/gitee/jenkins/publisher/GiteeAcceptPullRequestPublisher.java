@@ -49,7 +49,7 @@ public class GiteeAcceptPullRequestPublisher extends PullRequestNotifier {
     protected void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, PullRequest pullRequest) {
         try {
             if (build.getResult() == Result.SUCCESS) {
-                client.acceptPullRequest(pullRequest, "Merge Request accepted by jenkins build success", false);
+                client.acceptPullRequest(pullRequest, "Pull Request accepted by jenkins build success", false);
             }
         } catch (WebApplicationException | ProcessingException e) {
             listener.getLogger().printf("Failed to accept pull request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());

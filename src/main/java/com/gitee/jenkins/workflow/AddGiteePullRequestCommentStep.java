@@ -83,8 +83,8 @@ public class AddGiteePullRequestCommentStep extends Step {
                         try {
                             client.createPullRequestNote(pullRequest, step.getComment());
                         } catch (WebApplicationException | ProcessingException e) {
-                            printf("Failed to add comment on Merge Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
-                            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Merge Request for project '%s'", pullRequest.getProjectId()), e);
+                            printf("Failed to add comment on Pull Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
+                            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Pull Request for project '%s'", pullRequest.getProjectId()), e);
                         }
                     }
                 }
@@ -128,7 +128,7 @@ public class AddGiteePullRequestCommentStep extends Step {
 
         @Override
         public String getDisplayName() {
-            return "Add comment on Gitee Merge Request";
+            return "Add comment on Gitee Pull Request";
         }
 
         @Override

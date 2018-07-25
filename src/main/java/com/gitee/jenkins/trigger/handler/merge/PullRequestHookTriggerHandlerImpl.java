@@ -108,7 +108,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
         if (objectAttributes != null && objectAttributes.getMergeCommitSha() != null) {
             Run<?, ?> mergeBuild = BuildUtil.getBuildBySHA1IncludingMergeBuilds(project, objectAttributes.getMergeCommitSha());
             if (mergeBuild != null && StringUtils.equals(getTargetBranchFromBuild(mergeBuild), objectAttributes.getTargetBranch())) {
-                LOGGER.log(Level.INFO, "Last commit in Merge Request has already been built in build #" + mergeBuild.getNumber());
+                LOGGER.log(Level.INFO, "Last commit in Pull Request has already been built in build #" + mergeBuild.getNumber());
                 return true;
             }
         }
@@ -209,7 +209,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
     private boolean isNotSkipWorkInProgressPullRequest(PullRequestObjectAttributes objectAttributes) {
 //        Boolean workInProgress = objectAttributes.getWorkInProgress();
 //        if (skipWorkInProgressPullRequest && workInProgress != null && workInProgress) {
-//            LOGGER.log(Level.INFO, "Skip WIP Merge Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
+//            LOGGER.log(Level.INFO, "Skip WIP Pull Request #{0} ({1})", toArray(objectAttributes.getNumber(), objectAttributes.getTitle()));
 //            return false;
 //        }
         return true;

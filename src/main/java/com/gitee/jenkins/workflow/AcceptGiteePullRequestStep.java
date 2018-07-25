@@ -125,7 +125,7 @@ public class AcceptGiteePullRequestStep extends Step {
 
         @Override
         public String getDisplayName() {
-            return "Accept Gitee Merge Request";
+            return "Accept Gitee Pull Request";
         }
 
         @Override

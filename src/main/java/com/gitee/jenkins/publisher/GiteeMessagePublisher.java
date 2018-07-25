@@ -180,8 +180,8 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
                 client.createPullRequestNote(pullRequest, getNote(build, listener));
             }
         } catch (WebApplicationException | ProcessingException e) {
-            listener.getLogger().printf("Failed to add comment on Merge Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
-            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Merge Request for project '%s'", pullRequest.getProjectId()), e);
+            listener.getLogger().printf("Failed to add comment on Pull Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
+            LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Pull Request for project '%s'", pullRequest.getProjectId()), e);
         }
     }
 
