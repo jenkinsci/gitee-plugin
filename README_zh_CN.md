@@ -35,6 +35,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 - 设置 WebHook 验证密码
 - 构建后操作可配置 PR 触发的构建结果评论到码云对应的PR中
 - 构建后操作可配置 PR 触发的构建成功后可自动合并对应PR。
+- 不可自动合并的PR不触发构建，且若配置了评论到PR的功能，则评论到PR提示PR不可自定合并
 
 ## 计划中特性
 - PR 审查并测试通过触发构建
@@ -125,6 +126,8 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 3. `Ignore last commit has build` 该选项可以跳过已经构建过的 Commit 版本。
 4. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
 5. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
+6. 注意：若 PR 状态为不可自动合并，则不触发构建。
+
 ![触发器配置](https://images.gitee.com/uploads/images/2018/0724/120539_106f7480_58426.png "屏幕截图.png")
 
 ### 构建后步骤配置
@@ -137,6 +140,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 2. `Advanced` 中可以配置：
     - Add message only for failed builds ：仅为构建失败回评到码云
     - 自定义各状态的回评内容（内容可以引用 Jenkins 的环境变量，或者自定义的环境变量）
+3. 若开启该功能，还可将不可自动合并的状态回评至码云
 
 #### 构建成功自动合并PR
 点击 `Add post-build action` 下拉框选择：`Accept Gitee pull request on success`
