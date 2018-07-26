@@ -85,6 +85,9 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 
     protected URIish retrieveUrIish(WebHook hook, GitSCM gitSCM) {
+        if (gitSCM == null) {
+            return null;
+        }
         List<URIish> uris = new ArrayList<URIish>();
         try {
             if (hook.getRepository() != null) {
