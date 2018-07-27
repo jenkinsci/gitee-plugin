@@ -14,10 +14,6 @@ import java.util.Date;
  */
 @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
 public class PullRequestObjectAttributes {
-
-    private final static String UNCHECKED = "unchecked";
-    private final static String CAN_BE_MERGED = "can_be_merged";
-    private final static String CANNOT_BE_MERGED = "cannot_be_merged";
     private Integer id;
     private Integer number;
     private Integer authorId;
@@ -29,6 +25,7 @@ public class PullRequestObjectAttributes {
     private BranchData head;
     private BranchData base;
     private String mergeStatus;
+    private boolean mergeable;
     private String mergeCommitSha;
     private String mergeReferenceName;
     private String url;
@@ -179,8 +176,16 @@ public class PullRequestObjectAttributes {
         this.workInProgress = workInProgress;
     }
 
-    public boolean can_be_merged() {
-        return StringUtils.isNotBlank(mergeCommitSha) && !StringUtils.equals(CANNOT_BE_MERGED, mergeStatus);
+    public boolean getMergeable() {
+        return mergeable;
+    }
+
+    public void setMergeable(boolean mergeable) {
+        this.mergeable = mergeable;
+    }
+
+    public boolean isMergeable() {
+        return mergeable;
     }
 
     @Override
@@ -206,6 +211,7 @@ public class PullRequestObjectAttributes {
             .append(mergeCommitSha, that.mergeCommitSha)
             .append(mergeReferenceName, that.mergeReferenceName)
             .append(mergeStatus, that.mergeStatus)
+            .append(mergeable, that.mergeable)
             .append(url, that.url)
             .append(workInProgress, that.workInProgress)
             .isEquals();
@@ -225,6 +231,7 @@ public class PullRequestObjectAttributes {
             .append(head)
             .append(base)
             .append(mergeStatus)
+            .append(mergeable)
             .append(mergeCommitSha)
             .append(mergeReferenceName)
             .append(url)
@@ -248,6 +255,7 @@ public class PullRequestObjectAttributes {
             .append("mergeCommitSha", mergeCommitSha)
             .append("mergeReferenceName", mergeReferenceName)
             .append("mergeStatus", mergeStatus)
+            .append("mergeable", mergeable)
             .append("url", url)
             .append("workInProgress", workInProgress)
             .toString();

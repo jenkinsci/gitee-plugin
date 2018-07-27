@@ -14,12 +14,12 @@ import java.util.Date;
 public class NoteObjectAttributes {
 
     private Integer id;
-    private String note;
+    private String body;
     private Integer authorId;
     private Integer projectId;
     private Date createdAt;
     private Date updatedAt;
-    private String url;
+    private String html_url;
 
     public Integer getId() {
         return id;
@@ -61,20 +61,20 @@ public class NoteObjectAttributes {
         this.updatedAt = updatedAt;
     }
 
-    public String getNote() {
-        return note;
+    public String getBody() {
+        return body;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setBody(String body) {
+        this.body = body;
     }
 
-    public String getUrl() {
-        return url;
+    public String getHtmlUrl() {
+        return html_url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setHtmlUrl(String html_url) {
+        this.html_url = html_url;
     }
 
     @Override
@@ -88,12 +88,12 @@ public class NoteObjectAttributes {
         NoteObjectAttributes that = (NoteObjectAttributes) o;
         return new EqualsBuilder()
                 .append(id, that.id)
-                .append(note, that.note)
+                .append(body, that.body)
                 .append(projectId, that.projectId)
                 .append(authorId, that.authorId)
                 .append(createdAt, that.createdAt)
                 .append(updatedAt, that.updatedAt)
-                .append(url, that.url)
+                .append(html_url, that.html_url)
                 .isEquals();
     }
 
@@ -101,12 +101,12 @@ public class NoteObjectAttributes {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(id)
-                .append(note)
+                .append(body)
                 .append(projectId)
                 .append(authorId)
                 .append(createdAt)
                 .append(updatedAt)
-                .append(url)
+                .append(html_url)
                 .toHashCode();
     }
 
@@ -114,12 +114,12 @@ public class NoteObjectAttributes {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("note", note)
+                .append("body", body)
                 .append("projectId", projectId)
                 .append("authorId", authorId)
                 .append("createdAt", createdAt)
                 .append("updatedAt", updatedAt)
-                .append("url", url)
+                .append("html_url", html_url)
                 .toString();
     }
 }

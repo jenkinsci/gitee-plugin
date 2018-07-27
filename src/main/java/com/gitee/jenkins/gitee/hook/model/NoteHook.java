@@ -15,7 +15,7 @@ public class NoteHook extends WebHook {
     private User user;
     private Project project;
     private PullRequestObjectAttributes pullRequest;
-    private NoteObjectAttributes objectAttributes;
+    private NoteObjectAttributes comment;
 
     public User getUser() {
         return user;
@@ -33,12 +33,12 @@ public class NoteHook extends WebHook {
         this.project = project;
     }
 
-    public NoteObjectAttributes getObjectAttributes() {
-        return objectAttributes;
+    public NoteObjectAttributes getComment() {
+        return comment;
     }
 
-    public void setObjectAttributes(NoteObjectAttributes objectAttributes) {
-        this.objectAttributes = objectAttributes;
+    public void setComment(NoteObjectAttributes comment) {
+        this.comment = comment;
     }
 
     public PullRequestObjectAttributes getPullRequest() {
@@ -47,6 +47,10 @@ public class NoteHook extends WebHook {
 
     public void setPullRequest(PullRequestObjectAttributes pullRequest) {
         this.pullRequest = pullRequest;
+    }
+
+    public String getWebHookDescription() {
+        return getHookName() + " iid = " + pullRequest.getNumber() + " merge commit sha = " + pullRequest.getMergeCommitSha();
     }
 
     @Override
@@ -61,7 +65,7 @@ public class NoteHook extends WebHook {
         return new EqualsBuilder()
                 .append(user, that.user)
                 .append(project, that.project)
-                .append(objectAttributes, that.objectAttributes)
+                .append(comment, that.comment)
                 .append(pullRequest, that.pullRequest)
                 .isEquals();
     }
@@ -71,7 +75,7 @@ public class NoteHook extends WebHook {
         return new HashCodeBuilder(17, 37)
                 .append(user)
                 .append(project)
-                .append(objectAttributes)
+                .append(comment)
                 .append(pullRequest)
                 .toHashCode();
     }
@@ -81,7 +85,7 @@ public class NoteHook extends WebHook {
         return new ToStringBuilder(this)
                 .append("user", user)
                 .append("project", project)
-                .append("objectAttributes", objectAttributes)
+                .append("comment", comment)
                 .append("pullRequest", pullRequest)
                 .toString();
     }

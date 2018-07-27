@@ -34,7 +34,6 @@ public class PullRequestBuildAction extends BuildWebHookAction {
     }
 
     void processForCompatibility() {
-        // url and homepage are introduced in 8.x versions of Gitee
         final PullRequestObjectAttributes attributes = this.pullRequestHook.getPullRequest();
         if (attributes != null) {
             final Project source = attributes.getSource();

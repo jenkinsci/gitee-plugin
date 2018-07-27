@@ -69,14 +69,14 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 }
 
                 // 若pr不可自动合并则评论至pr
-                if (!objectAttributes.can_be_merged()) {
-                    LOGGER.log(Level.INFO, "This pull request can not be pull");
+                if (!objectAttributes.isMergeable()) {
+                    LOGGER.log(Level.INFO, "This pull request can not be merge");
                     GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
                     if (publisher != null) {
                         GiteeClient client = getClient(job);
                         PullRequest pullRequest = new PullRequest(objectAttributes);
                         LOGGER.log(Level.INFO, "sending message to gitee.....");
-                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be pull! The build will not be triggered. Please manual pull conflict.");
+                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
                     }
                     return;
                 } else if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {

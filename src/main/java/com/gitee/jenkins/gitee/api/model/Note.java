@@ -15,7 +15,7 @@ public class Note {
     private User author;
     private Date createdAt;
     private Date updatedAt;
-    private String note;
+    private String body;
 
     public Note() {}
 
@@ -59,12 +59,12 @@ public class Note {
         this.updatedAt = updatedAt;
     }
 
-    public String getNote() {
-        return note;
+    public String getBody() {
+        return body;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class Note {
             .append(author, that.author)
             .append(createdAt, that.createdAt)
             .append(updatedAt, that.updatedAt)
-            .append(note, that.note)
+            .append(body, that.body)
             .isEquals();
     }
 
@@ -94,7 +94,7 @@ public class Note {
             .append(author)
             .append(createdAt)
             .append(updatedAt)
-            .append(note)
+            .append(body)
             .toHashCode();
     }
 
@@ -106,7 +106,7 @@ public class Note {
             .append("author", author)
             .append("createdAt", createdAt)
             .append("updatedAt", updatedAt)
-            .append("note", note)
+            .append("body", body)
             .toString();
     }
 }

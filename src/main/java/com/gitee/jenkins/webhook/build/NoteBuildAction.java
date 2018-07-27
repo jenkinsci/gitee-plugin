@@ -19,7 +19,7 @@ import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
 /**
  * @author Nikolay Ustinov
  */
-public class NoteBuildAction implements WebHookAction {
+public class NoteBuildAction extends BuildWebHookAction {
 
     private final static Logger LOGGER = Logger.getLogger(NoteBuildAction.class.getName());
     private Item project;
@@ -33,7 +33,13 @@ public class NoteBuildAction implements WebHookAction {
         this.secretToken = secretToken;
     }
 
-    public void execute(StaplerResponse response) {
+    @Override
+    void processForCompatibility() {
+
+    }
+
+    @Override
+    public void execute() {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Note Hook is not supported for this project");
         }
@@ -43,6 +49,6 @@ public class NoteBuildAction implements WebHookAction {
                 trigger.onPost(noteHook);
             }
         });
-        throw HttpResponses.ok();
+        throw responseWithHook(noteHook);
     }
 }
