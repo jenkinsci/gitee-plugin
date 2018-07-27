@@ -19,7 +19,7 @@ public class NoteObjectAttributes {
     private Integer projectId;
     private Date createdAt;
     private Date updatedAt;
-    private String html_url;
+    private String htmlUrl;
 
     public Integer getId() {
         return id;
@@ -70,11 +70,11 @@ public class NoteObjectAttributes {
     }
 
     public String getHtmlUrl() {
-        return html_url;
+        return htmlUrl;
     }
 
-    public void setHtmlUrl(String html_url) {
-        this.html_url = html_url;
+    public void setHtmlUrl(String htmlUrl) {
+        this.htmlUrl = htmlUrl;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class NoteObjectAttributes {
                 .append(authorId, that.authorId)
                 .append(createdAt, that.createdAt)
                 .append(updatedAt, that.updatedAt)
-                .append(html_url, that.html_url)
+                .append(htmlUrl, that.htmlUrl)
                 .isEquals();
     }
 
@@ -106,7 +106,7 @@ public class NoteObjectAttributes {
                 .append(authorId)
                 .append(createdAt)
                 .append(updatedAt)
-                .append(html_url)
+                .append(htmlUrl)
                 .toHashCode();
     }
 
@@ -119,7 +119,7 @@ public class NoteObjectAttributes {
                 .append("authorId", authorId)
                 .append("createdAt", createdAt)
                 .append("updatedAt", updatedAt)
-                .append("html_url", html_url)
+                .append("htmlUrl", htmlUrl)
                 .toString();
     }
 }
