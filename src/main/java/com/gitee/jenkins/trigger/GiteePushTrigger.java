@@ -76,6 +76,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private String noteRegex = "";
     private boolean ciSkip = true;
     private boolean skipWorkInProgressPullRequest;
+    private boolean ciSkipFroTestNotRequired;
     private boolean skipLastCommitHasBeenBuild;
     private boolean setBuildDescription = true;
     private transient boolean addNoteOnPullRequest;
@@ -238,6 +239,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return ciSkip;
     }
 
+    public boolean getCiSkipFroTestNotRequired() {
+        return ciSkipFroTestNotRequired;
+    }
+
     public boolean getSkipLastCommitHasBeenBuild() {
         return skipLastCommitHasBeenBuild;
     }
@@ -248,6 +253,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public boolean isSkipLastCommitHasBuild() {
         return skipLastCommitHasBeenBuild;
+    }
+
+    public boolean isSkipFroTestNotRequired() {
+        return ciSkipFroTestNotRequired;
     }
 
     public BranchFilterType getBranchFilterType() {
@@ -325,6 +334,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @DataBoundSetter
     public void setCiSkip(boolean ciSkip) {
         this.ciSkip = ciSkip;
+    }
+
+    @DataBoundSetter
+    public void setCiSkipFroTestNotRequired(boolean ciSkipFroTestNotRequired) {
+        this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
     }
 
     @DataBoundSetter
@@ -471,8 +485,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private void initializeTriggerHandler() {
 		pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(triggerOnOpenPullRequest,
 				triggerOnUpdatePullRequest, triggerOnAcceptedPullRequest, triggerOnClosedPullRequest,
-				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate);
-        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex);
+				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
+        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired);
         pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }

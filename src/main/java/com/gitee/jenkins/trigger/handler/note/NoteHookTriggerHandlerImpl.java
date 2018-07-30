@@ -33,9 +33,11 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     private static final Logger LOGGER = Logger.getLogger(NoteHookTriggerHandlerImpl.class.getName());
 
     private final String noteRegex;
+    private final boolean ciSkipFroTestNotRequired;
 
-    NoteHookTriggerHandlerImpl(String noteRegex) {
+    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired) {
         this.noteRegex = noteRegex;
+        this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
     }
 
     @Override
@@ -54,6 +56,14 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 }
                 return;
             }
+
+            // 若PR不需要测试，且有设定值，则跳过构建
+            if (objectAttributes != null && ciSkipFroTestNotRequired && !objectAttributes.getNeedTest()) {
+                LOGGER.log(Level.INFO, "Skip because this pull don't need test.");
+                return;
+            }
+
+
             super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }

@@ -7,9 +7,9 @@ public final class NoteHookTriggerHandlerFactory {
 
     private NoteHookTriggerHandlerFactory() {}
 
-    public static NoteHookTriggerHandler newNoteHookTriggerHandler(boolean triggerOnNoteRequest, String noteRegex) {
+    public static NoteHookTriggerHandler newNoteHookTriggerHandler(boolean triggerOnNoteRequest, String noteRegex, boolean ciSkipFroTestNotRequired) {
         if (triggerOnNoteRequest) {
-            return new NoteHookTriggerHandlerImpl(noteRegex);
+            return new NoteHookTriggerHandlerImpl(noteRegex, ciSkipFroTestNotRequired);
         } else {
             return new NopNoteHookTriggerHandler();
         }

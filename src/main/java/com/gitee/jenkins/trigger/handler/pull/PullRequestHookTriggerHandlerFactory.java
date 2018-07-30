@@ -20,7 +20,8 @@ public final class PullRequestHookTriggerHandlerFactory {
                                                                                   boolean skipWorkInProgressPullRequest,
                                                                                   boolean triggerOnApprovedPullRequest,
                                                                                   boolean triggerOnTestedPullRequest,
-                                                                                  boolean cancelPendingBuildsOnUpdate) {
+                                                                                  boolean cancelPendingBuildsOnUpdate,
+                                                                                  boolean ciSkipFroTestNotRequired) {
         if (triggerOnOpenPullRequest
             || triggerOnUpdatePullRequest
             || triggerOnAcceptedPullRequest
@@ -42,7 +43,8 @@ public final class PullRequestHookTriggerHandlerFactory {
                     triggerOnApprovedPullRequest,
                     triggerOnTestedPullRequest),
                 skipWorkInProgressPullRequest,
-                cancelPendingBuildsOnUpdate);
+                cancelPendingBuildsOnUpdate,
+                ciSkipFroTestNotRequired);
         } else {
             return new NopPullRequestHookTriggerHandler();
         }

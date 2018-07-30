@@ -39,18 +39,20 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
     private final Collection<State> allowedStates;
     private final boolean skipWorkInProgressPullRequest;
+    private final boolean ciSkipFroTestNotRequired;
 	private final Collection<Action> allowedActions;
     private final boolean cancelPendingBuildsOnUpdate;
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate) {
-        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate);
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
+        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
     }
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate) {
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
         this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
+        this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
     }
 
     @Override
@@ -72,14 +74,23 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 if (!objectAttributes.isMergeable()) {
                     LOGGER.log(Level.INFO, "This pull request can not be merge");
                     GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
-                    if (publisher != null) {
-                        GiteeClient client = getClient(job);
+                    GiteeClient client = getClient(job);
+
+                    if (publisher != null && client != null) {
                         PullRequest pullRequest = new PullRequest(objectAttributes);
                         LOGGER.log(Level.INFO, "sending message to gitee.....");
                         client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
                     }
                     return;
-                } else if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
+                }
+
+                // 若PR不需要测试，且有设定值，则跳过构建
+                if ( ciSkipFroTestNotRequired && !objectAttributes.getNeedTest()) {
+                    LOGGER.log(Level.INFO, "Skip because this pull don't need test.");
+                    return;
+                }
+
+                if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
                     super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
                 }
             }

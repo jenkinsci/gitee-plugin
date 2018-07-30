@@ -35,6 +35,9 @@
   <f:entry title="${%Enable.CI.Skip}" field="ciSkip" help="/plugin/gitee/help/help-ci-skip.html">
     <f:checkbox default="true"/>
   </f:entry>
+  <f:entry title="${%Enable.CI.SkipFroTestNotRequired}" field="ciSkipFroTestNotRequired" help="/plugin/gitee/help/help-ci-skip-test.html">
+    <f:checkbox default="true"/>
+  </f:entry>
 
   <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
     <f:checkbox default="true"/>

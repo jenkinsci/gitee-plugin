@@ -26,9 +26,11 @@ public class PullRequestObjectAttributes {
     private BranchData base;
     private String mergeStatus;
     private boolean mergeable;
+    private boolean needReview;
+    private boolean needTest;
     private String mergeCommitSha;
     private String mergeReferenceName;
-    private String url;
+    private String htmlUrl;
     private Boolean workInProgress;
 
     public Integer getId() {
@@ -135,6 +137,21 @@ public class PullRequestObjectAttributes {
         return base.getRepo();
     }
 
+    public boolean getNeedTest() {
+        return needTest;
+    }
+
+    public void setNeedTest(boolean needTest) {
+        this.needTest = needTest;
+    }
+
+    public boolean getNeedReview() {
+        return needReview;
+    }
+
+    public void setNeedReview(boolean needReview) {
+        this.needReview = needReview;
+    }
 
     public String getMergeCommitSha() {
         return mergeCommitSha;
@@ -160,12 +177,12 @@ public class PullRequestObjectAttributes {
         this.mergeStatus = mergeStatus;
     }
 
-    public String getUrl() {
-        return url;
+    public String getHtmlUrl() {
+        return htmlUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setHtmlUrl(String htmlUrl) {
+        this.htmlUrl = htmlUrl;
     }
 
     public Boolean getWorkInProgress() {
@@ -212,7 +229,9 @@ public class PullRequestObjectAttributes {
             .append(mergeReferenceName, that.mergeReferenceName)
             .append(mergeStatus, that.mergeStatus)
             .append(mergeable, that.mergeable)
-            .append(url, that.url)
+            .append(needReview, that.needReview)
+            .append(needTest, that.needTest)
+            .append(htmlUrl, that.htmlUrl)
             .append(workInProgress, that.workInProgress)
             .isEquals();
     }
@@ -232,9 +251,11 @@ public class PullRequestObjectAttributes {
             .append(base)
             .append(mergeStatus)
             .append(mergeable)
+            .append(needReview)
+            .append(needTest)
             .append(mergeCommitSha)
             .append(mergeReferenceName)
-            .append(url)
+            .append(htmlUrl)
             .append(workInProgress)
             .toHashCode();
     }
@@ -256,7 +277,9 @@ public class PullRequestObjectAttributes {
             .append("mergeReferenceName", mergeReferenceName)
             .append("mergeStatus", mergeStatus)
             .append("mergeable", mergeable)
-            .append("url", url)
+            .append("needReview", needReview)
+            .append("needTest", needTest)
+            .append("htmlUrl", htmlUrl)
             .append("workInProgress", workInProgress)
             .toString();
     }
