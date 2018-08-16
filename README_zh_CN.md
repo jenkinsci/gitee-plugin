@@ -17,6 +17,7 @@
     - [新建码云项目WebHook](#新建码云项目WebHook)
       - [测试推送触发构建](#测试推送触发构建)
       - [测试PR触发构建](#测试PR触发构建)
+- [环境变量](#环境变量)
 - [用户支持](#用户支持)
 - [参与贡献](#参与贡献)
   - [打包或运行测试](#打包或运行测试)
@@ -163,6 +164,55 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 1. 码云的 WebHook 管理中选择勾选了 Pull Request 的 WebHook 点击测试，观察 Jenkins 任务的构建状态
 2. 在码云项目中新建一个Pull Request，观察 Jenkins 任务的构建状态
 
+# 环境变量
+目前支持环境变量见以下函数，其中不同的 WebHook 触发可能导致有些变量为空，具体请安装插件 [EnvInject Plugin](https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin)，于构建中查看  Environment Variables
+
+
+```java
+    public Map<String, String> getBuildVariables() {
+        MapWrapper<String, String> variables = new MapWrapper<>(new HashMap<String, String>());
+        variables.put("giteeBranch", branch);
+        variables.put("giteeSourceBranch", sourceBranch);
+        variables.put("giteeActionType", actionType.name());
+        variables.put("giteeUserName", userName);
+        variables.put("giteeUserEmail", userEmail);
+        variables.put("giteeSourceRepoHomepage", sourceRepoHomepage);
+        variables.put("giteeSourceRepoName", sourceRepoName);
+        variables.put("giteeSourceNamespace", sourceNamespace);
+        variables.put("giteeSourceRepoURL", sourceRepoUrl);
+        variables.put("giteeSourceRepoSshUrl", sourceRepoSshUrl);
+        variables.put("giteeSourceRepoHttpUrl", sourceRepoHttpUrl);
+        variables.put("giteePullRequestTitle", pullRequestTitle);
+        variables.put("giteePullRequestDescription", pullRequestDescription);
+        variables.put("giteePullRequestId", pullRequestId == null ? "" : pullRequestId.toString());
+        variables.put("giteePullRequestIid", pullRequestIid == null ? "" : pullRequestIid.toString());
+        variables.put("giteePullRequestTargetProjectId", pullRequestTargetProjectId == null ? "" : pullRequestTargetProjectId.toString());
+        variables.put("giteePullRequestLastCommit", lastCommit);
+        variables.put("giteePushCreated", created ? "true" : "false");
+        variables.put("giteePushDeleted", deleted ? "true" : "false");
+        variables.putIfNotNull("giteePullRequestState", pullRequestState);
+        variables.putIfNotNull("giteeMergedByUser", mergedByUser);
+        variables.putIfNotNull("giteePullRequestAssignee", pullRequestAssignee);
+        variables.put("giteeTargetBranch", targetBranch);
+        variables.put("giteeTargetRepoName", targetRepoName);
+        variables.put("giteeTargetNamespace", targetNamespace);
+        variables.put("giteeTargetRepoSshUrl", targetRepoSshUrl);
+        variables.put("giteeTargetRepoHttpUrl", targetRepoHttpUrl);
+        variables.put("giteeBefore", before);
+        variables.put("giteeAfter", after);
+        variables.put("ref", ref);
+        variables.put("beforeSha", beforeSha);
+        variables.put("isTag", isTag);
+        variables.put("sha", sha);
+        variables.put("status", status);
+        variables.put("stages", stages);
+        variables.put("createdAt", createdAt);
+        variables.put("finishedAt", finishedAt);
+        variables.put("duration", buildDuration);
+        variables.putIfNotNull("giteeTriggerPhrase", triggerPhrase);
+        return variables;
+    }
+```
 
 # 用户支持
 如在使用过程中有任何疑问，欢迎在 [Gitee Jenkins Issue](https://gitee.com/oschina/Gitee-Jenkins-Plugin/issues) 中反馈。

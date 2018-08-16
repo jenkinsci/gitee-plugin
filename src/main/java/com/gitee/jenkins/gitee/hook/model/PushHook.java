@@ -15,6 +15,8 @@ public class PushHook extends WebHook {
 
     private String before;
     private String after;
+    private boolean created;
+    private boolean deleted;
     private String ref;
     private Integer userId;
     private String userName;
@@ -31,6 +33,23 @@ public class PushHook extends WebHook {
     public void setBefore(String before) {
         this.before = before;
     }
+
+    public boolean getCreated() {
+        return created;
+    }
+
+    public void setCreated(boolean created) {
+        this.created = created;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
 
     public String getAfter() {
         return after;
@@ -127,6 +146,8 @@ public class PushHook extends WebHook {
         PushHook pushHook = (PushHook) o;
         return new EqualsBuilder()
                 .append(before, pushHook.before)
+                .append(created, pushHook.created)
+                .append(deleted, pushHook.deleted)
                 .append(after, pushHook.after)
                 .append(ref, pushHook.ref)
                 .append(userId, pushHook.userId)
@@ -145,6 +166,8 @@ public class PushHook extends WebHook {
                 .append(before)
                 .append(after)
                 .append(ref)
+                .append(created)
+                .append(deleted)
                 .append(userId)
                 .append(userName)
                 .append(userEmail)
@@ -161,6 +184,8 @@ public class PushHook extends WebHook {
                 .append("before", before)
                 .append("after", after)
                 .append("ref", ref)
+                .append("created", created)
+                .append("deleted", deleted)
                 .append("userId", userId)
                 .append("userName", userName)
                 .append("userEmail", userEmail)

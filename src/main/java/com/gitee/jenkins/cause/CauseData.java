@@ -59,15 +59,18 @@ public final class CauseData {
     private final String createdAt;
     private final String finishedAt;
     private final String buildDuration;
+    private final boolean created;
+    private final boolean deleted;
 
     @GeneratePojoBuilder(withFactoryMethod = "*")
     CauseData(ActionType actionType, Integer sourceProjectId, Integer targetProjectId, String branch, String sourceBranch, String userName,
               String userEmail, String sourceRepoHomepage, String sourceRepoName, String sourceNamespace, String sourceRepoUrl,
               String sourceRepoSshUrl, String sourceRepoHttpUrl, String pullRequestTitle, String pullRequestDescription, Integer pullRequestId,
-              Integer pullRequestIid, Integer pullRequestTargetProjectId, String targetBranch, String targetRepoName, String targetNamespace, String targetRepoSshUrl,
-              String targetRepoHttpUrl, String triggeredByUser, String before, String after, String lastCommit, String targetProjectUrl,
-              String triggerPhrase, String pullRequestState, String mergedByUser, String pullRequestAssignee, String ref, String isTag,
-              String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt, String buildDuration, String pathWithNamespace) {
+              Integer pullRequestIid, Integer pullRequestTargetProjectId, String targetBranch, String targetRepoName, String targetNamespace,
+              String targetRepoSshUrl, String targetRepoHttpUrl, String triggeredByUser, String before, String after, String lastCommit,
+              String targetProjectUrl, String triggerPhrase, String pullRequestState, String mergedByUser, String pullRequestAssignee,
+              String ref, String isTag, String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt,
+              String buildDuration, String pathWithNamespace, boolean created, boolean deleted) {
         this.actionType = checkNotNull(actionType, "actionType must not be null.");
         this.sourceProjectId = checkNotNull(sourceProjectId, "sourceProjectId must not be null.");
         this.targetProjectId = checkNotNull(targetProjectId, "targetProjectId must not be null.");
@@ -112,6 +115,8 @@ public final class CauseData {
         this.finishedAt = finishedAt;
         this.buildDuration = buildDuration;
         this.pathWithNamespace = pathWithNamespace;
+        this.created = created;
+        this.deleted = deleted;
     }
 
     public Map<String, String> getBuildVariables() {
@@ -133,6 +138,8 @@ public final class CauseData {
         variables.put("giteePullRequestIid", pullRequestIid == null ? "" : pullRequestIid.toString());
         variables.put("giteePullRequestTargetProjectId", pullRequestTargetProjectId == null ? "" : pullRequestTargetProjectId.toString());
         variables.put("giteePullRequestLastCommit", lastCommit);
+        variables.put("giteePushCreated", created ? "true" : "false");
+        variables.put("giteePushDeleted", deleted ? "true" : "false");
         variables.putIfNotNull("giteePullRequestState", pullRequestState);
         variables.putIfNotNull("giteeMergedByUser", mergedByUser);
         variables.putIfNotNull("giteePullRequestAssignee", pullRequestAssignee);
@@ -305,6 +312,15 @@ public final class CauseData {
 		return pullRequestAssignee;
 	}
 
+
+	public boolean getCreated() {
+        return created;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
 	public PullRequest getPullRequest() {
         if (pullRequestId == null) {
             return null;
@@ -365,6 +381,8 @@ public final class CauseData {
             .append(finishedAt, causeData.getFinishedAt())
             .append(buildDuration, causeData.getBuildDuration())
             .append(pathWithNamespace, causeData.getPathWithNamespace())
+            .append(created, causeData.getCreated())
+            .append(deleted, causeData.getDeleted())
             .isEquals();
     }
 
@@ -412,6 +430,8 @@ public final class CauseData {
             .append(finishedAt)
             .append(buildDuration)
             .append(pathWithNamespace)
+            .append(created)
+            .append(deleted)
             .toHashCode();
     }
 
@@ -459,6 +479,8 @@ public final class CauseData {
             .append("finishedAt", finishedAt)
             .append("duration", buildDuration)
             .append("pathWithNamespace", pathWithNamespace)
+            .append("created", created)
+            .append("deleted", deleted)
             .toString();
     }
 
