@@ -97,10 +97,11 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 1. 点击 *Git*
 2. 输入你的仓库地址，例如 ``git@your.gitee.server:gitee_group/gitee_project.git``
     1. 点击 *Advanced* 按钮, *Name* 字段中输入 ``origin``， *Refspec* 字段输入 ``+refs/heads/*:refs/remotes/origin/* +refs/pull/*/MERGE:refs/pull/*/MERGE``
-3. *Branch Specifier* 选项:
+3. 凭据Credentials 中请输入 git 仓库 https 地址对应的 用户名密码凭据，或者 ssh 对应的 ssh key 凭据，注意 Gitee API Token 凭据不可用于源码管理的凭据，只用于 gitee 插件的 API 调用凭据。
+4. *Branch Specifier* 选项:
     1. 对于单仓库工作流输入: ``origin/${giteeSourceBranch}``
     2. 对于 PR 工作流输入: ``pull/${giteePullRequestIid}/MERGE``
-4. *Additional Behaviours* 选项：
+5. *Additional Behaviours* 选项：
     1. 对于单仓库工作流，如果你希望推送的分支构建前合并默认分支（发布的分支），可以做以下操作：
         1. 点击 *Add* 下拉框
         2. 选择 *Merge before build* 
