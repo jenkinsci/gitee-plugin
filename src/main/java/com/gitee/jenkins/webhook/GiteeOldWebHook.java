@@ -20,11 +20,11 @@ import java.util.logging.Logger;
  */
 
 @Extension
-public class GiteeWebHook implements UnprotectedRootAction {
+public class GiteeOldWebHook implements UnprotectedRootAction {
 
-    public static final String WEBHOOK_URL = "gitee-project";
+    public static final String WEBHOOK_URL = "project";
 
-    private static final Logger LOGGER = Logger.getLogger(GiteeWebHook.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GiteeOldWebHook.class.getName());
 
     private transient final ActionResolver actionResolver = new ActionResolver();
 
