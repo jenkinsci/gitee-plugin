@@ -68,12 +68,12 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean triggerOnOpenPullRequest = true;
     private boolean triggerOnPipelineEvent = false;
     private boolean triggerOnAcceptedPullRequest = false;
-    private boolean triggerOnUpdatePullRequest = false;
+    private int     triggerOnUpdatePullRequest = 3;
     private boolean triggerOnClosedPullRequest = false;
     private boolean triggerOnApprovedPullRequest = false;
     private boolean triggerOnTestedPullRequest = false;
     private boolean triggerOnNoteRequest = true;
-    private String noteRegex = "";
+    private String  noteRegex = "";
     private boolean ciSkip = true;
     private boolean skipWorkInProgressPullRequest;
     private boolean ciSkipFroTestNotRequired;
@@ -106,7 +106,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
      */
     @Deprecated
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
-    public GiteePushTrigger(boolean triggerOnPush, boolean triggerOnOpenPullRequest, boolean triggerOnUpdatePullRequest, boolean triggerOnAcceptedPullRequest, boolean triggerOnClosedPullRequest,
+    public GiteePushTrigger(boolean triggerOnPush,
+                            boolean triggerOnOpenPullRequest,
+                            int triggerOnUpdatePullRequest,
+                            boolean triggerOnAcceptedPullRequest,
+                            boolean triggerOnClosedPullRequest,
                             boolean triggerOnNoteRequest, String noteRegex,
                             boolean skipWorkInProgressPullRequest, boolean ciSkip,
                             boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage, boolean addVoteOnPullRequest,
@@ -205,7 +209,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return triggerOnTestedPullRequest;
     }
 
-    public boolean getTriggerOnUpdatePullRequest() {
+    public int getTriggerOnUpdatePullRequest() {
         return triggerOnUpdatePullRequest;
     }
 
@@ -414,9 +418,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setTriggerOnUpdatePullRequest(boolean triggerOnUpdatePullRequest) {
+    public void setTriggerOnUpdatePullRequest(int triggerOnUpdatePullRequest) {
         this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
     }
+
     @DataBoundSetter
     public void setTriggerOnPipelineEvent(boolean triggerOnPipelineEvent) {
         this.triggerOnPipelineEvent = triggerOnPipelineEvent;

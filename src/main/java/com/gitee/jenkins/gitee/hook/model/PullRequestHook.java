@@ -19,6 +19,7 @@ public class PullRequestHook extends WebHook {
     private User assignee;
     private Project repo;
     private Action action;
+    private ActionDesc actionDesc;
     private State state;
     private PullRequestObjectAttributes pullRequest;
     private List<PullRequestLabel> labels;
@@ -27,8 +28,16 @@ public class PullRequestHook extends WebHook {
         return action;
     }
 
+    public ActionDesc getActionDesc() {
+        return actionDesc;
+    }
+
     public void setAction(Action action) {
         this.action = action;
+    }
+
+    public void setActionDesc(ActionDesc actionDesc) {
+        this.actionDesc = actionDesc;
     }
 
     public State getState() {
@@ -97,6 +106,7 @@ public class PullRequestHook extends WebHook {
                 .append(assignee, that.assignee)
                 .append(repo, that.repo)
                 .append(action, that.action)
+                .append(actionDesc, that.actionDesc)
                 .append(state, that.state)
                 .append(pullRequest, that.pullRequest)
                 .append(labels, that.labels)
@@ -113,6 +123,7 @@ public class PullRequestHook extends WebHook {
                 .append(labels)
                 .append(state)
                 .append(action)
+                .append(actionDesc)
                 .toHashCode();
     }
 
@@ -124,6 +135,7 @@ public class PullRequestHook extends WebHook {
                 .append("repo", repo)
                 .append("state", state)
                 .append("action", action)
+                .append("actionDesc", actionDesc)
                 .append("pullRequest", pullRequest)
                 .append("labels", labels)
                 .toString();

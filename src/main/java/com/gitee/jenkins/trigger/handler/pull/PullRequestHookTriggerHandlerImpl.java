@@ -41,15 +41,17 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
     private final boolean skipWorkInProgressPullRequest;
     private final boolean ciSkipFroTestNotRequired;
 	private final Collection<Action> allowedActions;
+	private final Collection<ActionDesc> allowedActionDesces;
     private final boolean cancelPendingBuildsOnUpdate;
 
     PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
-        this(allowedStates, EnumSet.allOf(Action.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
+        this(allowedStates, EnumSet.allOf(Action.class), EnumSet.allOf(ActionDesc.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
     }
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, Collection<ActionDesc> allowedActionDesces, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
+        this.allowedActionDesces = allowedActionDesces;
         this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
@@ -95,7 +97,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 }
             }
             else {
-                LOGGER.log(Level.INFO, "request is not allow, hook state=" + hook.getState() + ", action = " + hook.getAction());
+                LOGGER.log(Level.INFO, "request is not allow, hook state=" + hook.getState() + ", action = " + hook.getAction() + ", action desc = " + hook.getActionDesc());
             }
         } catch (Exception e) {
             LOGGER.log(Level.INFO, "request is not allow, hook ----- #" + hook.toString());
@@ -212,7 +214,8 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
 	private boolean isAllowedByConfig(PullRequestHook hook) {
 		return allowedStates.contains(hook.getState())
-        	&& allowedActions.contains(hook.getAction());
+        	&& allowedActions.contains(hook.getAction())
+            && allowedActionDesces.contains(hook.getActionDesc());
 	}
 
 	// Gitee 无此状态，暂时屏蔽

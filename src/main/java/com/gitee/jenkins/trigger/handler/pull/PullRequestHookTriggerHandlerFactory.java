@@ -1,6 +1,7 @@
 package com.gitee.jenkins.trigger.handler.pull;
 
 import com.gitee.jenkins.gitee.hook.model.Action;
+import com.gitee.jenkins.gitee.hook.model.ActionDesc;
 import com.gitee.jenkins.gitee.hook.model.State;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public final class PullRequestHookTriggerHandlerFactory {
     private PullRequestHookTriggerHandlerFactory() {}
 
     public static PullRequestHookTriggerHandler newPullRequestHookTriggerHandler(boolean triggerOnOpenPullRequest,
-                                                                                  boolean triggerOnUpdatePullRequest,
+                                                                                  int triggerOnUpdatePullRequest,
                                                                                   boolean triggerOnAcceptedPullRequest,
                                                                                   boolean triggerOnClosedPullRequest,
                                                                                   boolean skipWorkInProgressPullRequest,
@@ -23,7 +24,7 @@ public final class PullRequestHookTriggerHandlerFactory {
                                                                                   boolean cancelPendingBuildsOnUpdate,
                                                                                   boolean ciSkipFroTestNotRequired) {
         if (triggerOnOpenPullRequest
-            || triggerOnUpdatePullRequest
+            || (triggerOnUpdatePullRequest > 0)
             || triggerOnAcceptedPullRequest
             || triggerOnClosedPullRequest
             || triggerOnApprovedPullRequest
@@ -42,6 +43,7 @@ public final class PullRequestHookTriggerHandlerFactory {
                     triggerOnClosedPullRequest,
                     triggerOnApprovedPullRequest,
                     triggerOnTestedPullRequest),
+                retrieveAllowedActionDesces(triggerOnUpdatePullRequest),
                 skipWorkInProgressPullRequest,
                 cancelPendingBuildsOnUpdate,
                 ciSkipFroTestNotRequired);
@@ -50,8 +52,28 @@ public final class PullRequestHookTriggerHandlerFactory {
         }
     }
 
-	private static List<Action> retrieveAllowedActions(boolean triggerOnOpenPullRequest,
-                                                       boolean triggerOnUpdatePullRequest,
+
+    private static List<ActionDesc> retrieveAllowedActionDesces(int triggerOnUpdatePullRequest) {
+        List<ActionDesc> allowedActionDesces =new ArrayList<>();
+
+        switch(triggerOnUpdatePullRequest){
+            case 1:
+                allowedActionDesces.add(ActionDesc.source_branch_changed);
+                break;
+            case 2:
+                allowedActionDesces.add(ActionDesc.target_branch_changed);
+                break;
+            case 3:
+                allowedActionDesces.add(ActionDesc.source_branch_changed);
+                allowedActionDesces.add(ActionDesc.target_branch_changed);
+                break;
+        }
+        return allowedActionDesces;
+    }
+
+
+    private static List<Action> retrieveAllowedActions(boolean triggerOnOpenPullRequest,
+                                                       int triggerOnUpdatePullRequest,
                                                        boolean triggerOnAcceptedPullRequest,
                                                        boolean triggerOnClosedPullRequest,
                                                        boolean triggerOnApprovedPullRequest,
@@ -62,7 +84,7 @@ public final class PullRequestHookTriggerHandlerFactory {
             allowedActions.add(Action.open);
         }
 
-        if (triggerOnUpdatePullRequest) {
+        if (triggerOnUpdatePullRequest > 0) {
             allowedActions.add(Action.update);
         }
 
@@ -86,14 +108,14 @@ public final class PullRequestHookTriggerHandlerFactory {
 	}
 
 	private static List<State> retrieveAllowedStates(boolean triggerOnOpenPullRequest,
-                                                     boolean triggerOnUpdatePullRequest,
+                                                     int triggerOnUpdatePullRequest,
                                                      boolean triggerOnAcceptedPullRequest,
                                                      boolean triggerOnClosedPullRequest,
                                                      boolean triggerOnApprovedPullRequest,
                                                      boolean triggerOnTestedPullRequest) {
         List<State> result = new ArrayList<>();
         if (triggerOnOpenPullRequest
-            || triggerOnUpdatePullRequest
+            || triggerOnUpdatePullRequest > 0
             || triggerOnApprovedPullRequest
             || triggerOnTestedPullRequest) {
 

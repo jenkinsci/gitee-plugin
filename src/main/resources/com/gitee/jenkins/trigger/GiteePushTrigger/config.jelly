@@ -9,9 +9,17 @@
       <f:entry title="${%Opened.Pull.Request}" field="triggerOnOpenPullRequest">
         <f:checkbox default="true"/>
       </f:entry>
-      <f:entry title="${%Updated.Pull.Request}" field="triggerOnUpdatePullRequest">
-        <f:checkbox default="true"/>
+
+      <f:entry name="triggerOnUpdatePullRequest" title="${%Updated.Pull.Request}">
+        <select name="triggerOnUpdatePullRequest" field="triggerOnUpdatePullRequest">
+          <option value='0' selected = "${instance.triggerOnUpdatePullRequest.toString() == '0'}">None</option>
+          <option value='3' selected = "${instance.triggerOnUpdatePullRequest.toString() == '3'}">Both Source and Target Branch updated</option>
+          <option value='1' selected = "${instance.triggerOnUpdatePullRequest.toString() == '1'}">Source Branch updated</option>
+          <option value='2' selected = "${instance.triggerOnUpdatePullRequest.toString() == '2'}">Target Branch updated</option>
+        </select>
       </f:entry>
+
+
       <f:entry title="${%Accepted.Pull.Request}" field="triggerOnAcceptedPullRequest">
         <f:checkbox default="false"/>
       </f:entry>
