@@ -68,7 +68,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean triggerOnOpenPullRequest = true;
     private boolean triggerOnPipelineEvent = false;
     private boolean triggerOnAcceptedPullRequest = false;
-    private int     triggerOnUpdatePullRequest = 3;
+    private String  triggerOnUpdatePullRequest = "3";
     private boolean triggerOnClosedPullRequest = false;
     private boolean triggerOnApprovedPullRequest = false;
     private boolean triggerOnTestedPullRequest = false;
@@ -108,7 +108,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
     public GiteePushTrigger(boolean triggerOnPush,
                             boolean triggerOnOpenPullRequest,
-                            int triggerOnUpdatePullRequest,
+                            String triggerOnUpdatePullRequest,
                             boolean triggerOnAcceptedPullRequest,
                             boolean triggerOnClosedPullRequest,
                             boolean triggerOnNoteRequest, String noteRegex,
@@ -209,7 +209,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return triggerOnTestedPullRequest;
     }
 
-    public int getTriggerOnUpdatePullRequest() {
+    public String getTriggerOnUpdatePullRequest() {
         return triggerOnUpdatePullRequest;
     }
 
@@ -418,7 +418,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setTriggerOnUpdatePullRequest(int triggerOnUpdatePullRequest) {
+    public void setTriggerOnUpdatePullRequest(String triggerOnUpdatePullRequest) {
         this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
     }
 

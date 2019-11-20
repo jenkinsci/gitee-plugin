@@ -15,7 +15,7 @@ public final class PullRequestHookTriggerHandlerFactory {
     private PullRequestHookTriggerHandlerFactory() {}
 
     public static PullRequestHookTriggerHandler newPullRequestHookTriggerHandler(boolean triggerOnOpenPullRequest,
-                                                                                  int triggerOnUpdatePullRequest,
+                                                                                  String triggerOnUpdatePullRequest,
                                                                                   boolean triggerOnAcceptedPullRequest,
                                                                                   boolean triggerOnClosedPullRequest,
                                                                                   boolean skipWorkInProgressPullRequest,
@@ -24,7 +24,7 @@ public final class PullRequestHookTriggerHandlerFactory {
                                                                                   boolean cancelPendingBuildsOnUpdate,
                                                                                   boolean ciSkipFroTestNotRequired) {
         if (triggerOnOpenPullRequest
-            || (triggerOnUpdatePullRequest > 0)
+            || !("0".equals(triggerOnUpdatePullRequest) || "false".equals(triggerOnUpdatePullRequest))
             || triggerOnAcceptedPullRequest
             || triggerOnClosedPullRequest
             || triggerOnApprovedPullRequest
@@ -53,17 +53,21 @@ public final class PullRequestHookTriggerHandlerFactory {
     }
 
 
-    private static List<ActionDesc> retrieveAllowedActionDesces(int triggerOnUpdatePullRequest) {
+    private static List<ActionDesc> retrieveAllowedActionDesces(String triggerOnUpdatePullRequest) {
         List<ActionDesc> allowedActionDesces =new ArrayList<>();
 
         switch(triggerOnUpdatePullRequest){
-            case 1:
+            case "1":
                 allowedActionDesces.add(ActionDesc.source_branch_changed);
                 break;
-            case 2:
+            case "2":
                 allowedActionDesces.add(ActionDesc.target_branch_changed);
                 break;
-            case 3:
+            case "3":
+                allowedActionDesces.add(ActionDesc.source_branch_changed);
+                allowedActionDesces.add(ActionDesc.target_branch_changed);
+                break;
+            case "true":
                 allowedActionDesces.add(ActionDesc.source_branch_changed);
                 allowedActionDesces.add(ActionDesc.target_branch_changed);
                 break;
@@ -73,7 +77,7 @@ public final class PullRequestHookTriggerHandlerFactory {
 
 
     private static List<Action> retrieveAllowedActions(boolean triggerOnOpenPullRequest,
-                                                       int triggerOnUpdatePullRequest,
+                                                       String triggerOnUpdatePullRequest,
                                                        boolean triggerOnAcceptedPullRequest,
                                                        boolean triggerOnClosedPullRequest,
                                                        boolean triggerOnApprovedPullRequest,
@@ -84,7 +88,7 @@ public final class PullRequestHookTriggerHandlerFactory {
             allowedActions.add(Action.open);
         }
 
-        if (triggerOnUpdatePullRequest > 0) {
+        if (!("0".equals(triggerOnUpdatePullRequest) || "false".equals(triggerOnUpdatePullRequest))) {
             allowedActions.add(Action.update);
         }
 
@@ -108,14 +112,14 @@ public final class PullRequestHookTriggerHandlerFactory {
 	}
 
 	private static List<State> retrieveAllowedStates(boolean triggerOnOpenPullRequest,
-                                                     int triggerOnUpdatePullRequest,
+                                                     String triggerOnUpdatePullRequest,
                                                      boolean triggerOnAcceptedPullRequest,
                                                      boolean triggerOnClosedPullRequest,
                                                      boolean triggerOnApprovedPullRequest,
                                                      boolean triggerOnTestedPullRequest) {
         List<State> result = new ArrayList<>();
         if (triggerOnOpenPullRequest
-            || triggerOnUpdatePullRequest > 0
+            || !("0".equals(triggerOnUpdatePullRequest) || "false".equals(triggerOnUpdatePullRequest))
             || triggerOnApprovedPullRequest
             || triggerOnTestedPullRequest) {
 

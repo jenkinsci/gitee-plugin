@@ -12,10 +12,10 @@
 
       <f:entry name="triggerOnUpdatePullRequest" title="${%Updated.Pull.Request}">
         <select name="triggerOnUpdatePullRequest" field="triggerOnUpdatePullRequest">
-          <option value='0' selected = "${instance.triggerOnUpdatePullRequest.toString() == '0'}">None</option>
-          <option value='3' selected = "${instance.triggerOnUpdatePullRequest.toString() == '3'}">Both Source and Target Branch updated</option>
-          <option value='1' selected = "${instance.triggerOnUpdatePullRequest.toString() == '1'}">Source Branch updated</option>
-          <option value='2' selected = "${instance.triggerOnUpdatePullRequest.toString() == '2'}">Target Branch updated</option>
+          <option value="0" selected = "${(instance.triggerOnUpdatePullRequest.equals('0') || instance.triggerOnUpdatePullRequest.toString().equals('false')) ? 'true':null}">None</option>
+          <option value="3" selected = "${(instance.triggerOnUpdatePullRequest.equals('3') || instance.triggerOnUpdatePullRequest.toString().equals('true')) ? 'true':null}">Both Source and Target Branch updated</option>
+          <option value="1" selected = "${instance.triggerOnUpdatePullRequest.equals('1') ? 'true':null}">Source Branch updated</option>
+          <option value="2" selected = "${instance.triggerOnUpdatePullRequest.equals('2') ? 'true':null}">Target Branch updated</option>
         </select>
       </f:entry>
 
