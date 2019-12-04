@@ -215,7 +215,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 	private boolean isAllowedByConfig(PullRequestHook hook) {
 		return allowedStates.contains(hook.getState())
         	&& allowedActions.contains(hook.getAction())
-            && allowedActionDesces.contains(hook.getActionDesc());
+            && (hook.getAction() != Action.update || allowedActionDesces.contains(hook.getActionDesc()));
 	}
 
 	// Gitee 无此状态，暂时屏蔽
