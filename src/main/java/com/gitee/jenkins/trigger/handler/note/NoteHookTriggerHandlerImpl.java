@@ -3,9 +3,7 @@ package com.gitee.jenkins.trigger.handler.note;
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
-import com.gitee.jenkins.gitee.hook.model.NoteHook;
-import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
-import com.gitee.jenkins.gitee.hook.model.PullRequestObjectAttributes;
+import com.gitee.jenkins.gitee.hook.model.*;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
@@ -15,7 +13,6 @@ import hudson.model.Job;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -42,7 +39,7 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     @Override
     public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
-        if (isValidTriggerPhrase(hook.getComment().getBody())) {
+        if (isValidTrigger(hook)) {
             // 若pr不可自动合并则评论至pr
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
             if (objectAttributes != null && !objectAttributes.isMergeable()) {
@@ -144,6 +141,14 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
         } else {
             throw new NoRevisionToBuildException();
         }
+    }
+
+    private boolean isValidTrigger(NoteHook hook) {
+        return (isValidTriggerPhrase(hook.getComment().getBody()) && isValidTriggerAction(hook.getAction()));
+    }
+
+    private boolean isValidTriggerAction(NoteAction action) {
+        return action == NoteAction.comment;
     }
 
     private boolean isValidTriggerPhrase(String note) {

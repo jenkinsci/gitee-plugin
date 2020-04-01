@@ -16,11 +16,19 @@ public class NoteHook extends WebHook {
     private Project project;
     private PullRequestObjectAttributes pullRequest;
     private NoteObjectAttributes comment;
+    private NoteAction action;
+
+    public NoteAction getAction() {
+        return action;
+    }
+
+    public void setAction(NoteAction action) {
+        this.action = action;
+    }
 
     public User getUser() {
         return user;
     }
-
     public void setUser(User user) {
         this.user = user;
     }
@@ -64,6 +72,7 @@ public class NoteHook extends WebHook {
         NoteHook that = (NoteHook) o;
         return new EqualsBuilder()
                 .append(user, that.user)
+                .append(action, that.action)
                 .append(project, that.project)
                 .append(comment, that.comment)
                 .append(pullRequest, that.pullRequest)
@@ -74,6 +83,7 @@ public class NoteHook extends WebHook {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(user)
+                .append(action)
                 .append(project)
                 .append(comment)
                 .append(pullRequest)
@@ -84,6 +94,7 @@ public class NoteHook extends WebHook {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("user", user)
+                .append("action", action)
                 .append("project", project)
                 .append("comment", comment)
                 .append("pullRequest", pullRequest)
