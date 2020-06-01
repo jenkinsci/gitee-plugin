@@ -97,6 +97,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 1. 点击 *Git*
 2. 输入你的仓库地址，例如 ``git@your.gitee.server:gitee_group/gitee_project.git``
     1. 点击 *Advanced* 按钮, *Name* 字段中输入 ``origin``， *Refspec* 字段输入 ``+refs/heads/*:refs/remotes/origin/* +refs/pull/*/MERGE:refs/pull/*/MERGE``
+，注意新版jenkins不再接受多条同时包含 * 通配符的refs描述，如只对push触发可写前半部分，如只对PR触发可只写后半段。具体可见下图：![输入图片说明](https://images.gitee.com/uploads/images/2020/0601/220940_0ce95dd0_58426.png "屏幕截图.png")
 3. 凭据Credentials 中请输入 git 仓库 https 地址对应的 用户名密码凭据，或者 ssh 对应的 ssh key 凭据，注意 Gitee API Token 凭据不可用于源码管理的凭据，只用于 gitee 插件的 API 调用凭据。
 4. *Branch Specifier* 选项:
     1. 对于单仓库工作流输入: ``origin/${giteeSourceBranch}``
