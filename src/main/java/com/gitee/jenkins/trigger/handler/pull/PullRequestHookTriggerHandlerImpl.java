@@ -179,6 +179,9 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 .withTargetRepoHttpUrl(hook.getPullRequest().getTarget().getGitHttpUrl())
                 .withTriggeredByUser(hook.getPullRequest().getHead().getUser().getName())
                 .withLastCommit(hook.getPullRequest().getMergeCommitSha())
+                .withSha(hook.getPullRequest().getMergeCommitSha())
+                .withAfter(hook.getPullRequest().getMergeCommitSha())
+                .withRef(hook.getPullRequest().getTargetBranch())
                 .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withPathWithNamespace(hook.getRepo().getPathWithNamespace())
                 .build();

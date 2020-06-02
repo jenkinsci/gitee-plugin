@@ -114,6 +114,9 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 .withTargetRepoHttpUrl(hook.getPullRequest().getTarget().getGitHttpUrl())
                 .withTriggeredByUser(hook.getPullRequest().getHead().getUser().getName())
                 .withLastCommit(hook.getPullRequest().getMergeCommitSha())
+                .withSha(hook.getPullRequest().getMergeCommitSha())
+                .withAfter(hook.getPullRequest().getMergeCommitSha())
+                .withRef(hook.getPullRequest().getTargetBranch())
                 .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withTriggerPhrase(hook.getComment().getBody())
                 .withPathWithNamespace(hook.getPullRequest().getBase().getRepo().getPathWithNamespace())
@@ -130,7 +133,7 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
         return buildStatusUpdate()
             .withProjectId(hook.getPullRequest().getSourceProjectId())
             .withSha(hook.getPullRequest().getMergeCommitSha())
-            .withRef(hook.getPullRequest().getSourceBranch())
+            .withRef(hook.getPullRequest().getTargetBranch())
             .build();
     }
 

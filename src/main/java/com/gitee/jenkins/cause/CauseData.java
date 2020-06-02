@@ -150,6 +150,9 @@ public final class CauseData {
         variables.put("giteeTargetRepoHttpUrl", targetRepoHttpUrl);
         variables.put("giteeBefore", before);
         variables.put("giteeAfter", after);
+        variables.put("giteeBeforeCommitSha", before);
+        variables.put("giteeAfterCommitSha", after);
+        variables.put("giteeRef", ref);
         variables.put("ref", ref);
         variables.put("beforeSha", beforeSha);
         variables.put("isTag", isTag);
