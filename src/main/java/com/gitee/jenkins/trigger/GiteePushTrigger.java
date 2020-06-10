@@ -605,11 +605,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token
             RANDOM.nextBytes(random);
             String secretToken = Util.toHexString(random);
-            response.setHeader("script", "document.getElementById('secretToken').value='" + secretToken + "'");
+            response.setHeader("script", "document.getElementById('giteeSecretToken').value='" + secretToken + "'");
         }
 
         public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {;
-            response.setHeader("script", "document.getElementById('secretToken').value=''");
+            response.setHeader("script", "document.getElementById('giteeSecretToken').value=''");
         }
     }
 }
