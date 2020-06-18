@@ -78,7 +78,7 @@
   </f:entry>
   <f:entry title="${%Secret.Token}" help="/plugin/gitee/help/help-secretToken.html">
     <table>
-      <f:readOnlyTextbox field="secretToken" id="secretToken"/>
+      <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>
       <f:validateButton title="${%Generate}" method="generateSecretToken"/>
       <f:validateButton title="${%Clear}" method="clearSecretToken"/>
     </table>
