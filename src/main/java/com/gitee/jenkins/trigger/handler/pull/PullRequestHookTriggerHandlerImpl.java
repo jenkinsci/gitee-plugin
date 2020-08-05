@@ -189,7 +189,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
     @Override
     protected RevisionParameterAction createRevisionParameter(PullRequestHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
+        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook));
     }
 
     @Override

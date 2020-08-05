@@ -84,26 +84,11 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 
-    protected URIish retrieveUrIish(WebHook hook, GitSCM gitSCM) {
-        if (gitSCM == null) {
-            return null;
-        }
-        List<URIish> uris = new ArrayList<URIish>();
+    protected URIish retrieveUrIish(WebHook hook) {
+
         try {
             if (hook.getRepository() != null) {
-                uris.add(new URIish(hook.getRepository().getUrl()));
-                uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
-                uris.add(new URIish(hook.getRepository().getGitSshUrl()));
-            }
-            // uri 需与当前项目仓库个url一致，避免触发多个构建
-            for (RemoteConfig remote : gitSCM.getRepositories()) {
-                for (URIish remoteURL : remote.getURIs()) {
-                    for (URIish uri : uris) {
-                        if (remoteURL.equals(uri)) {
-                            return uri;
-                        }
-                    }
-                }
+                return new URIish(hook.getRepository().getUrl());
             }
         } catch (URISyntaxException e) {
             LOGGER.log(Level.WARNING, "could not parse URL");
