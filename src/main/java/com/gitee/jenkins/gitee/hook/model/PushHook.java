@@ -111,10 +111,6 @@ public class PushHook extends WebHook {
         this.project = project;
     }
 
-    public void setRepository(Project project) {
-        this.project = project;
-    }
-
     public List<Commit> getCommits() {
         return commits;
     }
