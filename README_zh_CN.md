@@ -74,7 +74,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
     4. ``Gitee API Token`` 输入你的码云私人令牌，获取地址：https://gitee.com/profile/personal_access_tokens
     5. ``ID``, ``Descripiton`` 中输入你想要的 ID 和描述即可。
 5. ``Credentials`` 选择配置好的 Gitee APIV5 Token
-6. 点击 ``Advanced`` ，可配置是否忽略 SSL 错误（适您的Jenkins环境是否支持），并可设置链接测超时时间（适您的网络环境而定）
+6. 点击 ``Advanced`` ，可配置是否忽略 SSL 错误（视您的Jenkins环境是否支持），并可设置链接测超时时间（视您的网络环境而定）
 7. 点击 ``Test Connection`` 测试链接是否成功，如失败请检查以上 3，5，6 步骤。
 
 配置成功后如图所示：
@@ -85,7 +85,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 
 ### 任务全局配置
 
-任务全局配置中需要选择前一步中的码云链接。前往某个任务（如'Gitee Test'）的 Configure -> General，Gitee connection 中选择前面所配置的码云联机，如图：
+任务全局配置中需要选择前一步中的码云链接。前往某个任务（如'Gitee Test'）的 Configure -> General，Gitee connection 中选择前面所配置的码云链接，如图：
 
 ![任务全局配置](https://images.gitee.com/uploads/images/2018/0716/191715_9660237b_58426.png "屏幕截图.png")
 
