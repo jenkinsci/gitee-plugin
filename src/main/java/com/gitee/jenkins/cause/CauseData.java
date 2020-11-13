@@ -59,6 +59,8 @@ public final class CauseData {
     private final String createdAt;
     private final String finishedAt;
     private final String buildDuration;
+    private final String jsonBody;
+    private final String noteBody;
     private final boolean created;
     private final boolean deleted;
 
@@ -70,7 +72,7 @@ public final class CauseData {
               String targetRepoSshUrl, String targetRepoHttpUrl, String triggeredByUser, String before, String after, String lastCommit,
               String targetProjectUrl, String triggerPhrase, String pullRequestState, String mergedByUser, String pullRequestAssignee,
               String ref, String isTag, String sha, String beforeSha, String status, String stages, String createdAt, String finishedAt,
-              String buildDuration, String pathWithNamespace, boolean created, boolean deleted) {
+              String buildDuration, String pathWithNamespace, boolean created, boolean deleted, String jsonBody, String noteBody) {
         this.actionType = checkNotNull(actionType, "actionType must not be null.");
         this.sourceProjectId = checkNotNull(sourceProjectId, "sourceProjectId must not be null.");
         this.targetProjectId = checkNotNull(targetProjectId, "targetProjectId must not be null.");
@@ -117,6 +119,8 @@ public final class CauseData {
         this.pathWithNamespace = pathWithNamespace;
         this.created = created;
         this.deleted = deleted;
+        this.jsonBody = jsonBody;
+        this.noteBody = noteBody;
     }
 
     public Map<String, String> getBuildVariables() {
@@ -162,6 +166,8 @@ public final class CauseData {
         variables.put("createdAt", createdAt);
         variables.put("finishedAt", finishedAt);
         variables.put("duration", buildDuration);
+        variables.put("jsonBody", jsonBody);
+        variables.put("noteBody", noteBody);
         variables.putIfNotNull("giteeTriggerPhrase", triggerPhrase);
         return variables;
     }
@@ -298,6 +304,10 @@ public final class CauseData {
 
     public String getBuildDuration() { return buildDuration; }
 
+    public String getJsonBody() { return jsonBody; }
+
+    public String getNoteBody() { return noteBody; }
+
 
     String getShortDescription() {
         return actionType.getShortDescription(this);
@@ -386,6 +396,8 @@ public final class CauseData {
             .append(pathWithNamespace, causeData.getPathWithNamespace())
             .append(created, causeData.getCreated())
             .append(deleted, causeData.getDeleted())
+            .append(jsonBody, causeData.getJsonBody())
+            .append(noteBody, causeData.getNoteBody())
             .isEquals();
     }
 
@@ -435,6 +447,8 @@ public final class CauseData {
             .append(pathWithNamespace)
             .append(created)
             .append(deleted)
+            .append(jsonBody)
+            .append(noteBody)
             .toHashCode();
     }
 
@@ -484,6 +498,8 @@ public final class CauseData {
             .append("pathWithNamespace", pathWithNamespace)
             .append("created", created)
             .append("deleted", deleted)
+            .append("jsonBody", jsonBody)
+            .append("noteBody", noteBody)
             .toString();
     }
 

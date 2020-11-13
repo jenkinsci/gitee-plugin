@@ -202,6 +202,9 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
         variables.put("giteeTargetRepoHttpUrl", targetRepoHttpUrl);
         variables.put("giteeBefore", before);
         variables.put("giteeAfter", after);
+        variables.put("giteeBeforeCommitSha", before);
+        variables.put("giteeAfterCommitSha", after);
+        variables.put("giteeRef", ref);
         variables.put("ref", ref);
         variables.put("beforeSha", beforeSha);
         variables.put("isTag", isTag);
@@ -211,9 +214,12 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
         variables.put("createdAt", createdAt);
         variables.put("finishedAt", finishedAt);
         variables.put("duration", buildDuration);
+        variables.put("jsonBody", jsonBody);
+        variables.put("noteBody", noteBody);
         variables.putIfNotNull("giteeTriggerPhrase", triggerPhrase);
         return variables;
     }
+
 ```
 
 # 用户支持

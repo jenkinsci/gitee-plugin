@@ -31,6 +31,7 @@ public class PipelineBuildAction extends BuildWebHookAction {
         LOGGER.log(Level.FINE, "Pipeline event: {0}", toPrettyPrint(json));
         this.project = project;
         this.pipelineBuildHook = JsonUtil.read(json, PipelineHook.class);
+        this.pipelineBuildHook.setJsonBody(json);
         this.secretToken = secretToken;
     }
 

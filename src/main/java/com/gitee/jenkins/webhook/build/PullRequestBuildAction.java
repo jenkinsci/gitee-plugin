@@ -30,6 +30,7 @@ public class PullRequestBuildAction extends BuildWebHookAction {
         LOGGER.log(Level.FINE, "PullRequest: {0}", toPrettyPrint(json));
         this.project = project;
         this.pullRequestHook = JsonUtil.read(json, PullRequestHook.class);
+        this.pullRequestHook.setJsonBody(json);
         this.secretToken = secretToken;
     }
 

@@ -126,6 +126,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
                 .withCreatedAt(hook.getObjectAttributes().getCreatedAt()==null?"":hook.getObjectAttributes().getCreatedAt().toString())
                 .withFinishedAt(hook.getObjectAttributes().getFinishedAt()==null?"":hook.getObjectAttributes().getFinishedAt().toString())
                 .withBuildDuration(String.valueOf(hook.getObjectAttributes().getDuration()))
+                .withJsonBody(hook.getJsonBody())
                 .build();
     }
 

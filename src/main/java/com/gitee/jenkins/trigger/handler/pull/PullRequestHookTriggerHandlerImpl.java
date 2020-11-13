@@ -184,6 +184,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 .withRef(hook.getPullRequest().getMergeReferenceName())
                 .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withPathWithNamespace(hook.getRepo().getPathWithNamespace())
+                .withJsonBody(hook.getJsonBody())
                 .build();
     }
 

@@ -37,6 +37,7 @@ public class PushBuildAction extends BuildWebHookAction {
         LOGGER.log(Level.FINE, "Push: {0}", toPrettyPrint(json));
         this.project = project;
         this.pushHook = JsonUtil.read(json, PushHook.class);
+        this.pushHook.setJsonBody(json);
         this.secretToken = secretToken;
     }
 
