@@ -9,6 +9,7 @@ import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
+import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
@@ -58,7 +59,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
     }
 
     @Override
-    public void handle(Job<?, ?> job, PullRequestHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PullRequestHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
 
         try {
@@ -93,7 +94,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 }
 
                 if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
-                    super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+                    super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
                 }
             }
             else {
@@ -107,10 +108,8 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
     }
 
     @Override
-    protected boolean isCiSkip(PullRequestHook hook) {
-        return hook.getPullRequest() != null
-                && hook.getPullRequest().getBody() != null
-                && hook.getPullRequest().getBody().contains("[ci-skip]");
+    protected boolean isCiSkip(PullRequestHook hook, BuildInstructionFilter buildInstructionFilter) {
+        return hook.getPullRequest() == null ? false : !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.gitee.jenkins.gitee.hook.model.Commit;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
+import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import hudson.model.Job;
@@ -31,19 +32,19 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
     private static final String NO_COMMIT = "0000000000000000000000000000000000000000";
 
     @Override
-    public void handle(Job<?, ?> job, PushHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PushHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isNoRemoveBranchPush(hook)) {
-            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+            super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
     @Override
-    protected boolean isCiSkip(PushHook hook) {
+    protected boolean isCiSkip(PushHook hook, BuildInstructionFilter buildInstructionFilter) {
         List<Commit> commits = hook.getCommits();
-        return commits != null &&
-               !commits.isEmpty() &&
-               commits.get(commits.size() - 1).getMessage() != null &&
-               commits.get(commits.size() - 1).getMessage().contains("[ci-skip]");
+        if (commits != null && !commits.isEmpty()) {
+            return !buildInstructionFilter.isBuildAllow(commits.get(commits.size() - 1).getMessage());
+        }
+        return false;
     }
 
     @Override

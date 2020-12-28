@@ -74,7 +74,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean triggerOnTestedPullRequest = false;
     private boolean triggerOnNoteRequest = true;
     private String  noteRegex = "";
-    private boolean ciSkip = true;
+    private transient boolean ciSkip = true;
+    private BuildInstructionFilterType buildInstructionFilterType;
     private boolean skipWorkInProgressPullRequest;
     private boolean ciSkipFroTestNotRequired;
     private boolean skipLastCommitHasBeenBuild;
@@ -113,6 +114,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                             boolean triggerOnClosedPullRequest,
                             boolean triggerOnNoteRequest, String noteRegex,
                             boolean skipWorkInProgressPullRequest, boolean ciSkip,
+                            BuildInstructionFilterType buildInstructionFilterType,
                             boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage, boolean addVoteOnPullRequest,
                             boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
                             String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
@@ -127,6 +129,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         this.noteRegex = noteRegex;
         this.triggerOnPipelineEvent = triggerOnPipelineEvent;
         this.ciSkip = ciSkip;
+        this.buildInstructionFilterType = buildInstructionFilterType;
         this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.setBuildDescription = setBuildDescription;
         this.addNoteOnPullRequest = addNoteOnPullRequest;
@@ -193,6 +196,24 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             oldConfig.jobsMigrated2 = true;
             oldConfig.save();
         }
+
+        // 兼容构建指令升级
+        if (!oldConfig.jobsMigrated3) {
+            for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
+                GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
+                if (trigger != null) {
+                    if (trigger.getCiSkip()) {
+                        trigger.setBuildInstructionFilterType(BuildInstructionFilterType.CI_SKIP);
+                    } else {
+                        trigger.setBuildInstructionFilterType(BuildInstructionFilterType.NONE);
+                    }
+                    project.save();
+                }
+            }
+            oldConfig.jobsMigrated3 = true;
+            oldConfig.save();
+        }
+        
     }
 
     public boolean getAddNoteOnPullRequest() { return addNoteOnPullRequest; }
@@ -219,8 +240,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public boolean isTriggerOnApprovedPullRequest() {
 		return triggerOnApprovedPullRequest;
-	}    
-    
+	}
+
     public boolean isTriggerOnClosedPullRequest() {
         return triggerOnClosedPullRequest;
     }
@@ -241,6 +262,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public boolean getCiSkip() {
         return ciSkip;
+    }
+
+    public BuildInstructionFilterType getBuildInstructionFilterType() {
+        return buildInstructionFilterType;
     }
 
     public boolean getCiSkipFroTestNotRequired() {
@@ -299,7 +324,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     public void setTriggerOnPush(boolean triggerOnPush) {
         this.triggerOnPush = triggerOnPush;
     }
-    
+
     @DataBoundSetter
     public void setTriggerOnApprovedPullRequest(boolean triggerOnApprovedPullRequest) {
         this.triggerOnApprovedPullRequest = triggerOnApprovedPullRequest;
@@ -338,6 +363,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @DataBoundSetter
     public void setCiSkip(boolean ciSkip) {
         this.ciSkip = ciSkip;
+    }
+
+    @DataBoundSetter
+    public void setBuildInstructionFilterType(BuildInstructionFilterType buildInstructionFilterType) {
+        this.buildInstructionFilterType = buildInstructionFilterType;
     }
 
     @DataBoundSetter
@@ -448,7 +478,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pushHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pushHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pushHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pull request
@@ -462,7 +492,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pullRequestHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pullRequestHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pullRequestHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a note request
@@ -476,7 +506,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (noteHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        noteHookTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        noteHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pipeline event
@@ -484,7 +514,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pipelineTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pipelineTriggerHandler.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pipelineTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
     private void initializeTriggerHandler() {
@@ -540,6 +570,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         private transient final SequentialExecutionQueue queue = new SequentialExecutionQueue(Jenkins.MasterComputer.threadPoolForRemoting);
         private boolean jobsMigrated = false;
         private boolean jobsMigrated2 = false;
+        private boolean jobsMigrated3 = false;
         private String GiteeApiToken;
         private String giteeHostUrl = "";
         private boolean ignoreCertificateErrors = false;
