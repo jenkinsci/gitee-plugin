@@ -203,8 +203,8 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
     private String retrieveRevisionToBuild(PullRequestHook hook) throws NoRevisionToBuildException {
         if (hook.getPullRequest() != null
-            && hook.getPullRequest().getMergeReferenceName() != null) {
-            return hook.getPullRequest().getMergeReferenceName();
+            && hook.getPullRequest().getMergeCommitSha() != null) {
+            return hook.getPullRequest().getMergeCommitSha();
         } else {
             throw new NoRevisionToBuildException();
         }
