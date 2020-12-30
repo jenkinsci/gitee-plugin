@@ -40,9 +40,29 @@
       </f:entry>
     </table>
   </f:entry>
-  <f:entry title="${%Enable.CI.Skip}" field="ciSkip" help="/plugin/gitee/help/help-ci-skip.html">
-    <f:checkbox default="true"/>
+
+  <f:entry title="${%Build.Instruction.Filter}">
+    <table>
+      <f:radioBlock name="buildInstructionFilterType"
+                    value="NONE"
+                    title="${%Build.Instruction.Filter.None}"
+                    checked="${instance.buildInstructionFilterType == null || instance.buildInstructionFilterType == 'NONE'}"
+                    inline="true"/>
+      <f:radioBlock name="buildInstructionFilterType"
+                    value="CI_SKIP"
+                    title="${%Build.Instruction.Filter.CiSkip}"
+                    checked="${instance.buildInstructionFilterType == 'CI_SKIP'}"
+                    inline="true"
+                    help="/plugin/gitee/help/help-ci-skip.html"/>
+      <f:radioBlock name="buildInstructionFilterType"
+                    value="CI_BUILD"
+                    title="${%Build.Instruction.Filter.CiBuild}"
+                    checked="${instance.buildInstructionFilterType == 'CI_BUILD'}"
+                    inline="true"
+                    help="/plugin/gitee/help/help-ci-build.html"/>
+    </table>
   </f:entry>
+
   <f:entry title="${%Enable.CI.SkipFroTestNotRequired}" field="ciSkipFroTestNotRequired" help="/plugin/gitee/help/help-ci-skip-test.html">
     <f:checkbox default="true"/>
   </f:entry>
@@ -50,6 +70,11 @@
   <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
     <f:checkbox default="true"/>
   </f:entry>
+
+  <f:entry title="${%Cancel.Same.Pull.Request.Incomplete.Build}" field="cancelIncompleteBuildOnSamePullRequest" help="/plugin/gitee/help/help-cancel-same-pull-request-incomplete-build.html">
+    <f:checkbox default="false"/>
+  </f:entry>
+
   <f:entry title="${%Allowed.branches}">
     <table>
       <!--<f:section title="">-->

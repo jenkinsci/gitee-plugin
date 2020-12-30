@@ -7,12 +7,21 @@ import com.gitee.jenkins.gitee.hook.model.*;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
+import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
+import hudson.model.AbstractBuild;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.RemoteConfig;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -31,14 +40,16 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     private final String noteRegex;
     private final boolean ciSkipFroTestNotRequired;
+    private final boolean cancelIncompleteBuildOnSamePullRequest;
 
-    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired) {
+    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
         this.noteRegex = noteRegex;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
+        this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
     }
 
     @Override
-    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+    public void handle(Job<?, ?> job, NoteHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isValidTrigger(hook)) {
             // 若pr不可自动合并则评论至pr
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
@@ -61,21 +72,56 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             }
 
 
-            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+            super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
     @Override
-    protected boolean isCiSkip(NoteHook hook) {
-        return hook.getPullRequest() != null
-                && hook.getPullRequest().getBody() != null
-                && hook.getPullRequest().getBody().contains("[ci-skip]");
+    protected boolean isCiSkip(NoteHook hook, BuildInstructionFilter buildInstructionFilter) {
+        return hook.getPullRequest() == null ? false : !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
     }
 
     @Override
     protected boolean isCommitSkip(Job<?, ?> project, NoteHook hook) {
         return false;
     }
+
+    @Override
+    protected void cancelIncompleteBuildIfNecessary(Job<?, ?> job, NoteHook hook) {
+        if (!cancelIncompleteBuildOnSamePullRequest || hook.getPullRequest() == null) {
+            return;
+        }
+
+        for (Run<?, ?> build : job.getBuilds()) {
+            if (!job.isBuilding()) {
+                break;
+            }
+
+            if (!build.isBuilding()) {
+                continue;
+            }
+
+            RevisionParameterAction revisionParameterAction = build.getAction(RevisionParameterAction.class);
+            if (revisionParameterAction != null) {
+                Config config = new Config();
+                config.setString("remote", hook.getRepository().getName(), "url", hook.getRepository().getGitHttpUrl());
+                try {
+                    if (revisionParameterAction.canOriginateFrom(RemoteConfig.getAllRemoteConfigs(config))
+                        && revisionParameterAction.commit.equals(hook.getPullRequest().getMergeReferenceName())) {
+                        if (build.isBuilding()) {
+                            ((AbstractBuild) build).doStop();
+                            LOGGER.log(Level.WARNING, "Abort incomplete build");
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    LOGGER.log(Level.WARNING, "Parsing repo url error", e);
+                } catch (ServletException | IOException e) {
+                    LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
+                }
+            }
+        }
+    }
+
     @Override
     protected String getTargetBranch(NoteHook hook) {
         return hook.getPullRequest() == null ? null : hook.getPullRequest().getTargetBranch();
@@ -88,6 +134,35 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     @Override
     protected CauseData retrieveCauseData(NoteHook hook) {
+        // 兼容来自commit的评论
+        if (hook.getPullRequest() == null) {
+            return causeData()
+                .withActionType(CauseData.ActionType.COMMIT_COMMENT)
+                .withUserName(hook.getComment().getUser().getUsername())
+                .withUserEmail(hook.getComment().getUser().getEmail())
+                .withPullRequestTitle("")
+                .withBranch("")
+                .withSourceBranch("")
+                .withSourceProjectId(hook.getProject().getId())
+                .withSourceRepoHomepage(hook.getProject().getHomepage())
+                .withSourceRepoName(hook.getProject().getName())
+                .withSourceNamespace(hook.getProject().getNamespace())
+                .withSourceRepoUrl(hook.getProject().getUrl())
+                .withSourceRepoSshUrl(hook.getProject().getSshUrl())
+                .withSourceRepoHttpUrl(hook.getProject().getGitHttpUrl())
+                .withTargetBranch("")
+                .withTargetProjectId(hook.getProject().getId())
+                .withTargetRepoName(hook.getProject().getName())
+                .withTargetNamespace(hook.getProject().getNamespace())
+                .withTargetRepoSshUrl(hook.getProject().getSshUrl())
+                .withTargetRepoHttpUrl(hook.getProject().getGitHttpUrl())
+                .withTriggeredByUser(hook.getComment().getUser().getName())
+                .withTriggerPhrase(hook.getComment().getBody())
+                .withSha(hook.getComment().getCommitId())
+                .withPathWithNamespace(hook.getProject().getPathWithNamespace())
+                .build();
+        }
+
         return causeData()
                 .withActionType(CauseData.ActionType.NOTE)
                 .withSourceProjectId(hook.getPullRequest().getSourceProjectId())
@@ -146,6 +221,13 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 return hook.getPullRequest().getMergeReferenceName();
             }
         }
+
+        // 兼容来自commit的评论
+        if (hook.getComment() != null
+            && StringUtils.isNotBlank(hook.getComment().getCommitId())) {
+            return hook.getComment().getCommitId();
+        }
+
         throw new NoRevisionToBuildException();
     }
 

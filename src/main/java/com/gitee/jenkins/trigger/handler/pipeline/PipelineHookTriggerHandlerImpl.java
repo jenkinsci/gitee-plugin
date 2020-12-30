@@ -8,6 +8,7 @@ import com.gitee.jenkins.gitee.hook.model.PipelineEventObjectAttributes;
 import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
+import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
@@ -44,7 +45,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
     }
 
     @Override
-    public void handle(Job<?, ?> job, PipelineHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+    public void handle(Job<?, ?> job, PipelineHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         PipelineEventObjectAttributes objectAttributes = hook.getObjectAttributes();
         try {
             if (job instanceof AbstractProject<?, ?>) {
@@ -58,7 +59,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
             LOGGER.log(Level.WARNING, "Failed to communicate with gitee server to determine project id: " + e.getMessage(), e);
         }
         if (allowedStates.contains(objectAttributes.getStatus()) && !isLastAlreadyBuild(job,hook)) {
-            if (ciSkip && isCiSkip(hook)) {
+            if (isCiSkip(hook, buildInstructionFilter)) {
                 LOGGER.log(Level.INFO, "Skipping due to ci-skip.");
                 return;
             }
@@ -77,7 +78,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
     }
 
     @Override
-    protected boolean isCiSkip(PipelineHook hook) {
+    protected boolean isCiSkip(PipelineHook hook, BuildInstructionFilter buildInstructionFilter) {
         //we don't get a commit message or suchlike that could contain ci-skip
         return false;
     }

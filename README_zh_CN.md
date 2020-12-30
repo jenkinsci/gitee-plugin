@@ -29,7 +29,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 ## 目前支持特性：
 - 推送代码到码云时，由配置的 WebHook 触发 Jenkins 任务构建。
 - 提交 Pull Request 到码云项目时，由配置的 WebHook 触发 Jenkins 任务构建，支持PR动作：新建，更新，接受，关闭，审查通过，测试通过。
-- 支持 [ci-skip] 指令过滤。
+- 支持 [ci-skip] 指令过滤 或者 [ci-build] 指令触发构建。
 - 过滤已经构建的 Commit 版本，若是分支 Push，则相同分支Push才过滤，若是 PR，则是同一个PR才过滤。
 - 按分支名过滤触发器。
 - 正则表达式过滤可触发的分支。
@@ -39,6 +39,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 - 对于 PR 相关的所有事件，若 PR 代码冲突不可自动合并，则不触发构建；且若配置了评论到PR的功能，则评论到 PR 提示冲突。
 - PR 评论可通过 WebHook 触发构建（可用于 PR 触发构建失败是便于从码云平台评论重新触发构建）
 - 支持配置 PR 不要求必须测试时过滤触发构建。（可用于不需测试则不构建部署测试环境）
+- 支持相同 PR 触发构建时，取消进行中的未完成构建，进行当前构建（相同 PR 构建不排队，多个不同 PR 构建仍需排队）
 
 ## 计划中特性
 1. PR 审查并测试通过触发构建（可用户触发部署，且可配合自动合并 PR 的特性完善工作流。）

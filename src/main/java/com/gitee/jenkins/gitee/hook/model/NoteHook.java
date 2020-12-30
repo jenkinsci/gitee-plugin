@@ -58,6 +58,11 @@ public class NoteHook extends WebHook {
     }
 
     public String getWebHookDescription() {
+        // 兼容commit评论
+        if (pullRequest == null) {
+            return getHookName() + " commit sha = " + comment.getCommitId();
+        }
+
         return getHookName() + " iid = " + pullRequest.getNumber() + " merge commit sha = " + pullRequest.getMergeCommitSha();
     }
 
