@@ -65,6 +65,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private boolean triggerOnPush = true;
+    private boolean triggerOnCommitComment = false;
     private boolean triggerOnOpenPullRequest = true;
     private boolean triggerOnPipelineEvent = false;
     private boolean triggerOnAcceptedPullRequest = false;
@@ -109,6 +110,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @Deprecated
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
     public GiteePushTrigger(boolean triggerOnPush,
+                            boolean triggerOnCommitComment,
                             boolean triggerOnOpenPullRequest,
                             String triggerOnUpdatePullRequest,
                             boolean triggerOnAcceptedPullRequest,
@@ -123,6 +125,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                             boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate,
                             boolean cancelIncompleteBuildOnSamePullRequest) {
         this.triggerOnPush = triggerOnPush;
+        this.triggerOnCommitComment = triggerOnCommitComment;
         this.triggerOnOpenPullRequest = triggerOnOpenPullRequest;
         this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
         this.triggerOnAcceptedPullRequest = triggerOnAcceptedPullRequest;
@@ -223,6 +226,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public boolean getTriggerOnPush() {
         return triggerOnPush;
+    }
+
+    public boolean isTriggerOnCommitComment() {
+        return triggerOnCommitComment;
     }
 
     public boolean getTriggerOnOpenPullRequest() {
@@ -330,6 +337,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @DataBoundSetter
     public void setTriggerOnPush(boolean triggerOnPush) {
         this.triggerOnPush = triggerOnPush;
+    }
+
+    @DataBoundSetter
+    public void setTriggerOnCommitComment(boolean triggerOnCommitComment) {
+        this.triggerOnCommitComment = triggerOnCommitComment;
     }
 
     @DataBoundSetter
@@ -535,7 +547,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired,
             cancelIncompleteBuildOnSamePullRequest
         );
-        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest);
+        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnCommitComment, triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest);
         pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }
