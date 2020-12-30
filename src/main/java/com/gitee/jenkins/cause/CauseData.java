@@ -531,6 +531,11 @@ public final class CauseData {
                         data.getTargetProjectUrl());
                 }
             }
+        }, COMMIT_COMMENT {
+            @Override
+            String getShortDescription(CauseData data) {
+                return Messages.GiteeWebHookCause_ShortDescription_Commit_comment(data.getTriggeredByUser());
+            }
         }, PIPELINE {
                 @Override
                 String getShortDescription(CauseData data) {

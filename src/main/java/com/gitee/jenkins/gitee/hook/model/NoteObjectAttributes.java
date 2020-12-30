@@ -20,6 +20,8 @@ public class NoteObjectAttributes {
     private Date createdAt;
     private Date updatedAt;
     private String htmlUrl;
+    private String commitId;
+    private User user;
 
     public Integer getId() {
         return id;
@@ -77,6 +79,22 @@ public class NoteObjectAttributes {
         this.htmlUrl = htmlUrl;
     }
 
+    public String getCommitId() {
+        return commitId;
+    }
+
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,39 +105,45 @@ public class NoteObjectAttributes {
         }
         NoteObjectAttributes that = (NoteObjectAttributes) o;
         return new EqualsBuilder()
-                .append(id, that.id)
-                .append(body, that.body)
-                .append(projectId, that.projectId)
-                .append(authorId, that.authorId)
-                .append(createdAt, that.createdAt)
-                .append(updatedAt, that.updatedAt)
-                .append(htmlUrl, that.htmlUrl)
-                .isEquals();
+            .append(id, that.id)
+            .append(body, that.body)
+            .append(projectId, that.projectId)
+            .append(authorId, that.authorId)
+            .append(createdAt, that.createdAt)
+            .append(updatedAt, that.updatedAt)
+            .append(htmlUrl, that.htmlUrl)
+            .append(commitId, that.commitId)
+            .append(user, that.user)
+            .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(id)
-                .append(body)
-                .append(projectId)
-                .append(authorId)
-                .append(createdAt)
-                .append(updatedAt)
-                .append(htmlUrl)
-                .toHashCode();
+            .append(id)
+            .append(body)
+            .append(projectId)
+            .append(authorId)
+            .append(createdAt)
+            .append(updatedAt)
+            .append(htmlUrl)
+            .append(commitId)
+            .append(user)
+            .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("id", id)
-                .append("body", body)
-                .append("projectId", projectId)
-                .append("authorId", authorId)
-                .append("createdAt", createdAt)
-                .append("updatedAt", updatedAt)
-                .append("htmlUrl", htmlUrl)
-                .toString();
+            .append("id", id)
+            .append("body", body)
+            .append("projectId", projectId)
+            .append("authorId", authorId)
+            .append("createdAt", createdAt)
+            .append("updatedAt", updatedAt)
+            .append("htmlUrl", htmlUrl)
+            .append("commitId", commitId)
+            .append("user", user)
+            .toString();
     }
 }

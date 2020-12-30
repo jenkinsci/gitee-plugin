@@ -135,6 +135,35 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     @Override
     protected CauseData retrieveCauseData(NoteHook hook) {
+        // 兼容来自commit的评论
+        if (hook.getPullRequest() == null) {
+            return causeData()
+                .withActionType(CauseData.ActionType.COMMIT_COMMENT)
+                .withUserName(hook.getComment().getUser().getUsername())
+                .withUserEmail(hook.getComment().getUser().getEmail())
+                .withPullRequestTitle("")
+                .withBranch("")
+                .withSourceBranch("")
+                .withSourceProjectId(hook.getProject().getId())
+                .withSourceRepoHomepage(hook.getProject().getHomepage())
+                .withSourceRepoName(hook.getProject().getName())
+                .withSourceNamespace(hook.getProject().getNamespace())
+                .withSourceRepoUrl(hook.getProject().getUrl())
+                .withSourceRepoSshUrl(hook.getProject().getSshUrl())
+                .withSourceRepoHttpUrl(hook.getProject().getGitHttpUrl())
+                .withTargetBranch("")
+                .withTargetProjectId(hook.getProject().getId())
+                .withTargetRepoName(hook.getProject().getName())
+                .withTargetNamespace(hook.getProject().getNamespace())
+                .withTargetRepoSshUrl(hook.getProject().getSshUrl())
+                .withTargetRepoHttpUrl(hook.getProject().getGitHttpUrl())
+                .withTriggeredByUser(hook.getComment().getUser().getName())
+                .withTriggerPhrase(hook.getComment().getBody())
+                .withSha(hook.getComment().getCommitId())
+                .withPathWithNamespace(hook.getProject().getPathWithNamespace())
+                .build();
+        }
+
         return causeData()
                 .withActionType(CauseData.ActionType.NOTE)
                 .withSourceProjectId(hook.getPullRequest().getSourceProjectId())
@@ -188,9 +217,15 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
         if (hook.getPullRequest() != null
             && hook.getPullRequest().getMergeReferenceName() != null) {
             return hook.getPullRequest().getMergeReferenceName();
-        } else {
-            throw new NoRevisionToBuildException();
         }
+
+        // 兼容来自commit的评论
+        if (hook.getComment() != null
+            && StringUtils.isNotBlank(hook.getComment().getCommitId())) {
+            return hook.getComment().getCommitId();
+        }
+
+        throw new NoRevisionToBuildException();
     }
 
     private boolean isValidTrigger(NoteHook hook) {
