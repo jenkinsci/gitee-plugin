@@ -138,12 +138,15 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     private String retrieveRevisionToBuild(NoteHook hook) throws NoRevisionToBuildException {
-        if (hook.getPullRequest() != null
-            && hook.getPullRequest().getMergeCommitSha() != null) {
-            return hook.getPullRequest().getMergeCommitSha();
-        } else {
-            throw new NoRevisionToBuildException();
+        if (hook.getPullRequest() != null) {
+            if (hook.getPullRequest().getMergeCommitSha() != null) {
+                return hook.getPullRequest().getMergeCommitSha();
+            }
+            if (hook.getPullRequest().getMergeReferenceName() != null) {
+                return hook.getPullRequest().getMergeReferenceName();
+            }
         }
+        throw new NoRevisionToBuildException();
     }
 
     private boolean isValidTrigger(NoteHook hook) {
