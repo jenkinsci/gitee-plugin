@@ -7,6 +7,7 @@ import com.gitee.jenkins.gitee.hook.model.*;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
+import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import hudson.model.AbstractBuild;
@@ -48,7 +49,7 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     @Override
-    public void handle(Job<?, ?> job, NoteHook hook, boolean ciSkip, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
+    public void handle(Job<?, ?> job, NoteHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isValidTrigger(hook)) {
             // 若pr不可自动合并则评论至pr
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
@@ -71,15 +72,13 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             }
 
 
-            super.handle(job, hook, ciSkip, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+            super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
     @Override
-    protected boolean isCiSkip(NoteHook hook) {
-        return hook.getPullRequest() != null
-                && hook.getPullRequest().getBody() != null
-                && hook.getPullRequest().getBody().contains("[ci-skip]");
+    protected boolean isCiSkip(NoteHook hook, BuildInstructionFilter buildInstructionFilter) {
+        return hook.getPullRequest() == null ? false : !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
     }
 
     @Override
