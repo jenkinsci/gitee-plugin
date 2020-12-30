@@ -89,16 +89,17 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 
     protected URIish retrieveUrIish(WebHook hook, GitSCM gitSCM) {
-        if (gitSCM == null) {
+        if (hook.getRepository() == null) {
             return null;
         }
-        List<URIish> uris = new ArrayList<URIish>();
         try {
-            if (hook.getRepository() != null) {
-                uris.add(new URIish(hook.getRepository().getUrl()));
-                uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
-                uris.add(new URIish(hook.getRepository().getGitSshUrl()));
+            if (gitSCM == null) {
+                return new URIish(hook.getRepository().getGitHttpUrl());
             }
+            List<URIish> uris = new ArrayList<URIish>();
+            uris.add(new URIish(hook.getRepository().getUrl()));
+            uris.add(new URIish(hook.getRepository().getGitHttpUrl()));
+            uris.add(new URIish(hook.getRepository().getGitSshUrl()));
             // uri 需与当前项目仓库个url一致，避免触发多个构建
             for (RemoteConfig remote : gitSCM.getRepositories()) {
                 for (URIish remoteURL : remote.getURIs()) {

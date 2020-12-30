@@ -213,9 +213,13 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     private String retrieveRevisionToBuild(NoteHook hook) throws NoRevisionToBuildException {
-        if (hook.getPullRequest() != null
-            && hook.getPullRequest().getMergeReferenceName() != null) {
-            return hook.getPullRequest().getMergeReferenceName();
+        if (hook.getPullRequest() != null) {
+            if (hook.getPullRequest().getMergeCommitSha() != null) {
+                return hook.getPullRequest().getMergeCommitSha();
+            }
+            if (hook.getPullRequest().getMergeReferenceName() != null) {
+                return hook.getPullRequest().getMergeReferenceName();
+            }
         }
 
         // 兼容来自commit的评论
