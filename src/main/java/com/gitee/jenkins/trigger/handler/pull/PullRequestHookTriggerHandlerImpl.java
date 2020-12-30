@@ -12,12 +12,18 @@ import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
+import hudson.model.AbstractBuild;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.RemoteConfig;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,18 +49,20 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 	private final Collection<Action> allowedActions;
 	private final Collection<ActionDesc> allowedActionDesces;
     private final boolean cancelPendingBuildsOnUpdate;
+    private final boolean cancelIncompleteBuildOnSamePullRequest;
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
-        this(allowedStates, EnumSet.allOf(Action.class), EnumSet.allOf(ActionDesc.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
+        this(allowedStates, EnumSet.allOf(Action.class), EnumSet.allOf(ActionDesc.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest);
     }
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, Collection<ActionDesc> allowedActionDesces, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired) {
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, Collection<ActionDesc> allowedActionDesces, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
         this.allowedActionDesces = allowedActionDesces;
         this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
+        this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
     }
 
     @Override
@@ -136,6 +144,43 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
             return;
         }
         this.pendingBuildsHandler.cancelPendingBuilds(job, hook.getPullRequest().getSourceProjectId(), hook.getPullRequest().getSourceBranch());
+    }
+
+    @Override
+    protected void cancelIncompleteBuildIfNecessary(Job<?, ?> job, PullRequestHook hook) {
+        if (!cancelIncompleteBuildOnSamePullRequest) {
+            return;
+        }
+
+        for (Run<?, ?> build : job.getBuilds()) {
+            if (!job.isBuilding()) {
+                break;
+            }
+
+            if (!build.isBuilding()) {
+                continue;
+            }
+
+            RevisionParameterAction revisionParameterAction = build.getAction(RevisionParameterAction.class);
+            if (revisionParameterAction != null) {
+                Config config = new Config();
+                config.setString("remote", hook.getRepo().getName(), "url", hook.getRepo().getGitHttpUrl());
+                try {
+                    if (revisionParameterAction.canOriginateFrom(RemoteConfig.getAllRemoteConfigs(config))
+                        && revisionParameterAction.commit.equals(hook.getPullRequest().getMergeReferenceName())) {
+                        if (build.isBuilding()) {
+                            ((AbstractBuild) build).doStop();
+                            LOGGER.log(Level.WARNING, "Abort incomplete build");
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    LOGGER.log(Level.WARNING, "Parsing repo url error", e);
+                } catch (ServletException | IOException e) {
+                    LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
+                }
+            }
+        }
+
     }
 
     @Override

@@ -92,6 +92,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private volatile Secret secretToken;
     private String pendingBuildName;
     private boolean cancelPendingBuildsOnUpdate;
+    private boolean cancelIncompleteBuildOnSamePullRequest;
 
     private transient BranchFilter branchFilter;
     private transient PushHookTriggerHandler pushHookTriggerHandler;
@@ -117,7 +118,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                             boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
                             String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
                             PullRequestLabelFilterConfig pullRequestLabelFilterConfig, String secretToken, boolean triggerOnPipelineEvent,
-                            boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate) {
+                            boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate,
+                            boolean cancelIncompleteBuildOnSamePullRequest) {
         this.triggerOnPush = triggerOnPush;
         this.triggerOnOpenPullRequest = triggerOnOpenPullRequest;
         this.triggerOnUpdatePullRequest = triggerOnUpdatePullRequest;
@@ -142,6 +144,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         this.triggerOnApprovedPullRequest = triggerOnApprovedPullRequest;
         this.pendingBuildName = pendingBuildName;
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
+        this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
 
         initializeTriggerHandler();
         initializeBranchFilter();
@@ -295,6 +298,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return this.cancelPendingBuildsOnUpdate;
     }
 
+    public boolean isCancelIncompleteBuildOnSamePullRequest() {
+        return cancelIncompleteBuildOnSamePullRequest;
+    }
+
     @DataBoundSetter
     public void setTriggerOnPush(boolean triggerOnPush) {
         this.triggerOnPush = triggerOnPush;
@@ -437,6 +444,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
     }
 
+    @DataBoundSetter
+    public void setCancelIncompleteBuildOnSamePullRequest(boolean cancelIncompleteBuildOnSamePullRequest) {
+        this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
+    }
+
     // executes when the Trigger receives a push request
     public void onPost(final PushHook hook) {
         if (branchFilter == null) {
@@ -490,8 +502,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private void initializeTriggerHandler() {
 		pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(triggerOnOpenPullRequest,
 				triggerOnUpdatePullRequest, triggerOnAcceptedPullRequest, triggerOnClosedPullRequest,
-				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired);
-        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired);
+				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired,
+            cancelIncompleteBuildOnSamePullRequest
+        );
+        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest);
         pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }

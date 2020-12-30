@@ -15,14 +15,15 @@ public final class PullRequestHookTriggerHandlerFactory {
     private PullRequestHookTriggerHandlerFactory() {}
 
     public static PullRequestHookTriggerHandler newPullRequestHookTriggerHandler(boolean triggerOnOpenPullRequest,
-                                                                                  String triggerOnUpdatePullRequest,
-                                                                                  boolean triggerOnAcceptedPullRequest,
-                                                                                  boolean triggerOnClosedPullRequest,
-                                                                                  boolean skipWorkInProgressPullRequest,
-                                                                                  boolean triggerOnApprovedPullRequest,
-                                                                                  boolean triggerOnTestedPullRequest,
-                                                                                  boolean cancelPendingBuildsOnUpdate,
-                                                                                  boolean ciSkipFroTestNotRequired) {
+                                                                                 String triggerOnUpdatePullRequest,
+                                                                                 boolean triggerOnAcceptedPullRequest,
+                                                                                 boolean triggerOnClosedPullRequest,
+                                                                                 boolean skipWorkInProgressPullRequest,
+                                                                                 boolean triggerOnApprovedPullRequest,
+                                                                                 boolean triggerOnTestedPullRequest,
+                                                                                 boolean cancelPendingBuildsOnUpdate,
+                                                                                 boolean ciSkipFroTestNotRequired,
+                                                                                 boolean cancelIncompleteBuildOnSamePullRequest) {
         if (triggerOnOpenPullRequest
             || !("0".equals(triggerOnUpdatePullRequest) || "false".equals(triggerOnUpdatePullRequest))
             || triggerOnAcceptedPullRequest
@@ -46,7 +47,8 @@ public final class PullRequestHookTriggerHandlerFactory {
                 retrieveAllowedActionDesces(triggerOnUpdatePullRequest),
                 skipWorkInProgressPullRequest,
                 cancelPendingBuildsOnUpdate,
-                ciSkipFroTestNotRequired);
+                ciSkipFroTestNotRequired,
+                cancelIncompleteBuildOnSamePullRequest);
         } else {
             return new NopPullRequestHookTriggerHandler();
         }
@@ -135,7 +137,7 @@ public final class PullRequestHookTriggerHandlerFactory {
         if (triggerOnClosedPullRequest) {
         	result.add(State.closed);
         }
-        
+
         return result;
     }
 }

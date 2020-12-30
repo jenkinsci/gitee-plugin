@@ -9,10 +9,18 @@ import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
+import hudson.model.AbstractBuild;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.transport.RemoteConfig;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -31,10 +39,12 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     private final String noteRegex;
     private final boolean ciSkipFroTestNotRequired;
+    private final boolean cancelIncompleteBuildOnSamePullRequest;
 
-    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired) {
+    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
         this.noteRegex = noteRegex;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
+        this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
     }
 
     @Override
@@ -76,6 +86,43 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     protected boolean isCommitSkip(Job<?, ?> project, NoteHook hook) {
         return false;
     }
+
+    @Override
+    protected void cancelIncompleteBuildIfNecessary(Job<?, ?> job, NoteHook hook) {
+        if (!cancelIncompleteBuildOnSamePullRequest || hook.getPullRequest() == null) {
+            return;
+        }
+
+        for (Run<?, ?> build : job.getBuilds()) {
+            if (!job.isBuilding()) {
+                break;
+            }
+
+            if (!build.isBuilding()) {
+                continue;
+            }
+
+            RevisionParameterAction revisionParameterAction = build.getAction(RevisionParameterAction.class);
+            if (revisionParameterAction != null) {
+                Config config = new Config();
+                config.setString("remote", hook.getRepository().getName(), "url", hook.getRepository().getGitHttpUrl());
+                try {
+                    if (revisionParameterAction.canOriginateFrom(RemoteConfig.getAllRemoteConfigs(config))
+                        && revisionParameterAction.commit.equals(hook.getPullRequest().getMergeReferenceName())) {
+                        if (build.isBuilding()) {
+                            ((AbstractBuild) build).doStop();
+                            LOGGER.log(Level.WARNING, "Abort incomplete build");
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    LOGGER.log(Level.WARNING, "Parsing repo url error", e);
+                } catch (ServletException | IOException e) {
+                    LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
+                }
+            }
+        }
+    }
+
     @Override
     protected String getTargetBranch(NoteHook hook) {
         return hook.getPullRequest() == null ? null : hook.getPullRequest().getTargetBranch();

@@ -49,6 +49,7 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
         if (branchFilter.isBranchAllowed(targetBranch)) {
             LOGGER.log(Level.INFO, "{0} triggered for {1}.", LoggerUtil.toArray(job.getFullName(), getTriggerType()));
             cancelPendingBuildsIfNecessary(job, hook);
+            cancelIncompleteBuildIfNecessary(job, hook);
             scheduleBuild(job, createActions(job, hook));
         } else {
             LOGGER.log(Level.INFO, "branch {0} is not allowed", targetBranch);
@@ -75,6 +76,8 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     }
 
     protected void cancelPendingBuildsIfNecessary(Job<?, ?> job, H hook) {}
+
+    protected void cancelIncompleteBuildIfNecessary(Job<?, ?> job, H hook) {}
 
     protected abstract CauseData retrieveCauseData(H hook);
 
