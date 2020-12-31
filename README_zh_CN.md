@@ -138,8 +138,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 5. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
 6. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
 7. 注意：若 PR 状态为不可自动合并，则不触发构建。
-
-![触发器配置](https://images.gitee.com/uploads/images/2018/0724/120539_106f7480_58426.png "屏幕截图.png")
+![触发器配置](https://images.gitee.com/uploads/images/2020/1231/093554_e4c48be9_2102225.png "屏幕截图.png")
 
 ### 构建后步骤配置
 
