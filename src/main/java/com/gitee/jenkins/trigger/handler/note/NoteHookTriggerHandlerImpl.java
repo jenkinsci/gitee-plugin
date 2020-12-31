@@ -1,6 +1,7 @@
 package com.gitee.jenkins.trigger.handler.note;
 
 import com.gitee.jenkins.cause.CauseData;
+import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.hook.model.*;
@@ -10,18 +11,13 @@ import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
-import hudson.model.AbstractBuild;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.transport.RemoteConfig;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -38,11 +34,15 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     private static final Logger LOGGER = Logger.getLogger(NoteHookTriggerHandlerImpl.class.getName());
 
+    private final boolean triggerOnCommitComment;
+    private final boolean triggerOnNoteRequest;
     private final String noteRegex;
     private final boolean ciSkipFroTestNotRequired;
     private final boolean cancelIncompleteBuildOnSamePullRequest;
 
-    NoteHookTriggerHandlerImpl(String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
+    NoteHookTriggerHandlerImpl(boolean triggerOnCommitComment, boolean triggerOnNoteRequest, String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
+        this.triggerOnCommitComment = triggerOnCommitComment;
+        this.triggerOnNoteRequest = triggerOnNoteRequest;
         this.noteRegex = noteRegex;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
         this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
@@ -101,20 +101,27 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 continue;
             }
 
-            RevisionParameterAction revisionParameterAction = build.getAction(RevisionParameterAction.class);
-            if (revisionParameterAction != null) {
-                Config config = new Config();
-                config.setString("remote", hook.getRepository().getName(), "url", hook.getRepository().getGitHttpUrl());
+            CauseAction causeAction = build.getAction(CauseAction.class);
+            GiteeWebHookCause giteeWebHookCause = null;
+            for (Cause cause : causeAction.getCauses()) {
+                if (cause instanceof GiteeWebHookCause) {
+                    giteeWebHookCause = (GiteeWebHookCause) cause;
+                    break;
+                }
+            }
+
+            if (giteeWebHookCause == null) {
+                continue;
+            }
+            CauseData causeData = giteeWebHookCause.getData();
+            if (causeData.getSourceRepoHttpUrl().equals(hook.getPullRequest().getSource().getGitHttpUrl())
+                && causeData.getTargetRepoHttpUrl().equals(hook.getPullRequest().getTarget().getGitHttpUrl())
+                && causeData.getRef().equals(hook.getPullRequest().getMergeReferenceName())) {
                 try {
-                    if (revisionParameterAction.canOriginateFrom(RemoteConfig.getAllRemoteConfigs(config))
-                        && revisionParameterAction.commit.equals(hook.getPullRequest().getMergeReferenceName())) {
-                        if (build.isBuilding()) {
-                            ((AbstractBuild) build).doStop();
-                            LOGGER.log(Level.WARNING, "Abort incomplete build");
-                        }
+                    if (build.isBuilding()) {
+                        ((AbstractBuild) build).doStop();
+                        LOGGER.log(Level.WARNING, "Abort incomplete build");
                     }
-                } catch (URISyntaxException e) {
-                    LOGGER.log(Level.WARNING, "Parsing repo url error", e);
                 } catch (ServletException | IOException e) {
                     LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
                 }
@@ -232,7 +239,9 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     }
 
     private boolean isValidTrigger(NoteHook hook) {
-        return (isValidTriggerPhrase(hook.getComment().getBody()) && isValidTriggerAction(hook.getAction()));
+        // commit评论pullRequest为null
+        return ((triggerOnCommitComment && hook.getPullRequest() == null) || (triggerOnNoteRequest && hook.getPullRequest() != null))
+            && (isValidTriggerPhrase(hook.getComment().getBody()) && isValidTriggerAction(hook.getAction()));
     }
 
     private boolean isValidTriggerAction(NoteAction action) {

@@ -6,6 +6,11 @@
       <f:entry title="${%Push}" field="triggerOnPush">
         <f:checkbox default="true"/>
       </f:entry>
+
+      <f:entry title="${%Commit.Comment}" field="triggerOnCommitComment">
+        <f:checkbox default="false"/>
+      </f:entry>
+
       <f:entry title="${%Opened.Pull.Request}" field="triggerOnOpenPullRequest">
         <f:checkbox default="true"/>
       </f:entry>

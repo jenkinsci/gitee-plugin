@@ -5,6 +5,7 @@ import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.hook.model.*;
+import com.gitee.jenkins.gitee.hook.model.Action;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
@@ -13,18 +14,13 @@ import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.trigger.handler.AbstractWebHookTriggerHandler;
 import com.gitee.jenkins.util.BuildUtil;
-import hudson.model.AbstractBuild;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.transport.RemoteConfig;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,24 +156,32 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 continue;
             }
 
-            RevisionParameterAction revisionParameterAction = build.getAction(RevisionParameterAction.class);
-            if (revisionParameterAction != null) {
-                Config config = new Config();
-                config.setString("remote", hook.getRepo().getName(), "url", hook.getRepo().getGitHttpUrl());
+            CauseAction causeAction = build.getAction(CauseAction.class);
+            GiteeWebHookCause giteeWebHookCause = null;
+            for (Cause cause : causeAction.getCauses()) {
+                if (cause instanceof GiteeWebHookCause) {
+                    giteeWebHookCause = (GiteeWebHookCause) cause;
+                    break;
+                }
+            }
+
+            if (giteeWebHookCause == null) {
+                continue;
+            }
+            CauseData causeData = giteeWebHookCause.getData();
+            if (causeData.getSourceRepoHttpUrl().equals(hook.getPullRequest().getSource().getGitHttpUrl())
+                && causeData.getTargetRepoHttpUrl().equals(hook.getPullRequest().getTarget().getGitHttpUrl())
+                && causeData.getRef().equals(hook.getPullRequest().getMergeReferenceName())) {
                 try {
-                    if (revisionParameterAction.canOriginateFrom(RemoteConfig.getAllRemoteConfigs(config))
-                        && revisionParameterAction.commit.equals(hook.getPullRequest().getMergeReferenceName())) {
-                        if (build.isBuilding()) {
-                            ((AbstractBuild) build).doStop();
-                            LOGGER.log(Level.WARNING, "Abort incomplete build");
-                        }
+                    if (build.isBuilding()) {
+                        ((AbstractBuild) build).doStop();
+                        LOGGER.log(Level.WARNING, "Abort incomplete build");
                     }
-                } catch (URISyntaxException e) {
-                    LOGGER.log(Level.WARNING, "Parsing repo url error", e);
                 } catch (ServletException | IOException e) {
                     LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
                 }
             }
+
         }
 
     }

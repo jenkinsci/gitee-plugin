@@ -28,6 +28,7 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 
 ## 目前支持特性：
 - 推送代码到码云时，由配置的 WebHook 触发 Jenkins 任务构建。
+- 评论提交记录触发提交记录对应版本 Jenkins 任务构建 
 - 提交 Pull Request 到码云项目时，由配置的 WebHook 触发 Jenkins 任务构建，支持PR动作：新建，更新，接受，关闭，审查通过，测试通过。
 - 支持 [ci-skip] 指令过滤 或者 [ci-build] 指令触发构建。
 - 过滤已经构建的 Commit 版本，若是分支 Push，则相同分支Push才过滤，若是 PR，则是同一个PR才过滤。
@@ -121,19 +122,23 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 
 1. ``Enabled Gitee triggers`` 勾选您所需要的构建触发规则，如 `Push Event`, `Opened Merge Request Events`，勾选的事件会接受WebHook，触发构建。目前支持触发事件有：
     - Push Events ：推送代码事件
+    - Commit Comment Events ：评论提交记录事件  
     - Opened Merge Request Events ：提交 PR 事件
     - Updated Merge Request Events ：更新 PR 事件	
     - Accepted Merge Request Events	 ：接受/合并 PR 事件		
     - Closed Merge Request Events ：关闭 PR 事件
     - Approved Pull Requests ： 审查通过 PR 事件
     - Tested Pull Requests ：测试通过 PR 事件
-2. `Enable [ci-skip]` 该选项可以开启支持 `[ci-skip]` 指令，只要commit message 中包含 `[ci-skip]`，当前commit 即可跳过构建触发。
+2. `Build Instruction Filter` :
+    - `None` : 无过滤
+    - `[ci-skip] skip build` ：commit message 或者 PR 说明包含 `[ci-skip]` 时，跳过构建触发。
+    - `[ci-build] trigger build` ：commit message 或者 PR 说明包含 `[ci-build]` 时，触发构建。
 3. `Ignore last commit has build` 该选项可以跳过已经构建过的 Commit 版本。
-4. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
-5. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
-6. 注意：若 PR 状态为不可自动合并，则不触发构建。
-
-![触发器配置](https://images.gitee.com/uploads/images/2018/0724/120539_106f7480_58426.png "屏幕截图.png")
+4. `Cancel incomplete build on same Pull Requests` 该选项在 PR 触发构建时，会判断是否存在相同 PR 且未完成的构建，有则取消未完成构建，再进行当前构建。
+5. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
+6. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
+7. 注意：若 PR 状态为不可自动合并，则不触发构建。
+![触发器配置](https://images.gitee.com/uploads/images/2020/1231/093554_e4c48be9_2102225.png "屏幕截图.png")
 
 ### 构建后步骤配置
 
