@@ -232,12 +232,13 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 .withRef(hook.getPullRequest().getMergeReferenceName())
                 .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withPathWithNamespace(hook.getRepo().getPathWithNamespace())
+                .withJsonBody(hook.getJsonBody())
                 .build();
     }
 
     @Override
     protected RevisionParameterAction createRevisionParameter(PullRequestHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
+        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook));
     }
 
     @Override

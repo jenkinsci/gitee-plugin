@@ -13,6 +13,11 @@ public abstract class WebHook {
     private Repository repository;
     private String objectKind;
     private String hookName;
+    private String jsonBody;
+
+    public String getJsonBody() { return  this.jsonBody; }
+
+    public void setJsonBody(String json) { this.jsonBody = json; }
 
     public String getHookName() {
         return this.hookName;
