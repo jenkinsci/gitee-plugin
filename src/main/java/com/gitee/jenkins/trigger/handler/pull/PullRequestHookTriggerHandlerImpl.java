@@ -18,6 +18,7 @@ import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.transport.URIish;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -238,7 +239,16 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
     @Override
     protected RevisionParameterAction createRevisionParameter(PullRequestHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
+        // 没有配置git源码管理
+        if (gitSCM == null) {
+            return new RevisionParameterAction(retrieveRevisionToBuild(hook));
+        }
+        URIish urIish = retrieveUrIish(hook, gitSCM);
+        // webhook与git源码管理仓库对不上
+        if (urIish == null) {
+            return new RevisionParameterAction(retrieveRevisionToBuild2(hook));
+        }
+        return new RevisionParameterAction(retrieveRevisionToBuild(hook), urIish);
     }
 
     @Override
@@ -255,6 +265,12 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
             if (hook.getPullRequest().getMergeCommitSha() != null) {
                 return hook.getPullRequest().getMergeCommitSha();
             }
+        }
+        return retrieveRevisionToBuild2(hook);
+    }
+
+    private String retrieveRevisionToBuild2(PullRequestHook hook) throws NoRevisionToBuildException {
+        if (hook.getPullRequest() != null) {
             if (hook.getPullRequest().getMergeReferenceName() != null) {
                 return hook.getPullRequest().getMergeReferenceName();
             }
