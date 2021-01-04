@@ -30,6 +30,7 @@ public class NoteBuildAction extends BuildWebHookAction {
         LOGGER.log(Level.FINE, "Note: {0}", toPrettyPrint(json));
         this.project = project;
         this.noteHook = JsonUtil.read(json, NoteHook.class);
+        this.noteHook.setJsonBody(json);
         this.secretToken = secretToken;
     }
 

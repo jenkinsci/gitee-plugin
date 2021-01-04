@@ -15,6 +15,7 @@ import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.transport.URIish;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -55,6 +56,10 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
             if (objectAttributes != null && !objectAttributes.isMergeable()) {
                 LOGGER.log(Level.INFO, "This pull request can not be merge");
+                // fixme 无法获取 publisher
+                // java.lang.ClassCastException: org.jenkinsci.plugins.workflow.job.WorkflowJob cannot be cast to hudson.model.AbstractProject
+                //	at com.gitee.jenkins.publisher.GiteeMessagePublisher.getFromJob(GiteeMessagePublisher.java:65)
+                //	at com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandlerImpl.handle(NoteHookTriggerHandlerImpl.java:47)
                 GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
                 GiteeClient client = getClient(job);
                 if (publisher != null && client != null) {
@@ -202,12 +207,23 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
                 .withTargetProjectUrl(hook.getPullRequest().getTarget().getUrl())
                 .withTriggerPhrase(hook.getComment().getBody())
                 .withPathWithNamespace(hook.getPullRequest().getBase().getRepo().getPathWithNamespace())
+                .withJsonBody(hook.getJsonBody())
+                .withNoteBody(hook.getComment().getBody())
                 .build();
     }
 
     @Override
     protected RevisionParameterAction createRevisionParameter(NoteHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        return new RevisionParameterAction(retrieveRevisionToBuild(hook), retrieveUrIish(hook, gitSCM));
+        // 没有配置git源码管理
+        if (gitSCM == null) {
+            return new RevisionParameterAction(retrieveRevisionToBuild(hook));
+        }
+        URIish urIish = retrieveUrIish(hook, gitSCM);
+        // webhook与git源码管理仓库对不上
+        if (urIish == null) {
+            return new RevisionParameterAction(retrieveRevisionToBuild2(hook));
+        }
+        return new RevisionParameterAction(retrieveRevisionToBuild(hook), urIish);
     }
 
     @Override
@@ -224,6 +240,13 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             if (hook.getPullRequest().getMergeCommitSha() != null) {
                 return hook.getPullRequest().getMergeCommitSha();
             }
+        }
+
+        return retrieveRevisionToBuild2(hook);
+    }
+
+    private String retrieveRevisionToBuild2(NoteHook hook) throws NoRevisionToBuildException {
+        if (hook.getPullRequest() != null) {
             if (hook.getPullRequest().getMergeReferenceName() != null) {
                 return hook.getPullRequest().getMergeReferenceName();
             }
