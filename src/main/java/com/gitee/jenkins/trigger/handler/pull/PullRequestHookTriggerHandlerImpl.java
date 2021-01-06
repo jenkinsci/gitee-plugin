@@ -174,10 +174,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 && causeData.getTargetRepoHttpUrl().equals(hook.getPullRequest().getTarget().getGitHttpUrl())
                 && causeData.getRef().equals(hook.getPullRequest().getMergeReferenceName())) {
                 try {
-                    if (build.isBuilding()) {
-                        ((AbstractBuild) build).doStop();
-                        LOGGER.log(Level.WARNING, "Abort incomplete build");
-                    }
+                    doStop(build);
                 } catch (ServletException | IOException e) {
                     LOGGER.log(Level.WARNING, "Unable to abort incomplete build", e);
                 }
