@@ -76,7 +76,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean triggerOnNoteRequest = true;
     private String  noteRegex = "";
     private transient boolean ciSkip = true;
-    private BuildInstructionFilterType buildInstructionFilterType;
+    private BuildInstructionFilterType buildInstructionFilterType = BuildInstructionFilterType.NONE;
     private boolean skipWorkInProgressPullRequest;
     private boolean ciSkipFroTestNotRequired;
     private boolean skipLastCommitHasBeenBuild;

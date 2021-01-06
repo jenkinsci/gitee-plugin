@@ -8,9 +8,7 @@ import com.gitee.jenkins.trigger.filter.BranchFilter;
 import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
 import com.gitee.jenkins.trigger.filter.PullRequestLabelFilter;
 import com.gitee.jenkins.util.LoggerUtil;
-import hudson.model.Action;
-import hudson.model.CauseAction;
-import hudson.model.Job;
+import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 import hudson.scm.SCM;
@@ -19,7 +17,10 @@ import jenkins.triggers.SCMTriggerItem;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -142,6 +143,20 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
             }
         }
         return null;
+    }
+
+    protected void doStop(Run<?, ?> build) throws IOException, ServletException {
+        if (build.isBuilding()) {
+            if (build instanceof AbstractBuild) {
+                ((AbstractBuild) build).doStop();
+                LOGGER.log(Level.WARNING, "Abort incomplete build");
+            } else if (build instanceof WorkflowRun) {
+                ((WorkflowRun) build).doStop();
+                LOGGER.log(Level.WARNING, "Abort incomplete build");
+            } else {
+                LOGGER.log(Level.WARNING, "Unable to abort incomplete build, build type not found: " + build.getClass().getName());
+            }
+        }
     }
 
     public static class BuildStatusUpdate {
