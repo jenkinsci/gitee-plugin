@@ -135,11 +135,11 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
     - `[ci-build] trigger build` ：commit message 或者 PR 说明包含 `[ci-build]` 时，触发构建。
 3. `Ignore last commit has build` 该选项可以跳过已经构建过的 Commit 版本。
 4. `Cancel incomplete build on same Pull Requests` 该选项在 PR 触发构建时，会判断是否存在相同 PR 且未完成的构建，有则取消未完成构建，再进行当前构建。
-5. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
-6. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
-7. 注意：若 PR 状态为不可自动合并，则不触发构建。
-![触发器配置](https://images.gitee.com/uploads/images/2020/1231/093554_e4c48be9_2102225.png "屏幕截图.png")
-
+5. `Ignore Pull Request conflicts` 该选项在 PR 触发构建时，会根据 PR 冲突情况选择是否进行构建。
+6. `Allowed branches` 可以配置允许构建的分支，目前支持分支名和正则表达式的方式进行过滤。
+7. `Secret Token for Gitee WebHook` 该选项可以配置 WebHook 的密码，该密码需要与码云 WebHook配置的密码一致方可触发构建。
+8. 注意：若 PR 状态为不可自动合并，则不触发构建。
+![触发器配置](https://images.gitee.com/uploads/images/2021/0107/171932_e25c8359_2102225.png "屏幕截图.png")
 ### 构建后步骤配置
 
 前往任务配置的构建后配置： Configure -> Post-build Actions 选项卡
