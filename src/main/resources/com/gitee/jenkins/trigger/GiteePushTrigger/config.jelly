@@ -80,6 +80,10 @@
     <f:checkbox default="false"/>
   </f:entry>
 
+  <f:entry title="${%Ignore.Pull.Request.Conflicts}" field="ignorePullRequestConflicts" help="/plugin/gitee/help/help-ignore-pull-request-conflicts.html">
+    <f:checkbox default="false"/>
+  </f:entry>
+
   <f:entry title="${%Allowed.branches}">
     <table>
       <!--<f:section title="">-->

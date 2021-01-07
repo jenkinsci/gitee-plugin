@@ -23,7 +23,8 @@ public final class PullRequestHookTriggerHandlerFactory {
                                                                                  boolean triggerOnTestedPullRequest,
                                                                                  boolean cancelPendingBuildsOnUpdate,
                                                                                  boolean ciSkipFroTestNotRequired,
-                                                                                 boolean cancelIncompleteBuildOnSamePullRequest) {
+                                                                                 boolean cancelIncompleteBuildOnSamePullRequest,
+                                                                                 boolean ignorePullRequestConflicts) {
         if (triggerOnOpenPullRequest
             || !("0".equals(triggerOnUpdatePullRequest) || "false".equals(triggerOnUpdatePullRequest))
             || triggerOnAcceptedPullRequest
@@ -48,7 +49,8 @@ public final class PullRequestHookTriggerHandlerFactory {
                 skipWorkInProgressPullRequest,
                 cancelPendingBuildsOnUpdate,
                 ciSkipFroTestNotRequired,
-                cancelIncompleteBuildOnSamePullRequest);
+                cancelIncompleteBuildOnSamePullRequest,
+                ignorePullRequestConflicts);
         } else {
             return new NopPullRequestHookTriggerHandler();
         }
