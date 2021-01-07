@@ -48,12 +48,13 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 	private final Collection<ActionDesc> allowedActionDesces;
     private final boolean cancelPendingBuildsOnUpdate;
     private final boolean cancelIncompleteBuildOnSamePullRequest;
+    private boolean ignorePullRequestConflicts;
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
-        this(allowedStates, EnumSet.allOf(Action.class), EnumSet.allOf(ActionDesc.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest);
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest, boolean ignorePullRequestConflicts) {
+        this(allowedStates, EnumSet.allOf(Action.class), EnumSet.allOf(ActionDesc.class), skipWorkInProgressPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest, ignorePullRequestConflicts);
     }
 
-    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, Collection<ActionDesc> allowedActionDesces, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
+    PullRequestHookTriggerHandlerImpl(Collection<State> allowedStates, Collection<Action> allowedActions, Collection<ActionDesc> allowedActionDesces, boolean skipWorkInProgressPullRequest, boolean cancelPendingBuildsOnUpdate, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest, boolean ignorePullRequestConflicts) {
         this.allowedStates = allowedStates;
         this.allowedActions = allowedActions;
         this.allowedActionDesces = allowedActionDesces;
@@ -61,6 +62,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
         this.cancelPendingBuildsOnUpdate = cancelPendingBuildsOnUpdate;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
         this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
+        this.ignorePullRequestConflicts = ignorePullRequestConflicts;
     }
 
     @Override
@@ -79,7 +81,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 }
 
                 // 若pr不可自动合并则评论至pr
-                if (!objectAttributes.isMergeable()) {
+                if (!ignorePullRequestConflicts && !objectAttributes.isMergeable()) {
                     LOGGER.log(Level.INFO, "This pull request can not be merge");
                     GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
                     GiteeClient client = getClient(job);

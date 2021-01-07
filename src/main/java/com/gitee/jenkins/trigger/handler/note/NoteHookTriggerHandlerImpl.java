@@ -40,13 +40,15 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     private final String noteRegex;
     private final boolean ciSkipFroTestNotRequired;
     private final boolean cancelIncompleteBuildOnSamePullRequest;
+    private boolean ignorePullRequestConflicts;
 
-    NoteHookTriggerHandlerImpl(boolean triggerOnCommitComment, boolean triggerOnNoteRequest, String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest) {
+    NoteHookTriggerHandlerImpl(boolean triggerOnCommitComment, boolean triggerOnNoteRequest, String noteRegex, boolean ciSkipFroTestNotRequired, boolean cancelIncompleteBuildOnSamePullRequest, boolean ignorePullRequestConflicts) {
         this.triggerOnCommitComment = triggerOnCommitComment;
         this.triggerOnNoteRequest = triggerOnNoteRequest;
         this.noteRegex = noteRegex;
         this.ciSkipFroTestNotRequired = ciSkipFroTestNotRequired;
         this.cancelIncompleteBuildOnSamePullRequest = cancelIncompleteBuildOnSamePullRequest;
+        this.ignorePullRequestConflicts = ignorePullRequestConflicts;
     }
 
     @Override
@@ -54,7 +56,7 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
         if (isValidTrigger(hook)) {
             // 若pr不可自动合并则评论至pr
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
-            if (objectAttributes != null && !objectAttributes.isMergeable()) {
+            if (!ignorePullRequestConflicts && objectAttributes != null && !objectAttributes.isMergeable()) {
                 LOGGER.log(Level.INFO, "This pull request can not be merge");
                 // fixme 无法获取 publisher
                 // java.lang.ClassCastException: org.jenkinsci.plugins.workflow.job.WorkflowJob cannot be cast to hudson.model.AbstractProject
