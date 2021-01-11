@@ -85,7 +85,10 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
 
     @Override
     protected boolean isCiSkip(NoteHook hook, BuildInstructionFilter buildInstructionFilter) {
-        return hook.getPullRequest() == null ? false : !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
+        if (buildInstructionFilter != null && hook.getPullRequest() != null) {
+            return !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
+        }
+        return false;
     }
 
     @Override

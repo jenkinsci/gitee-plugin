@@ -41,7 +41,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
     @Override
     protected boolean isCiSkip(PushHook hook, BuildInstructionFilter buildInstructionFilter) {
         List<Commit> commits = hook.getCommits();
-        if (commits != null && !commits.isEmpty()) {
+        if (buildInstructionFilter!= null && commits != null && !commits.isEmpty()) {
             return !buildInstructionFilter.isBuildAllow(commits.get(commits.size() - 1).getMessage());
         }
         return false;
