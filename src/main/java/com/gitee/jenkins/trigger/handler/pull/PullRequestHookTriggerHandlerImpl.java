@@ -116,7 +116,10 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
     @Override
     protected boolean isCiSkip(PullRequestHook hook, BuildInstructionFilter buildInstructionFilter) {
-        return hook.getPullRequest() == null ? false : !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
+        if (buildInstructionFilter != null && hook.getPullRequest() != null) {
+            return !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
+        }
+        return false;
     }
 
     @Override

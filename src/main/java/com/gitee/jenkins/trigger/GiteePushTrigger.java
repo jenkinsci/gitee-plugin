@@ -207,19 +207,20 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         // 兼容构建指令升级
-        if (!oldConfig.jobsMigrated3) {
+        if (!oldConfig.jobsMigrated4) {
             for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
                     if (trigger.getCiSkip()) {
                         trigger.setBuildInstructionFilterType(BuildInstructionFilterType.CI_SKIP);
-                    } else {
+                    } else if (trigger.getBuildInstructionFilterType() == null) {
                         trigger.setBuildInstructionFilterType(BuildInstructionFilterType.NONE);
                     }
                     project.save();
                 }
             }
-            oldConfig.jobsMigrated3 = true;
+            oldConfig.jobsMigrated3 = false;
+            oldConfig.jobsMigrated4 = true;
             oldConfig.save();
         }
         
@@ -610,6 +611,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         private boolean jobsMigrated = false;
         private boolean jobsMigrated2 = false;
         private boolean jobsMigrated3 = false;
+        private boolean jobsMigrated4 = false;
         private String GiteeApiToken;
         private String giteeHostUrl = "";
         private boolean ignoreCertificateErrors = false;
