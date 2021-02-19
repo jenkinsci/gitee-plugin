@@ -92,7 +92,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
                 .withTargetNamespace("")
                 .withTargetRepoSshUrl("")
                 .withTargetRepoHttpUrl("")
-                .withTriggeredByUser(retrievePushedBy(hook))
+                .withTriggeredByUser(hook.getSender().getName())
                 .withBefore(hook.getBefore())
                 .withAfter(hook.getAfter())
                 .withRef(hook.getRef())
