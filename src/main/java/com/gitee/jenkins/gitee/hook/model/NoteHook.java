@@ -17,6 +17,7 @@ public class NoteHook extends WebHook {
     private PullRequestObjectAttributes pullRequest;
     private NoteObjectAttributes comment;
     private NoteAction action;
+    private User sender;
 
     public NoteAction getAction() {
         return action;
@@ -57,6 +58,14 @@ public class NoteHook extends WebHook {
         this.pullRequest = pullRequest;
     }
 
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
     public String getWebHookDescription() {
         // 兼容commit评论
         if (pullRequest == null) {
@@ -81,6 +90,7 @@ public class NoteHook extends WebHook {
                 .append(project, that.project)
                 .append(comment, that.comment)
                 .append(pullRequest, that.pullRequest)
+                .append(sender, that.sender)
                 .isEquals();
     }
 
@@ -92,6 +102,7 @@ public class NoteHook extends WebHook {
                 .append(project)
                 .append(comment)
                 .append(pullRequest)
+                .append(sender)
                 .toHashCode();
     }
 
@@ -103,6 +114,7 @@ public class NoteHook extends WebHook {
                 .append("project", project)
                 .append("comment", comment)
                 .append("pullRequest", pullRequest)
+                .append("sender", sender)
                 .toString();
     }
 }
