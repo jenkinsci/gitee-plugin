@@ -14,6 +14,7 @@ public abstract class WebHook {
     private String objectKind;
     private String hookName;
     private String jsonBody;
+    private User sender;
 
     public String getJsonBody() { return  this.jsonBody; }
 
@@ -43,6 +44,14 @@ public abstract class WebHook {
         this.repository = repository;
     }
 
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
     public String getWebHookDescription() {
         return hookName;
     }
@@ -60,6 +69,7 @@ public abstract class WebHook {
                 .append(repository, webHook.repository)
                 .append(objectKind, webHook.objectKind)
                 .append(hookName, webHook.hookName)
+                .append(sender, webHook.sender)
                 .isEquals();
     }
 
@@ -69,6 +79,7 @@ public abstract class WebHook {
                 .append(repository)
                 .append(hookName)
                 .append(objectKind)
+                .append(sender)
                 .toHashCode();
     }
 
@@ -78,6 +89,7 @@ public abstract class WebHook {
                 .append("repository", repository)
                 .append("hookName", hookName)
                 .append("objectKind", objectKind)
+                .append("sender", sender)
                 .toString();
     }
 }
