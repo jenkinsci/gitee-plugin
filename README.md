@@ -1,48 +1,137 @@
 # Table of Contents
-- [Introduction](#introduction)
-- [User support](#user-support)
-- [Global plugin configuration](#global-plugin-configuration)
-  - [Gitee-to-Jenkins auth](#gitee-to-jenkins-authentication)
-  - [Jenkins-to-Gitee auth](#jenkins-to-gitee-authentication)
+- [Introduction](#introduction) <!-- [简介]完成 -->
+  - [Current Supported Features](#Current-Supported-Features) <!--[目前支持特性] 完成 -->
+  - [Features in plan](#Features-in-plan) <!--[计划中特性] 完成 -->
+- [Global plugin installation](#global-plugin-installation) <!--[插件安装] 完成 -->
+- [Global plugin configuration](#global-plugin-configuration) <!--[插件配置] 完成 -->
+  - [Gitee link configuration](#gitee-link-configuration) <!--[添加码云链接配置] 完成 -->
+  - [Build task configuration](#Build-task-configuration) <!--[构建任务配置] 再写 -->
+    - [New build task](#New-build-task) <!--[新建构建任务] -->
+    - [Task global configuration](#Task-global-configuration) <!--[任务全局配置] -->
+
+
+
  - [Jenkins Job Configuration](#jenkins-job-configuration)
    - [Git configuration](#git-configuration)
-     - [Freestyle jobs](#freestyle-jobs)
+     - [Freestyle jobs](#freestyle-jobs) <!-- 源代码管理 -->
    - [Job trigger configuration](#job-trigger-configuration)
      - [Webhook URL](#webhook-url)
      - [Freestyle jobs](#freestyle-and-pipeline-jobs)
    - [Build status configuration](#build-status-configuration)
      - [Freestyle jobs](#freestyle-jobs-1)
 - [Advanced features](#advanced-features)
-  - [Branch filtering](#branch-filtering)
-  - [Add a note to pull requests](#add-a-note-to-merge-requests)
-- [Release Workflow](#release-workflow)
+- [Environment variable](#Environment-variable) <!--[环境变量] 完成 -->
+- [User support](#user-support) <!--[用户支持] 完成 -->
+- [Participate in contribution](#Participate-in-contribution) <!--[参与贡献] 完成 -->
+  - [Package or run tests](#Package-or-run-tests) <!--[打包或运行测试] 完成 -->
 
 # Introduction
 
 This plugin allows Gitee to trigger builds in Jenkins when code is committed or pull requests are opened/updated. It can also send build status back to Gitee.
 
-### Seeking maintainers
+## Current Supported Features
+- When pushing code to the Gitee, the configured Webhook triggers the Jenkins task build。
+- Comments on a submission record trigger a Jenkins task build for the corresponding version of the submission record
+- When submitting a Pull Request to a Gitee project, Jenkins task builds are triggered by the configured Webhook, which supports PR actions: New, Update, Accept, Close, Review Pass, Test Pass.
+- Support [ci-skip] instruction filtering or [ci-build] instruction to trigger build.
+- Filter Commit versions that have already been built. If the branch is Push, the same branch Push is filtered,and if the branch is PR, the same PR is filtered.
+- Filters triggers by branch name。
+- Regular expressions filter the branches that can be triggered。
+- Set the Webhook authentication password。
+- Post-build operations can configure PR triggered build results to comment in the corresponding PR of Gitee.
+- Post-build operation configurable PR triggered by the successful build, the corresponding PR can be automatically merged.
+- For all PR-related events, if the PR code conflicts cannot be automatically merged, the build will not be triggered; and if the function of commenting to PR is configured, the comment to PR will prompt conflict.
+- PR comments can be triggered via WebHook (can be used for PR to trigger a build failure to facilitate re-triggering the build from the code cloud platform comments).
+- Support for configuring PR does not require filtering to trigger a build when testing is required. (Can be used to build a deployment test environment without testing).
+- Support the same PR to trigger the construction, cancel the incomplete construction in progress, and proceed to the current construction (the same PR construction is not queued, and multiple different PR constructions still need to be queued).
 
-This plugin was developed base on [GitLab Plugin](https://github.com/jenkinsci/gitlab-plugin) by [Gitee.com](https://gitee.com). [Gitee.com](https://gitee.com) will continue to maintain this plugin.  
+## Features in plan
+1. PR review and test pass trigger build (users can trigger deployment, and the feature of automatically merged PR can be used to improve the workflow.) 
+2. Check the trigger mode to automatically add WebHook to Gitee.
+
+# Global plugin installation
+1. Online installation 
+    - Go to Manage Jenkins -> Manage Plugins -> Available
+    - Right Filter enter: Gitee
+    - Check Gitee in the optional list below (if Gitee does not exist in the list, click Check now to update the plug-in list) 
+    - Click Download now and install after restart
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/112748_b81a1ee3_58426.png "屏幕截图.png")
+
+2. Manual installation
+    - From [release](https://gitee.com/oschina/Gitee-Jenkins-Plugin/releases) Enter the latest release in the list and download the corresponding XXX.hpi file 
+    - Go to Manage Jenkins -> Manage Plugins -> Advanced
+    - In Upload Plugin File, select the XXX.hpi you just downloaded and click Upload
+    - Check in the subsequent pages Restart Jenkins when installation is complete and no jobs are running
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/113303_2a1d0a03_58426.png "屏幕截图.png")
 
 
-# User support
 
-If you have a problem or question about using the plugin, please make sure you are using the latest version. Then create an issue in the Gitee project if necessary. New issues should include the following:
-* Jenkins version (e.g. 2.111)
-* Relevant log output from the plugin (see below for instructions on capturing this)
 
-Gitee Jenkins plugin introduced improved logging for debugging purposes. To enable it:
 
-1. Go to Jenkins -> Manage Jenkins -> System Log
-2. Add new log recorder
-3. Enter 'Gitee plugin' or whatever you want for the name
-4. On the next page, enter 'com.gitee.jenkins' for Logger, set log level to FINEST, and save
-5. Then click on your Gitee jenkins plugin log, click 'Clear this log' if necessary, and then use Gitee to trigger some actions
-6. Refresh the log page and you should see output
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Global plugin configuration
+## Gitee link configuration 
+1. Go on Jenkins -> Manage Jenkins -> Configure System -> Gitee Configuration -> Gitee connections
+2. Enter ``Gitee`` or the name you want in ``Connection name`` 
+3. Enter the full URL address of Gitee in ``Gitee host URL'': ``https://gitee.com`` (Customers of Gitee privatization enter the deployed domain name) 
+4. If you haven't configured the Code Cloud APIV5 private token in ``Credentials'', click ``Add'' -> ``Jenkins `` 
+    1. ``Domain`` select ``Global credentials`` 
+    2. ``Kind`` select ``Gitee API Token``
+    3. ``Scope`` choose the range you need 
+    4. ``Gitee API Token`` Enter your code cloud private token to obtain the address: https://gitee.com/profile/personal_access_tokens 
+    5. Enter the ID and description you want in ``ID``, ``Descripiton``.
+5. ``Credentials`` Select the configured Gitee APIV5 Token 
+6. Click ``Advanced``, you can configure whether to ignore SSL errors (depending on whether your Jenkins environment supports it), and set the link test timeout period (depending on your network environment) 
+
+7. Click ``Test Connection`` to test whether the link is successful, if it fails, please check the above 3, 5, 6 steps.
+
+After the configuration is successful, as shown in the figure ：
+![码云链接配置](https://images.gitee.com/uploads/images/2018/0716/185651_68707d16_58426.png "屏幕截图.png")
+
+### New build task
+Go to Jenkins -> New Item, enter'Gitee Test' as name, select ``Freestyle project`` and save to create a build project.
+
+### Task global configuration 
+In the task global configuration, you need to select the code cloud link in the previous step. Go to Configure -> General of a task (such as'Gitee Test'), and select the code cloud link configured earlier in Gitee connection, as shown in the figure: ：
+![任务全局配置](https://images.gitee.com/uploads/images/2018/0716/191715_9660237b_58426.png "屏幕截图.png")
+
+
 ## Gitee-to-Jenkins authentication
 By default the plugin will require authentication to be set up for the connection from Gitee to Jenkins, in order to prevent unauthorized persons from being able to trigger jobs. 
 
@@ -86,6 +175,7 @@ You will need to update this code anytime you add or remove parameters.
 
 ## Git configuration 
 ### Freestyle jobs
+ <!-- 源码管理配置 -->
 In the *Source Code Management* section:
 
 1. Click *Git*
@@ -123,17 +213,82 @@ You can optionally have your Jenkins jobs send their build status back to Gitee,
 Freestyle jobs can only send build status after the build steps are complete. To do this, choose 'Publish build status to Gitee' from the available 'Post-build actions' in your Jenkins job config. Also make sure you have chosen the appropriate Gitee instance from the 'Gitee connection' dropdown menu, if you have more than one.
 
 
-# Advanced features
-## Branch filtering
-Triggers may be filtered based on the branch name, i.e. the build will only be allowed for selected branches. On the project configuration page, when you configure the Gitee trigger, you can choose 'Filter branches by name' or 'Filter branches by regex.' Filter by name takes comma-separated lists of branch names to include and/or exclude from triggering a build. Filter by regex takes a Java regular expression to include and/or exclude.
-
-**Note:** This functionality requires access to Gitee and a git repository url already saved in the project configuration. In other words, when creating a new project, the configuration needs to be saved *once* before being able to add branch filters. For Pipeline jobs, the configuration must be saved *and* the job must be run once before the list is populated.
+# Environment variable
+The currently supported environment variables are shown in the following functions. Different WebHook triggers may cause some variables to be empty. Please install the plug-in for details.  [EnvInject Plugin](https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin), View in build Environment Variables
 
 
-## Add a note to pull requests
-To add a note to Gitee pull requests after the build completes, select 'Add note with build status on Gitee pull requests' from the optional Post-build actions. Optionally, click the 'Advanced' button to customize the content of the note depending on the build result.
+```java
+    public Map<String, String> getBuildVariables() {
+        MapWrapper<String, String> variables = new MapWrapper<>(new HashMap<String, String>());
+        variables.put("giteeBranch", branch);
+        variables.put("giteeSourceBranch", sourceBranch);
+        variables.put("giteeActionType", actionType.name());
+        variables.put("giteeUserName", userName);
+        variables.put("giteeUserEmail", userEmail);
+        variables.put("giteeSourceRepoHomepage", sourceRepoHomepage);
+        variables.put("giteeSourceRepoName", sourceRepoName);
+        variables.put("giteeSourceNamespace", sourceNamespace);
+        variables.put("giteeSourceRepoURL", sourceRepoUrl);
+        variables.put("giteeSourceRepoSshUrl", sourceRepoSshUrl);
+        variables.put("giteeSourceRepoHttpUrl", sourceRepoHttpUrl);
+        variables.put("giteePullRequestTitle", pullRequestTitle);
+        variables.put("giteePullRequestDescription", pullRequestDescription);
+        variables.put("giteePullRequestId", pullRequestId == null ? "" : pullRequestId.toString());
+        variables.put("giteePullRequestIid", pullRequestIid == null ? "" : pullRequestIid.toString());
+        variables.put("giteePullRequestTargetProjectId", pullRequestTargetProjectId == null ? "" : pullRequestTargetProjectId.toString());
+        variables.put("giteePullRequestLastCommit", lastCommit);
+        variables.put("giteePushCreated", created ? "true" : "false");
+        variables.put("giteePushDeleted", deleted ? "true" : "false");
+        variables.putIfNotNull("giteePullRequestState", pullRequestState);
+        variables.putIfNotNull("giteeMergedByUser", mergedByUser);
+        variables.putIfNotNull("giteePullRequestAssignee", pullRequestAssignee);
+        variables.put("giteeTargetBranch", targetBranch);
+        variables.put("giteeTargetRepoName", targetRepoName);
+        variables.put("giteeTargetNamespace", targetNamespace);
+        variables.put("giteeTargetRepoSshUrl", targetRepoSshUrl);
+        variables.put("giteeTargetRepoHttpUrl", targetRepoHttpUrl);
+        variables.put("giteeBefore", before);
+        variables.put("giteeAfter", after);
+        variables.put("giteeBeforeCommitSha", before);
+        variables.put("giteeAfterCommitSha", after);
+        variables.put("giteeRef", ref);
+        variables.put("ref", ref);
+        variables.put("beforeSha", beforeSha);
+        variables.put("isTag", isTag);
+        variables.put("sha", sha);
+        variables.put("status", status);
+        variables.put("stages", stages);
+        variables.put("createdAt", createdAt);
+        variables.put("finishedAt", finishedAt);
+        variables.put("duration", buildDuration);
+        variables.put("jsonBody", jsonBody);
+        variables.put("noteBody", noteBody);
+        variables.putIfNotNull("giteeTriggerPhrase", triggerPhrase);
+        return variables;
+    }
+
+```
+
+# User support
+
+If you have a problem or question about using the plugin, please make sure you are using the latest version. Then create an issue in the Gitee project if necessary. New issues should include the following:
+* Jenkins version (e.g. 2.111)
+* Relevant log output from the plugin (see below for instructions on capturing this)
+
+Gitee Jenkins plugin introduced improved logging for debugging purposes. To enable it:
+
+1. Go to Jenkins -> Manage Jenkins -> System Log
+2. Add new log recorder
+3. Enter 'Gitee plugin' or whatever you want for the name
+4. On the next page, enter 'com.gitee.jenkins' for Logger, set log level to FINEST, and save
+5. Then click on your Gitee jenkins plugin log, click 'Clear this log' if necessary, and then use Gitee to trigger some actions
+6. Refresh the log page and you should see output
 
 
-# Release Workflow
+# Participate in contribution
+
+Welcome to submit CI scenario feature suggestions or directly submit PR contribution code 
+
+## Package or run tests
 
 To perform a plugin hpi file, maintainers can run ``mvn package`` To release a snapshot, e.g. with a bug fix for users to test, just run ``mvn hpi:run``
