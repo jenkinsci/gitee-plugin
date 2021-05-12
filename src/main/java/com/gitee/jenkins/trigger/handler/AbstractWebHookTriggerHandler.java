@@ -15,7 +15,6 @@ import hudson.scm.SCM;
 import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
-import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
@@ -23,8 +22,6 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,22 +87,10 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected abstract BuildStatusUpdate retrieveBuildStatusUpdate(H hook);
 
-    protected URIish retrieveUrIish(WebHook hook, GitSCM gitSCM) {
-        if (hook.getRepository() == null || gitSCM == null) {
-            return null;
-        }
+    protected URIish retrieveUrIish(WebHook hook) {
         try {
-            Set<URIish> set = new HashSet<>();
-            set.add(new URIish(hook.getRepository().getUrl()));
-            set.add(new URIish(hook.getRepository().getGitHttpUrl()));
-            set.add(new URIish(hook.getRepository().getGitSshUrl()));
-            // uri 需与当前项目仓库个url一致，避免触发多个构建
-            for (RemoteConfig remote : gitSCM.getRepositories()) {
-                for (URIish remoteURL : remote.getURIs()) {
-                    if (set.contains(remoteURL)) {
-                        return remoteURL;
-                    }
-                }
+            if (hook.getRepository() != null) {
+                return new URIish(hook.getRepository().getUrl());
             }
         } catch (URISyntaxException e) {
             LOGGER.log(Level.WARNING, "could not parse URL");

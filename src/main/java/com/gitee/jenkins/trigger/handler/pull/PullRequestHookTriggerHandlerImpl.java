@@ -245,7 +245,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
         if (gitSCM == null) {
             return new RevisionParameterAction(retrieveRevisionToBuild(hook));
         }
-        URIish urIish = retrieveUrIish(hook, gitSCM);
+        URIish urIish = retrieveUrIish(hook);
         // webhook与git源码管理仓库对不上
         if (urIish == null) {
             return new RevisionParameterAction(retrieveRevisionToBuild2(hook));
