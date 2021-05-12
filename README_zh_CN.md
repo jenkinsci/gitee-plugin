@@ -17,6 +17,7 @@
     - [新建码云项目WebHook](#新建码云项目WebHook)
       - [测试推送触发构建](#测试推送触发构建)
       - [测试PR触发构建](#测试PR触发构建)
+  - [使用脚本配置触发器](#使用脚本配置触发器)  
 - [环境变量](#环境变量)
 - [用户支持](#用户支持)
 - [参与贡献](#参与贡献)
@@ -171,6 +172,65 @@ Gitee Jenkins Plugin 是码云基于 [GitLab Plugin](https://github.com/jenkinsc
 #### 测试PR触发构建
 1. 码云的 WebHook 管理中选择勾选了 Pull Request 的 WebHook 点击测试，观察 Jenkins 任务的构建状态
 2. 在码云项目中新建一个Pull Request，观察 Jenkins 任务的构建状态
+
+## 使用脚本配置触发器
+```groovy
+pipeline {
+
+    agent any
+
+    triggers {
+        gitee (
+                // 推送代码
+                triggerOnPush: true,
+                // 评论提交记录
+                triggerOnCommitComment: true,
+                // 新建 Pull Requests
+                triggerOnOpenPullRequest: true,
+                // 更新 Pull Requests "0":None "1":Source Branch updated "2":Target Branch updated "3":Both Source and Target Branch updated
+                triggerOnUpdatePullRequest: "1",
+                // 接受 Pull Requests
+                triggerOnAcceptedPullRequest: true,
+                // 关闭 Pull Requests
+                triggerOnClosedPullRequest: true,
+                // 审查通过 Pull Requests	
+                triggerOnApprovedPullRequest: true,
+                // 测试通过 Pull Requests
+                triggerOnTestedPullRequest: true,
+                // 评论 Pull Requests
+                triggerOnNoteRequest: true,
+                // 评论内容的正则表达式
+                noteRegex: "build",
+                // 构建指令过滤 "NONE":无 "CI_SKIP":[ci-skip] 指令跳过构建 "CI_BUILD":[ci-build] 指令触发构建
+                buildInstructionFilterType: "NONE",
+                // PR 不要求必须测试时过滤构建
+                ciSkipFroTestNotRequired: false,
+                // 过滤已经构建的 Commit 版本
+                skipLastCommitHasBeenBuild: false,
+                // 取消相同 Pull Requests 未完成构建
+                cancelIncompleteBuildOnSamePullRequest: false,
+                // 允许触发构建的分支 "All":允许所有分支触发构建 "NameBasedFilter":根据分支名过滤 "RegexBasedFilter":根据正则表达式过滤分支
+                branchFilterType: "All",
+                // "NameBasedFilter" - 包括
+                includeBranchesSpec: "include",
+                // "NameBasedFilter" - 排除
+                excludeBranchesSpec: "exclude",
+                // "RegexBasedFilter" - 目标分支的正则表达式
+                targetBranchRegex: "regex",
+                // Gitee WebHook 密码
+                secretToken: "123456"
+        )
+    }
+
+    stages {
+        stage('Build') {
+            steps{
+                echo 'Hello world!'
+            }
+        }
+    }
+}
+```
 
 # 环境变量
 目前支持环境变量见以下函数，其中不同的 WebHook 触发可能导致有些变量为空，具体请安装插件 [EnvInject Plugin](https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin)，于构建中查看  Environment Variables
