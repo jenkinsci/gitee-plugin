@@ -58,10 +58,6 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
             if (!ignorePullRequestConflicts && objectAttributes != null && !objectAttributes.isMergeable()) {
                 LOGGER.log(Level.INFO, "This pull request can not be merge");
-                // fixme 无法获取 publisher
-                // java.lang.ClassCastException: org.jenkinsci.plugins.workflow.job.WorkflowJob cannot be cast to hudson.model.AbstractProject
-                //	at com.gitee.jenkins.publisher.GiteeMessagePublisher.getFromJob(GiteeMessagePublisher.java:65)
-                //	at com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandlerImpl.handle(NoteHookTriggerHandlerImpl.java:47)
                 GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
                 GiteeClient client = getClient(job);
                 if (publisher != null && client != null) {

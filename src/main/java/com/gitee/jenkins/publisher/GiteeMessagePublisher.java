@@ -61,7 +61,7 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
 
     public static GiteeMessagePublisher getFromJob(Job<?, ?> job) {
         GiteeMessagePublisher publisher = null;
-        if (job instanceof ParameterizedJobMixIn.ParameterizedJob) {
+        if (job instanceof AbstractProject) {
             AbstractProject p = (AbstractProject) job;
             Map<Descriptor<Publisher>, Publisher> map = p.getPublishersList().toMap();
             for (Publisher n : map.values()) {
