@@ -1,9 +1,11 @@
 <div>
   <div>
-    <p>The target branch regex allows to limit the execution of this job to certain branches. Any branch matching the specified pattern triggers
+    <p>The target branch regex allows to limit the execution of this job to certain branches (or tags). Any branch (or tags) matching the specified pattern triggers
       the job. No filtering is performed if the field is left empty.</p>
+    <p>* If only branch regex is provided, tag push will be ignored unless regex for tag(s) starting with <code>^refs/tags/</code> is added. See the example below. </p>
     <p>Examples:</p>
     <pre># Allow execution for debug and release branches: (.*debug.*|.*release.*) </pre>
     <pre># Ignore any branch with `Release` or `release` as subword: ^(?:(?![R|r]elease).)*$ </pre>
+    <pre># Allow execution for all tags 和 master branch：(^refs\/tags\/.+)|master </pre>
   </div>
 </div>
