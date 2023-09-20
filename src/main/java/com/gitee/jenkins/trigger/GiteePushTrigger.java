@@ -79,6 +79,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private BuildInstructionFilterType buildInstructionFilterType = BuildInstructionFilterType.NONE;
     private boolean skipWorkInProgressPullRequest;
     private boolean ciSkipFroTestNotRequired;
+    private boolean ciBuildForDeleteRef;
     private boolean skipLastCommitHasBeenBuild;
     private boolean setBuildDescription = true;
     private transient boolean addNoteOnPullRequest;
@@ -286,6 +287,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return ciSkipFroTestNotRequired;
     }
 
+    public boolean getCiBuildForDeleteRef() {
+        return ciBuildForDeleteRef;
+    }
+
     public boolean getSkipLastCommitHasBeenBuild() {
         return skipLastCommitHasBeenBuild;
     }
@@ -403,6 +408,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
+    public void setCiBuildForDeleteRef(boolean ciBuildForDeleteRef) {
+        this.ciBuildForDeleteRef = ciBuildForDeleteRef;
+    }
+
+    @DataBoundSetter
     public void setSkipWorkInProgressPullRequest(boolean skipWorkInProgressPullRequest) {
         this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
     }
@@ -515,6 +525,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pushHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
+
         pushHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
     }
 
@@ -562,7 +573,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             ignorePullRequestConflicts
         );
         noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnCommitComment, triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest, ignorePullRequestConflicts);
-        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest);
+        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest, ciBuildForDeleteRef);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }
 

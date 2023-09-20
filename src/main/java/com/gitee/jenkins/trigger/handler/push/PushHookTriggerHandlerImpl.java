@@ -28,12 +28,18 @@ import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpd
 class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook> implements PushHookTriggerHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PushHookTriggerHandlerImpl.class.getName());
-
     private static final String NO_COMMIT = "0000000000000000000000000000000000000000";
+    private final boolean skipWorkInProgressPullRequest;
+    private final boolean ciBuildForDeleteRef;
+
+    PushHookTriggerHandlerImpl(boolean skipWorkInProgressPullRequest, boolean ciBuildForDeleteRef) {
+        this.skipWorkInProgressPullRequest = skipWorkInProgressPullRequest;
+        this.ciBuildForDeleteRef = ciBuildForDeleteRef;
+    }
 
     @Override
     public void handle(Job<?, ?> job, PushHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
-        if (isNoRemoveBranchPush(hook)) {
+        if (ciBuildForDeleteRef || isNoRemoveBranchPush(hook)) {
             super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
@@ -145,7 +151,7 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
     }
 
     private String retrieveRevisionToBuild(PushHook hook, GitSCM gitSCM) throws NoRevisionToBuildException {
-        if (inNoBranchDelete(hook)) {
+        if (isNoRemoveBranchPush(hook)) {
             if (gitSCM != null && gitSCM.getRepositories().size() == 1) {
                 String repositoryName = gitSCM.getRepositories().get(0).getName();
                 return hook.getRef().replaceFirst("^refs/heads", "remotes/" + repositoryName);
@@ -155,10 +161,6 @@ class PushHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<PushHook>
         } else {
             throw new NoRevisionToBuildException();
         }
-    }
-
-    private boolean inNoBranchDelete(PushHook hook) {
-        return hook.getAfter() != null && !hook.getAfter().equals(NO_COMMIT);
     }
 
     private boolean isNoRemoveBranchPush(PushHook hook) {

@@ -72,6 +72,10 @@
     <f:checkbox default="true"/>
   </f:entry>
 
+  <f:entry title="${%Enable.CI.BuildForDeleteRef}" field="ciBuildForDeleteRef" help="/plugin/gitee/help/help-ci-build-for-delete-ref.html">
+    <f:checkbox default="true"/>
+  </f:entry>
+
   <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
     <f:checkbox default="true"/>
   </f:entry>
