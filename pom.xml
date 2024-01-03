@@ -11,7 +11,7 @@
     <hpi-plugin.version>1.115</hpi-plugin.version>
     <jenkins-test-harness.version>${jenkins.version}</jenkins-test-harness.version>
     <findbugs.failOnError>false</findbugs.failOnError>
-    <spotbugs.failOnError>false</spotbugs.failOnError>
+    <findbugs.excludeFilterFile>src/spotbugs/excludesFilter.xml</findbugs.excludeFilterFile>
   </properties>
 
   <artifactId>gitee</artifactId>

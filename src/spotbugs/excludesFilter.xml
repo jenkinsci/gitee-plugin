@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!--
+    Exclusions in this section have been triaged and determined to be
+    false positives.
+  -->
+
+  <!--
+    Here lies technical debt. Exclusions in this section have not yet
+    been triaged. When working on this section, pick an exclusion to
+    triage, then:
+
+    - Add a @SuppressFBWarnings(value = "[...]", justification = "[...]")
+      annotation if it is a false positive.  Indicate the reason why
+      it is a false positive, then remove the exclusion from this
+      section.
+
+    - If it is not a false positive, fix the bug, then remove the
+      exclusion from this section.
+   -->
+  <Match>
+    <Or>
+      <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" />
+      <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+      <Bug pattern="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE" />
+      <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+    </Or>
+  </Match>
+</FindBugsFilter>
