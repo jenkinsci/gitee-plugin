@@ -11,6 +11,7 @@
     <hpi-plugin.version>1.115</hpi-plugin.version>
     <jenkins-test-harness.version>${jenkins.version}</jenkins-test-harness.version>
     <findbugs.failOnError>false</findbugs.failOnError>
+    <spotbugs.failOnError>false</spotbugs.failOnError>
   </properties>
 
   <artifactId>gitee</artifactId>
@@ -95,14 +96,6 @@
     </testResources>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.4</version>
-          <configuration>
-            <failOnError>false</failOnError>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
