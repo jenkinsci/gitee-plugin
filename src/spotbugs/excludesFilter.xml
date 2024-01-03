@@ -20,9 +20,14 @@
    -->
   <Match>
     <Or>
+      <Bug pattern="DM_DEFAULT_ENCODING" />
+      <Bug pattern="EI_EXPOSE_REP" />
+      <Bug pattern="EI_EXPOSE_REP2" />
       <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" />
       <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
       <Bug pattern="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE" />
+      <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+      <Bug pattern="SE_NO_SERIALVERSIONID" />
       <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Or>
   </Match>
