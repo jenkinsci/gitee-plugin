@@ -21,8 +21,6 @@
   - [Use scripts to configure triggers](#Use-scripts-to-configure-triggers)
 - [Environment variable](#Environment-variable)
 - [User support](#user-support)
-- [Participate in contribution](#Participate-in-contribution)
-  - [Package or run tests](#Package-or-run-tests)
 
 # Introduction
 
@@ -299,11 +297,3 @@ Gitee Jenkins plugin introduced improved logging for debugging purposes. To enab
 4. On the next page, enter 'com.gitee.jenkins' for Logger, set log level to FINEST, and save
 5. Then click on your Gitee jenkins plugin log, click 'Clear this log' if necessary, and then use Gitee to trigger some actions
 6. Refresh the log page and you should see output
-
-# Participate in contribution
-
-Welcome to submit CI scenario feature suggestions or directly submit PR contribution code
-
-## Package or run tests
-
-To perform a plugin hpi file, maintainers can run ``mvn package`` To release a snapshot, e.g. with a bug fix for users to test, just run ``mvn hpi:run``
