@@ -130,6 +130,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <!-- Needs to match the jackson version from plugin BOM -->
       <version>2.15.1</version>
     </dependency>
 
