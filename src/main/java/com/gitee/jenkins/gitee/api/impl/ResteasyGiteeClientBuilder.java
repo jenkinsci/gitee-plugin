@@ -185,11 +185,9 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
 
         private String getResponseBody(ClientResponseContext context) {
             try (InputStream entityStream = context.getEntityStream()) {
-                if (entityStream != null) {
-                    byte[] bytes = IOUtils.toByteArray(entityStream);
-                    context.setEntityStream(new ByteArrayInputStream(bytes));
-                    return new String(bytes);
-                }
+                byte[] bytes = IOUtils.toByteArray(entityStream);
+                context.setEntityStream(new ByteArrayInputStream(bytes));
+                return new String(bytes);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Failure during reading the response body", e);
                 context.setEntityStream(new ByteArrayInputStream(new byte[0]));
