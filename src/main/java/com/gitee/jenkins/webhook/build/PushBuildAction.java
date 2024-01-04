@@ -88,14 +88,9 @@ public class PushBuildAction extends BuildWebHookAction {
                     GitSCMSource gitSCMSource = (GitSCMSource) scmSource;
                     try {
                         if (new URIish(gitSCMSource.getRemote()).equals(new URIish(gitSCMSource.getRemote()))) {
-                            if (!gitSCMSource.isIgnoreOnPushNotifications()) {
-                                LOGGER.log(Level.FINE, "Notify scmSourceOwner {0} about changes for {1}",
-                                           toArray(project.getName(), gitSCMSource.getRemote()));
-                                ((SCMSourceOwner) project).onSCMSourceUpdated(scmSource);
-                            } else {
-                                LOGGER.log(Level.FINE, "Ignore on push notification for scmSourceOwner {0} about changes for {1}",
-                                           toArray(project.getName(), gitSCMSource.getRemote()));
-                            }
+                            LOGGER.log(Level.FINE, "Notify scmSourceOwner {0} about changes for {1}",
+                                       toArray(project.getName(), gitSCMSource.getRemote()));
+                            ((SCMSourceOwner) project).onSCMSourceUpdated(scmSource);
                         }
                     } catch (URISyntaxException e) {
                         // nothing to do
