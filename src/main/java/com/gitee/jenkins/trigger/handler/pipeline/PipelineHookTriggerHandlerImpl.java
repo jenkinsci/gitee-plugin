@@ -52,7 +52,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
                 GiteeConnectionProperty property = job.getProperty(GiteeConnectionProperty.class);
 
                 if (property != null && property.getClient() != null) {
-                    GiteeClient client = property.getClient();
+                    property.getClient();
                 }
             }
         } catch (WebApplicationException e) {
