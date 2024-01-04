@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import com.gitee.jenkins.gitee.hook.model.WebHook;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.security.Messages;
 import hudson.security.Permission;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
@@ -74,7 +73,7 @@ abstract class BuildWebHookAction implements WebHookAction {
         private void checkPermission(Permission permission) {
             if (((GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class)).isUseAuthenticatedEndpoint()) {
                 if (!Jenkins.getActiveInstance().getACL().hasPermission(authentication, permission)) {
-                    String message = Messages.AccessDeniedException2_MissingPermission(authentication.getName(), permission.group.title+"/"+permission.name);
+                    String message = authentication.getName() + " is missing the " + permission.group.title+"/"+permission.name+ " permission";
                     LOGGER.finest("Unauthorized (Did you forget to add API Token to the web hook ?)");
                     throw HttpResponses.errorWithoutStack(403, message);
                 }
