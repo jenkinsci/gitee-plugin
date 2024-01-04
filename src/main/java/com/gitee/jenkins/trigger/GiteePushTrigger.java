@@ -605,7 +605,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         GiteePushTrigger trigger = null;
         if (job instanceof ParameterizedJobMixIn.ParameterizedJob) {
             ParameterizedJobMixIn.ParameterizedJob p = (ParameterizedJobMixIn.ParameterizedJob) job;
-            for (Trigger t : p.getTriggers().values()) {
+            for (Object t : p.getTriggers().values()) {
                 if (t instanceof GiteePushTrigger) {
                     trigger = (GiteePushTrigger) t;
                 }
