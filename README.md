@@ -56,12 +56,10 @@ This plugin allows Gitee to trigger builds in Jenkins when code is committed or 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/112748_b81a1ee3_58426.png "屏幕截图.png")
 
 2. Manual installation
-    - From [release](https://gitee.com/oschina/Gitee-Jenkins-Plugin/releases) Enter the latest release in the list and download the corresponding XXX.hpi file
+    - From [release](https://updates.jenkins.io/download/plugins/gitee/) Copy the URL of the latest release
     - Go to Manage Jenkins -> Manage Plugins -> Advanced
-    - In Upload Plugin File, select the XXX.hpi you just downloaded and click Upload
+    - In Upload Plugin File, paste the URL that was copied in the earlier step
     - Check in the subsequent pages Restart Jenkins when installation is complete and no jobs are running
-
-![输入图片说明](https://images.gitee.com/uploads/images/2018/0723/113303_2a1d0a03_58426.png "屏幕截图.png")
 
 # Global plugin configuration
 ## Gitee link configuration
@@ -73,7 +71,7 @@ This plugin allows Gitee to trigger builds in Jenkins when code is committed or 
     2. ``Kind`` select ``Gitee API Token``
     3. ``Scope`` choose the range you need
     4. ``Gitee API Token`` Enter your code cloud private token to obtain the address: https://gitee.com/profile/personal_access_tokens
-    5. Enter the ID and description you want in ``ID``, ``Descripiton``.
+    5. Enter the ID and description you want in ``ID``, ``Description``.
 5. ``Credentials`` Select the configured Gitee APIV5 Token
 6. Click ``Advanced``, you can configure whether to ignore SSL errors (depending on whether your Jenkins environment supports it), and set the link test timeout period (depending on your network environment)
 
@@ -83,19 +81,19 @@ After the configuration is successful, as shown in the figure ：
 ![码云链接配置](https://images.gitee.com/uploads/images/2018/0716/185651_68707d16_58426.png "屏幕截图.png")
 
 ### New build task
-Go to Jenkins -> New Item, enter'Gitee Test' as name, select ``Freestyle project`` and save to create a build project.
+Go to Jenkins -> New Item, enter 'Gitee Test' as name, select ``Freestyle project`` and save to create a build project.
 
 ### Task global configuration
-In the task global configuration, you need to select the code cloud link in the previous step. Go to Configure -> General of a task (such as'Gitee Test'), and select the code cloud link configured earlier in Gitee connection, as shown in the figure: ：
+In the task global configuration, you need to select the code cloud link in the previous step. Go to Configure -> General of a task (such as 'Gitee Test'), and select the code cloud link configured earlier in Gitee connection, as shown in the figure: ：
 ![任务全局配置](https://images.gitee.com/uploads/images/2018/0716/191715_9660237b_58426.png "屏幕截图.png")
 
 ### Source code management configuration
-Go to the Configure -> Source Code Management tab of a task (such as'Gitee Test')
+Go to the Configure -> Source Code Management tab of a task (such as 'Gitee Test')
 
 1. Click *Git*
 2. Enter your warehouse address, for example ``git@your.gitee.server:gitee_group/gitee_project.git``
     1. Click the *Advanced* button, enter in the *Name* field  ``origin``， *Refspec* Field input  ``+refs/heads/*:refs/remotes/origin/* +refs/pull/*/MERGE:refs/pull/*/MERGE``
-，Note that the new version of jenkins no longer accepts multiple refs descriptions that contain * wildcards at the same time. If only the push trigger can write the first half, if only PR triggers, only the second half can be written. See the figure below for details ：![输入图片说明](https://images.gitee.com/uploads/images/2020/0601/220940_0ce95dd0_58426.png "屏幕截图.png")
+，Note that the new version of Jenkins no longer accepts multiple refs descriptions that contain * wildcards at the same time. If only the push trigger can write the first half, if only PR triggers, only the second half can be written. See the figure below for details ：![输入图片说明](https://images.gitee.com/uploads/images/2020/0601/220940_0ce95dd0_58426.png "屏幕截图.png")
 3. Credentials, please enter the username and password credentials corresponding to the https address of the git warehouse, or the ssh key credentials corresponding to ssh. Note that the Gitee API Token credentials cannot be used for source code management credentials, but only used for the API call credentials of the gitee plugin.
 4. *Branch Specifier* options:
     1. For single warehouse workflow input : ``origin/${giteeSourceBranch}``
@@ -130,7 +128,7 @@ Go to the trigger build of task configuration: Configure -> Build Triggers tab
     - `[ci-skip] skip build` ：When commit message or PR description contains `[ci-skip]`, skip the build trigger.
     - `[ci-build] trigger build` ：When commit message or PR description contains `[ci-build]`, the build will be triggered.
 3. `Ignore last commit has build` This option can skip the Commit version that has been built.
-4. `Cancel incomplete build on same Pull Requests` This option will determine whether there is an unfinished build with the same PR when the PR triggers the build. If there is, the unfinished build will be cancelled and the current build will be carried out.
+4. `Cancel incomplete build on same Pull Requests` This option will determine whether there is an unfinished build with the same PR when the PR triggers the build. If there is, the unfinished build will be canceled and the current build will be carried out.
 5. `Ignore Pull Request conflicts` This option will select whether to build according to the PR conflict when the PR triggers the build.
 6. `Allowed branches` You can configure the branches that are allowed to be built, and currently support branch names and regular expressions for filtering.
 7. `Secret Token for Gitee WebHook` This option can configure the password of WebHook, which needs to be consistent with the password configured by Code Cloud WebHook to trigger the construction.
@@ -229,7 +227,7 @@ pipeline {
 ```
 
 # Environment variable
-The currently supported environment variables are shown in the following functions. Different WebHook triggers may cause some variables to be empty. Please install the plug-in for details.  [EnvInject Plugin](https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin), View in build Environment Variables
+The currently supported environment variables are shown in the following functions. Different WebHook triggers may cause some variables to be empty. Please install the plug-in for details.  [EnvInject Plugin](https://plugins.jenkins.io/envinject/), View in build Environment Variables
 
 ```java
     public Map<String, String> getBuildVariables() {
