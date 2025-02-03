@@ -1,6 +1,7 @@
 package com.gitee.jenkins.environment;
 
 import com.gitee.jenkins.cause.GiteeWebHookCause;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.matrix.MatrixRun;
@@ -9,7 +10,6 @@ import hudson.model.EnvironmentContributor;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 
 /**
@@ -18,7 +18,7 @@ import java.io.IOException;
 @Extension
 public class GiteeEnvironmentContributor extends EnvironmentContributor {
     @Override
-    public void buildEnvironmentFor(@Nonnull Run r, @Nonnull EnvVars envs, @Nonnull TaskListener listener) throws IOException, InterruptedException {
+    public void buildEnvironmentFor(@NonNull Run r, @NonNull EnvVars envs, @NonNull TaskListener listener) throws IOException, InterruptedException {
         GiteeWebHookCause cause = null;
         if (r instanceof MatrixRun) {
             MatrixBuild parent = ((MatrixRun)r).getParentBuild();
