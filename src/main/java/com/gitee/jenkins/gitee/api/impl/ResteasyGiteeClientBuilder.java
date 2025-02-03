@@ -11,6 +11,8 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.ProxyConfiguration;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
@@ -29,8 +31,6 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
@@ -75,7 +75,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
         this.pullRequestIdProvider = pullRequestIdProvider;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public final GiteeClient buildClient(String url, String apiToken, boolean ignoreCertificateErrors, int connectionTimeout, int readTimeout) {
         return buildClient(
