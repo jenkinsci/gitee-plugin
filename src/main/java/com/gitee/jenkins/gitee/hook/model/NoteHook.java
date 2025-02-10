@@ -57,6 +57,7 @@ public class NoteHook extends WebHook {
         this.pullRequest = pullRequest;
     }
 
+    @Override
     public String getWebHookDescription() {
         // 兼容commit评论
         if (pullRequest == null) {

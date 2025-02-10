@@ -3,21 +3,18 @@ package com.gitee.jenkins.publisher;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
-import com.gitee.jenkins.trigger.GiteePushTrigger;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import hudson.triggers.Trigger;
 import jenkins.model.Jenkins;
-import jenkins.model.ParameterizedJobMixIn;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.WebApplicationException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,12 +58,11 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
 
     public static GiteeMessagePublisher getFromJob(Job<?, ?> job) {
         GiteeMessagePublisher publisher = null;
-        if (job instanceof AbstractProject) {
-            AbstractProject p = (AbstractProject) job;
+        if (job instanceof AbstractProject p) {
             Map<Descriptor<Publisher>, Publisher> map = p.getPublishersList().toMap();
             for (Publisher n : map.values()) {
-                if (n instanceof GiteeMessagePublisher) {
-                    publisher = (GiteeMessagePublisher) n;
+                if (n instanceof GiteeMessagePublisher giteePublisher) {
+                    publisher = giteePublisher;
                 }
             }
         }
@@ -162,6 +158,7 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
             return true;
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.GiteeMessagePublisher_DisplayName();
@@ -238,9 +235,9 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
             message = replaceMacros(build, listener, this.getFailureNoteText());
         } else {
             String icon = getResultIcon(build.getResult());
-            String buildUrl = Jenkins.getInstance().getRootUrl() + build.getUrl();
+            String buildUrl = Jenkins.get().getRootUrl() + build.getUrl();
             message = MessageFormat.format("{0} Jenkins Build {1}\n\nResults available at: [Jenkins [{2} # {3}]]({4})",
-                                           icon, build.getResult().toString(), build.getParent().getDisplayName(), build.getNumber(), buildUrl);
+                                           icon, build.getResult(), build.getParent().getDisplayName(), build.getNumber(), buildUrl);
         }
         return message;
     }

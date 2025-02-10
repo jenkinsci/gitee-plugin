@@ -88,6 +88,7 @@ public class PullRequestHook extends WebHook {
         this.labels = labels;
     }
 
+    @Override
     public String getWebHookDescription() {
         return getHookName() + " iid = " + pullRequest.getNumber() + " merge commit sha = " + pullRequest.getMergeCommitSha();
     }

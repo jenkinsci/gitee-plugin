@@ -4,7 +4,7 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.util.HttpResponses;
 import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.InputStream;
 
@@ -17,7 +17,7 @@ class StatusPngAction extends BuildStatusAction {
     }
 
     @Override
-    protected void writeStatusBody(StaplerResponse response, Run<?, ?> build, BuildStatus status) {
+    protected void writeStatusBody(StaplerResponse2 response, Run<?, ?> build, BuildStatus status) {
         try {
             response.setHeader("Expires", "Fri, 01 Jan 1984 00:00:00 GMT");
             response.setHeader("Cache-Control", "no-cache, private");
@@ -30,17 +30,12 @@ class StatusPngAction extends BuildStatusAction {
     }
 
     private InputStream getStatusImage(BuildStatus status) {
-        switch (status) {
-            case RUNNING:
-                return getClass().getResourceAsStream("running.png");
-            case SUCCESS:
-                return getClass().getResourceAsStream("success.png");
-            case FAILED:
-                return getClass().getResourceAsStream("failed.png");
-            case UNSTABLE:
-                return getClass().getResourceAsStream("unstable.png");
-            default:
-                return getClass().getResourceAsStream("unknown.png");
-        }
+        return switch (status) {
+            case RUNNING -> getClass().getResourceAsStream("running.png");
+            case SUCCESS -> getClass().getResourceAsStream("success.png");
+            case FAILED -> getClass().getResourceAsStream("failed.png");
+            case UNSTABLE -> getClass().getResourceAsStream("unstable.png");
+            default -> getClass().getResourceAsStream("unknown.png");
+        };
     }
 }

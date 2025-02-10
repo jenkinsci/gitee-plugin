@@ -6,7 +6,6 @@ import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.hook.model.*;
 import com.gitee.jenkins.gitee.hook.model.Action;
-import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
@@ -20,7 +19,7 @@ import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
@@ -108,7 +107,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 LOGGER.log(Level.INFO, "request is not allow, hook state=" + hook.getState() + ", action = " + hook.getAction() + ", action desc = " + hook.getActionDesc());
             }
         } catch (Exception e) {
-            LOGGER.log(Level.INFO, "request is not allow, hook ----- #" + hook.toString());
+            LOGGER.log(Level.INFO, "request is not allow, hook ----- #" + hook);
             throw e;
         }
 

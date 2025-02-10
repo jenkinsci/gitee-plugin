@@ -20,7 +20,7 @@ public enum BuildInstructionFilterType implements BuildInstructionFilter {
     CI_SKIP("[ci-skip]") {
         @Override
         public boolean isBuildAllow(String body) {
-            return body == null ? true : !body.contains(getBody());
+            return body == null || !body.contains(getBody());
         }
     },
     /**
@@ -29,11 +29,11 @@ public enum BuildInstructionFilterType implements BuildInstructionFilter {
     CI_BUILD("[ci-build]") {
         @Override
         public boolean isBuildAllow(String body) {
-            return body == null ? false : body.contains(getBody());
+            return body != null && body.contains(getBody());
         }
     };
 
-    private String body;
+    private final String body;
 
     BuildInstructionFilterType(String body) {
         this.body = body;

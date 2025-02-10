@@ -20,8 +20,8 @@ import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import jenkins.scm.api.SCMSourceOwner;
 import org.apache.commons.io.IOUtils;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -44,7 +44,7 @@ public class ActionResolver {
     private static final Pattern COMMIT_STATUS_PATTERN =
             Pattern.compile("^(refs/[^/]+/)?(commits|builds)/(?<sha1>[0-9a-fA-F]+)(?<statusJson>/status.json)?$");
 
-    public WebHookAction resolve(final String projectName, StaplerRequest request) {
+    public WebHookAction resolve(final String projectName, StaplerRequest2 request) {
         Iterator<String> restOfPathParts = Splitter.on('/').omitEmptyStrings().split(request.getRestOfPath()).iterator();
         Item project = resolveProject(projectName, restOfPathParts);
         if (project == null) {
@@ -53,7 +53,7 @@ public class ActionResolver {
         return resolveAction(project, Joiner.on('/').join(restOfPathParts), request);
     }
 
-    private WebHookAction resolveAction(Item project, String restOfPath, StaplerRequest request) {
+    private WebHookAction resolveAction(Item project, String restOfPath, StaplerRequest2 request) {
         String method = request.getMethod();
         if (method.equals("POST")) {
             return onPost(project, request);
@@ -69,7 +69,7 @@ public class ActionResolver {
         return new NoopAction();
     }
 
-    private WebHookAction onGet(Job<?, ?> project, String restOfPath, StaplerRequest request) {
+    private WebHookAction onGet(Job<?, ?> project, String restOfPath, StaplerRequest2 request) {
         Matcher commitMatcher = COMMIT_STATUS_PATTERN.matcher(restOfPath);
         if (restOfPath.isEmpty() && request.hasParameter("ref")) {
             return new BranchBuildPageRedirectAction(project, request.getParameter("ref"));
@@ -90,7 +90,7 @@ public class ActionResolver {
         }
     }
 
-    private WebHookAction onGetStatusPng(Job<?, ?> project, StaplerRequest request) {
+    private WebHookAction onGetStatusPng(Job<?, ?> project, StaplerRequest2 request) {
         if (request.hasParameter("ref")) {
             return new BranchStatusPngAction(project, request.getParameter("ref"));
         } else {
@@ -98,30 +98,26 @@ public class ActionResolver {
         }
     }
 
-    private WebHookAction onPost(Item project, StaplerRequest request) {
+    private WebHookAction onPost(Item project, StaplerRequest2 request) {
         String eventHeader = request.getHeader("X-Gitee-Event");
         if (eventHeader == null) {
             LOGGER.log(Level.FINE, "Missing X-Gitee-Event header");
             return new NoopAction();
         }
         String tokenHeader = request.getHeader("X-Gitee-Token");
-        switch (eventHeader) {
-            case "Merge Request Hook":
-                return new PullRequestBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Push Hook":
-            case "Tag Push Hook":
-                return new PushBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Note Hook":
-                return new NoteBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Pipeline Hook":
-                return new PipelineBuildAction(project, getRequestBody(request), tokenHeader);
-            default:
+        return switch (eventHeader) {
+            case "Merge Request Hook" -> new PullRequestBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Push Hook", "Tag Push Hook" -> new PushBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Note Hook" -> new NoteBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Pipeline Hook" -> new PipelineBuildAction(project, getRequestBody(request), tokenHeader);
+            default -> {
                 LOGGER.log(Level.FINE, "Unsupported X-Gitee-Event header: {0}", eventHeader);
-                return new NoopAction();
-        }
+                yield new NoopAction();
+            }
+        };
     }
 
-    private String getRequestBody(StaplerRequest request) {
+    private String getRequestBody(StaplerRequest2 request) {
         String requestBody;
         try {
             Charset charset = request.getCharacterEncoding() == null ?  UTF_8 : Charset.forName(request.getCharacterEncoding());
@@ -133,26 +129,24 @@ public class ActionResolver {
     }
 
     private Item resolveProject(final String projectName, final Iterator<String> restOfPathParts) {
-        return ACLUtil.impersonate(ACL.SYSTEM, new ACLUtil.Function<Item>() {
-            public Item invoke() {
-                final Jenkins jenkins = Jenkins.getInstance();
-                if (jenkins != null) {
-                    Item item = jenkins.getItemByFullName(projectName);
-                    while (item instanceof ItemGroup<?> && !(item instanceof Job<?, ?> || item instanceof SCMSourceOwner) && restOfPathParts.hasNext()) {
-                        item = jenkins.getItem(restOfPathParts.next(), (ItemGroup<?>) item);
-                    }
-                    if (item instanceof Job<?, ?> || item instanceof SCMSourceOwner) {
-                        return item;
-                    }
+        return ACLUtil.impersonate(ACL.SYSTEM2, () -> {
+            final Jenkins jenkins = Jenkins.getInstanceOrNull();
+            if (jenkins != null) {
+                Item item = jenkins.getItemByFullName(projectName);
+                while (item instanceof ItemGroup<?> && !(item instanceof Job<?, ?> || item instanceof SCMSourceOwner) && restOfPathParts.hasNext()) {
+                    item = jenkins.getItem(restOfPathParts.next(), (ItemGroup<?>) item);
                 }
-                LOGGER.log(Level.FINE, "No project found: {0}, {1}", toArray(projectName, Joiner.on('/').join(restOfPathParts)));
-                return null;
+                if (item instanceof Job<?, ?> || item instanceof SCMSourceOwner) {
+                    return item;
+                }
             }
+            LOGGER.log(Level.FINE, "No project found: {0}, {1}", toArray(projectName, Joiner.on('/').join(restOfPathParts)));
+            return null;
         });
     }
 
     static class NoopAction implements WebHookAction {
-        public void execute(StaplerResponse response) {
+        public void execute(StaplerResponse2 response) {
         }
     }
 }

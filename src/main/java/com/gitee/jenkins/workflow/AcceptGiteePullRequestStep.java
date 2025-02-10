@@ -2,12 +2,14 @@ package com.gitee.jenkins.workflow;
 
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
+import java.io.Serial;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.WebApplicationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.*;
@@ -44,7 +46,7 @@ public class AcceptGiteePullRequestStep extends Step {
 	public StepExecution start(StepContext context) throws Exception {
 		return new AcceptGiteePullRequestStepExecution(context, this);
 	}
-	
+
     public String getMergeCommitMessage() {
         return mergeCommitMessage;
     }
@@ -54,7 +56,8 @@ public class AcceptGiteePullRequestStep extends Step {
         this.mergeCommitMessage = StringUtils.isEmpty(mergeCommitMessage) ? null : mergeCommitMessage;
     }
 
-    public static class AcceptGiteePullRequestStepExecution extends AbstractSynchronousStepExecution<Void> {
+    public static class AcceptGiteePullRequestStepExecution extends SynchronousStepExecution<Void> {
+        @Serial
         private static final long serialVersionUID = 1;
 
         private final transient Run<?, ?> run;
@@ -66,7 +69,7 @@ public class AcceptGiteePullRequestStep extends Step {
             this.step = step;
             run = context.get(Run.class);
         }
-        
+
         @Override
         protected Void run() throws Exception {
             GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
@@ -123,6 +126,7 @@ public class AcceptGiteePullRequestStep extends Step {
     @Extension
     public static final class DescriptorImpl extends StepDescriptor {
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Accept Gitee Pull Request";
@@ -132,7 +136,7 @@ public class AcceptGiteePullRequestStep extends Step {
         public String getFunctionName() {
             return "acceptGiteeMR";
         }
-        
+
 		@Override
 		public Set<Class<?>> getRequiredContext() {
 			return ImmutableSet.of(TaskListener.class, Run.class);

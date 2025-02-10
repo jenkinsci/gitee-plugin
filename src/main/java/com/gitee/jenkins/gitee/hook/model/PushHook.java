@@ -127,6 +127,7 @@ public class PushHook extends WebHook {
         this.totalCommitsCount = totalCommitsCount;
     }
 
+    @Override
     public String getWebHookDescription() {
         return getHookName() + " ref = " + ref + " commit sha = " + after;
     }
