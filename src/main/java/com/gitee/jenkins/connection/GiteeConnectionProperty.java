@@ -2,6 +2,7 @@ package com.gitee.jenkins.connection;
 
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.JobProperty;
@@ -13,7 +14,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * @author Robin Müller
@@ -33,7 +34,7 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
 
     public GiteeClient getClient() {
         if (StringUtils.isNotEmpty(giteeConnection)) {
-            GiteeConnectionConfig connectionConfig = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
+            GiteeConnectionConfig connectionConfig = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
             return connectionConfig != null ? connectionConfig.getClient(giteeConnection) : null;
         }
         return null;
@@ -60,6 +61,7 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
     @Symbol("giteeConnection")
     public static class DescriptorImpl extends JobPropertyDescriptor {
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Gitee connection";
@@ -71,13 +73,13 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
         }
 
         @Override
-        public JobProperty<?> newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public JobProperty<?> newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
             return req.bindJSON(GiteeConnectionProperty.class, formData);
         }
 
         public ListBoxModel doFillGiteeConnectionItems() {
             ListBoxModel options = new ListBoxModel();
-            GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
+            GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
             for (GiteeConnection connection : descriptor.getConnections()) {
                 options.add(connection.getName(), connection.getName());
             }

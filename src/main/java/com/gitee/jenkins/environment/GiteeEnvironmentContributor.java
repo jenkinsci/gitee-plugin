@@ -20,10 +20,10 @@ public class GiteeEnvironmentContributor extends EnvironmentContributor {
     @Override
     public void buildEnvironmentFor(@NonNull Run r, @NonNull EnvVars envs, @NonNull TaskListener listener) throws IOException, InterruptedException {
         GiteeWebHookCause cause = null;
-        if (r instanceof MatrixRun) {
-            MatrixBuild parent = ((MatrixRun)r).getParentBuild();
+        if (r instanceof MatrixRun run) {
+            MatrixBuild parent = run.getParentBuild();
             if (parent != null) {
-                cause = (GiteeWebHookCause) parent.getCause(GiteeWebHookCause.class);
+                cause = parent.getCause(GiteeWebHookCause.class);
             }
         } else {
             cause = (GiteeWebHookCause) r.getCause(GiteeWebHookCause.class);

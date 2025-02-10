@@ -11,12 +11,12 @@ import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.publisher.GiteeAcceptPullRequestPublisher;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.filter.*;
-import com.gitee.jenkins.trigger.filter.PullRequestLabelFilterConfig;
 import com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandler;
 import com.gitee.jenkins.webhook.GiteeWebHook;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Util;
 import hudson.init.InitMilestone;
@@ -39,8 +39,8 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
@@ -168,7 +168,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     public static void migrateJobs() throws IOException {
         GiteePushTrigger.DescriptorImpl oldConfig = Trigger.all().get(GiteePushTrigger.DescriptorImpl.class);
         if (!oldConfig.jobsMigrated) {
-            GiteeConnectionConfig giteeConfig = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
+            GiteeConnectionConfig giteeConfig = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
             giteeConfig.getConnections().add(new GiteeConnection(
                 oldConfig.giteeHostUrl,
                     oldConfig.giteeHostUrl,
@@ -179,7 +179,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     10));
 
             String defaultConnectionName = giteeConfig.getConnections().get(0).getName();
-            for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
+            for (AbstractProject<?, ?> project : Jenkins.get().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
                     project.addProperty(new GiteeConnectionProperty(defaultConnectionName));
@@ -191,7 +191,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             oldConfig.save();
         }
         if (!oldConfig.jobsMigrated2) {
-            for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
+            for (AbstractProject<?, ?> project : Jenkins.get().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
                     if (trigger.addNoteOnPullRequest) {
@@ -209,7 +209,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
         // 兼容构建指令升级
         if (!oldConfig.jobsMigrated4) {
-            for (AbstractProject<?, ?> project : Jenkins.getInstance().getAllItems(AbstractProject.class)) {
+            for (AbstractProject<?, ?> project : Jenkins.get().getAllItems(AbstractProject.class)) {
                 GiteePushTrigger trigger = project.getTrigger(GiteePushTrigger.class);
                 if (trigger != null) {
                     if (trigger.getCiSkip()) {
@@ -224,7 +224,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             oldConfig.jobsMigrated4 = true;
             oldConfig.save();
         }
-        
+
     }
 
     public boolean getAddNoteOnPullRequest() { return addNoteOnPullRequest; }
@@ -603,11 +603,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public static GiteePushTrigger getFromJob(Job<?, ?> job) {
         GiteePushTrigger trigger = null;
-        if (job instanceof ParameterizedJobMixIn.ParameterizedJob) {
-            ParameterizedJobMixIn.ParameterizedJob p = (ParameterizedJobMixIn.ParameterizedJob) job;
+        if (job instanceof ParameterizedJobMixIn.ParameterizedJob p) {
             for (Object t : p.getTriggers().values()) {
-                if (t instanceof GiteePushTrigger) {
-                    trigger = (GiteePushTrigger) t;
+                if (t instanceof GiteePushTrigger pushTrigger) {
+                    trigger = pushTrigger;
                 }
             }
         }
@@ -618,7 +617,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @Symbol("gitee")
     public static class DescriptorImpl extends TriggerDescriptor {
 
-        private transient final SequentialExecutionQueue queue = new SequentialExecutionQueue(Jenkins.MasterComputer.threadPoolForRemoting);
+        private final transient SequentialExecutionQueue queue = new SequentialExecutionQueue(Jenkins.MasterComputer.threadPoolForRemoting);
         private boolean jobsMigrated = false;
         private boolean jobsMigrated2 = false;
         private boolean jobsMigrated3 = false;
@@ -638,6 +637,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     && item instanceof ParameterizedJobMixIn.ParameterizedJob;
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             Job<?, ?> project = retrieveCurrentJob();
@@ -654,15 +654,14 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
         private StringBuilder retrieveProjectUrl(Job<?, ?> project) {
             return new StringBuilder()
-                    .append(Jenkins.getInstance().getRootUrl())
+                    .append(Jenkins.get().getRootUrl())
                     .append(GiteeWebHook.WEBHOOK_URL)
                     .append(retrieveParentUrl(project))
                     .append('/').append(Util.rawEncode(project.getName()));
         }
 
         private StringBuilder retrieveParentUrl(Item item) {
-            if (item.getParent() instanceof Item) {
-                Item parent = (Item) item.getParent();
+            if (item.getParent() instanceof Item parent) {
                 return retrieveParentUrl(parent).append('/').append(Util.rawEncode(parent.getName()));
             } else {
                 return new StringBuilder();
@@ -670,7 +669,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         private Job<?, ?> retrieveCurrentJob() {
-            StaplerRequest request = Stapler.getCurrentRequest();
+            StaplerRequest2 request = Stapler.getCurrentRequest2();
             if (request != null) {
                 Ancestor ancestor = request.findAncestor(Job.class);
                 return ancestor == null ? null : (Job<?, ?>) ancestor.getObject();
@@ -679,19 +678,19 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+        public boolean configure(StaplerRequest2 req, JSONObject formData) throws FormException {
             save();
             return super.configure(req, formData);
         }
 
-        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {
+        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
             byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token
             RANDOM.nextBytes(random);
             String secretToken = Util.toHexString(random);
             response.setHeader("script", "document.getElementById('giteeSecretToken').value='" + secretToken + "'");
         }
 
-        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {;
+        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
             response.setHeader("script", "document.getElementById('giteeSecretToken').value=''");
         }
     }

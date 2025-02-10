@@ -1,6 +1,7 @@
 package com.gitee.jenkins.cause;
 
 import com.gitee.jenkins.gitee.api.model.PullRequest;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.markup.EscapedMarkupFormatter;
 import jenkins.model.Jenkins;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
@@ -124,7 +125,7 @@ public final class CauseData {
     }
 
     public Map<String, String> getBuildVariables() {
-        MapWrapper<String, String> variables = new MapWrapper<>(new HashMap<String, String>());
+        MapWrapper<String, String> variables = new MapWrapper<>(new HashMap<>());
         variables.put("giteeBranch", branch);
         variables.put("giteeSourceBranch", sourceBranch);
         variables.put("giteeActionType", actionType.name());
@@ -518,7 +519,7 @@ public final class CauseData {
             @Override
             String getShortDescription(CauseData data) {
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
-                if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
+                if (Jenkins.get().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
                     return Messages.GiteeWebHookCause_ShortDescription_PullRequestHook_plain(String.valueOf(data.getPullRequestIid()),
                                                                                                forkNamespace + data.getSourceBranch(),
                                                                                                data.getTargetBranch());
@@ -534,7 +535,7 @@ public final class CauseData {
             String getShortDescription(CauseData data) {
                 String triggeredBy = data.getTriggeredByUser();
                 String forkNamespace = StringUtils.equals(data.getSourceNamespace(), data.getTargetBranch()) ? "" : data.getSourceNamespace() + "/";
-                if (Jenkins.getActiveInstance().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
+                if (Jenkins.get().getMarkupFormatter() instanceof EscapedMarkupFormatter || data.getTargetProjectUrl() == null) {
                     return Messages.GiteeWebHookCause_ShortDescription_NoteHook_plain(triggeredBy,
                         String.valueOf(data.getPullRequestIid()),
                         forkNamespace + data.getSourceBranch(),
@@ -589,6 +590,7 @@ public final class CauseData {
             return map.put(key, value);
         }
 
+        @NonNull
         @Override
         public Set<Entry<K, V>> entrySet() {
             return map.entrySet();

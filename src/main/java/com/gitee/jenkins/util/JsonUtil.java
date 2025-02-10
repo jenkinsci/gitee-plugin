@@ -3,7 +3,7 @@ package com.gitee.jenkins.util;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -20,7 +20,7 @@ import java.util.Locale;
 public final class JsonUtil {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
             .configure(SerializationFeature.INDENT_OUTPUT, true)
@@ -50,20 +50,20 @@ public final class JsonUtil {
         };
 
         private DateModule() {
-            addDeserializer(Date.class, new com.fasterxml.jackson.databind.JsonDeserializer<Date>() {
+            addDeserializer(Date.class, new com.fasterxml.jackson.databind.JsonDeserializer<>() {
                 @Override
                 public Date deserialize(com.fasterxml.jackson.core.JsonParser p, DeserializationContext ctxt) throws IOException {
                     for (String format : DATE_FORMATS) {
                         try {
                             return new SimpleDateFormat(format, Locale.US)
-                                    .parse(p.getValueAsString());
+                                .parse(p.getValueAsString());
                         } catch (ParseException e) {
                             // nothing to do
                         }
                     }
                     throw new IOException("Unparseable date: \""
-                            + p.getValueAsString() + "\". Supported formats: "
-                            + Arrays.toString(DATE_FORMATS));
+                        + p.getValueAsString() + "\". Supported formats: "
+                        + Arrays.toString(DATE_FORMATS));
                 }
             });
         }

@@ -8,13 +8,11 @@ import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.domains.Domain;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.GiteeClientBuilder;
 import com.gitee.jenkins.gitee.api.impl.GiteeV5ClientBuilder;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
-import hudson.model.Item;
 import hudson.security.ACL;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
@@ -28,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
+import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentialsInItem;
 import static com.gitee.jenkins.gitee.api.GiteeClientBuilder.getGiteeClientBuilderById;
 
 
@@ -121,14 +119,14 @@ public class GiteeConnection {
 
     private String getApiToken(String apiTokenId) {
         StandardCredentials credentials = CredentialsMatchers.firstOrNull(
-            lookupCredentials(StandardCredentials.class, (Item) null, ACL.SYSTEM, new ArrayList<DomainRequirement>()),
+            lookupCredentialsInItem(StandardCredentials.class, null, ACL.SYSTEM2, new ArrayList<>()),
             CredentialsMatchers.withId(apiTokenId));
         if (credentials != null) {
-            if (credentials instanceof GiteeApiToken) {
-                return ((GiteeApiToken) credentials).getApiToken().getPlainText();
+            if (credentials instanceof GiteeApiToken token) {
+                return token.getApiToken().getPlainText();
             }
-            if (credentials instanceof StringCredentials) {
-                return ((StringCredentials) credentials).getSecret().getPlainText();
+            if (credentials instanceof StringCredentials stringCredentials) {
+                return stringCredentials.getSecret().getPlainText();
             }
         }
         throw new IllegalStateException("No credentials found for credentialsId: " + apiTokenId);
@@ -148,10 +146,10 @@ public class GiteeConnection {
 
     @Initializer(after = InitMilestone.PLUGINS_STARTED)
     public static void migrate() throws IOException {
-        GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.getInstance().getDescriptor(GiteeConnectionConfig.class);
+        GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
         for (GiteeConnection connection : descriptor.getConnections()) {
             if (connection.apiTokenId == null && connection.apiToken != null) {
-                for (CredentialsStore credentialsStore : CredentialsProvider.lookupStores(Jenkins.getInstance())) {
+                for (CredentialsStore credentialsStore : CredentialsProvider.lookupStores(Jenkins.get())) {
                     if (credentialsStore instanceof SystemCredentialsProvider.StoreImpl) {
                         List<Domain> domains = credentialsStore.getDomains();
                         connection.apiTokenId = UUID.randomUUID().toString();

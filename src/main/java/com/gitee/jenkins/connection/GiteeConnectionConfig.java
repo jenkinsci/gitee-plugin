@@ -21,10 +21,10 @@ import net.sf.json.JSONObject;
 import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +49,7 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
     }
 
     @Override
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    public boolean configure(StaplerRequest2 req, JSONObject json) throws FormException {
         connections = req.bindJSONToList(GiteeConnection.class, json.get("connections"));
 //        useAuthenticatedEndpoint = json.getBoolean("useAuthenticatedEndpoint");
         refreshConnectionMap();
@@ -152,11 +152,11 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
     }
 
     public ListBoxModel doFillApiTokenIdItems(@QueryParameter String name, @QueryParameter String url) {
-        if (Jenkins.getInstance().hasPermission(Item.CONFIGURE)) {
+        if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
             AbstractIdCredentialsListBoxModel<StandardListBoxModel, StandardCredentials> options = new StandardListBoxModel()
                 .includeEmptyValue()
-                .includeMatchingAs(ACL.SYSTEM,
-                                   Jenkins.getActiveInstance(),
+                .includeMatchingAs(ACL.SYSTEM2,
+                                   Jenkins.get(),
                                    StandardCredentials.class,
                                    URIRequirementBuilder.fromUri(url).build(),
                                    new GiteeCredentialMatcher());

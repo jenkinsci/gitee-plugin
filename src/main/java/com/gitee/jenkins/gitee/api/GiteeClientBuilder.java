@@ -27,7 +27,7 @@ public abstract class GiteeClientBuilder implements Comparable<GiteeClientBuilde
     }
 
     public static List<GiteeClientBuilder> getAllGiteeClientBuilders() {
-        List<GiteeClientBuilder> builders = new ArrayList<>(Jenkins.getInstance().getExtensionList(GiteeClientBuilder.class));
+        List<GiteeClientBuilder> builders = new ArrayList<>(Jenkins.get().getExtensionList(GiteeClientBuilder.class));
         sort(builders);
         return builders;
     }
