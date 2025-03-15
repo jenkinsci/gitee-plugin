@@ -11,13 +11,13 @@ import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import org.acegisecurity.Authentication;
 import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.connection.GiteeConnectionConfig;
 import com.gitee.jenkins.webhook.WebHookAction;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * @author Xinran Xiao
@@ -31,14 +31,14 @@ abstract class BuildWebHookAction implements WebHookAction {
 
     abstract void execute();
 
-    public final void execute(StaplerResponse response) {
+    public final void execute(StaplerResponse2 response) {
         processForCompatibility();
         execute();
     }
 
     public static HttpResponses.HttpResponseException responseWithHook(final WebHook webHook) {
         return new HttpResponses.HttpResponseException() {
-            public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException, ServletException {
                 String text = webHook.getWebHookDescription() + " has been accepted.";
                 rsp.setContentType("text/plain;charset=UTF-8");
                 rsp.getWriter().println(text);

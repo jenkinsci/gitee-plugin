@@ -5,7 +5,7 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.util.HttpResponses;
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,7 +23,7 @@ public class StatusJsonAction extends BuildStatusAction {
     }
 
     @Override
-    protected void writeStatusBody(StaplerResponse response, Run<?, ?> build, BuildStatus status) {
+    protected void writeStatusBody(StaplerResponse2 response, Run<?, ?> build, BuildStatus status) {
         try {
             JSONObject object = new JSONObject();
             object.put("sha", sha1);
@@ -37,7 +37,7 @@ public class StatusJsonAction extends BuildStatusAction {
         }
     }
 
-    private void writeBody(StaplerResponse response, JSONObject body) throws IOException {
+    private void writeBody(StaplerResponse2 response, JSONObject body) throws IOException {
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
         writer.write(body.toString());
