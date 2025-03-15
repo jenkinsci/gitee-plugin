@@ -4,7 +4,7 @@ import com.gitee.jenkins.webhook.WebHookAction;
 import hudson.model.Run;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ abstract class BuildPageRedirectAction implements WebHookAction {
         this.build = build;
     }
 
-    public void execute(StaplerResponse response) {
+    public void execute(StaplerResponse2 response) {
         if (build != null) {
             try {
                 response.sendRedirect2(Jenkins.getInstance().getRootUrl() + build.getUrl());

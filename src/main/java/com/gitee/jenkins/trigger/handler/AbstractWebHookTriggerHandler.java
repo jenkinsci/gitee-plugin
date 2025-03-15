@@ -18,7 +18,7 @@ import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.eclipse.jgit.transport.URIish;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;

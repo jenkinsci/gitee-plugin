@@ -17,7 +17,7 @@ import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

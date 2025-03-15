@@ -9,7 +9,7 @@ import hudson.model.Job;
 import hudson.security.ACL;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

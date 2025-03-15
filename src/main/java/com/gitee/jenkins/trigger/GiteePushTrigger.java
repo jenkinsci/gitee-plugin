@@ -39,8 +39,8 @@ import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
@@ -670,7 +670,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         private Job<?, ?> retrieveCurrentJob() {
-            StaplerRequest request = Stapler.getCurrentRequest();
+            StaplerRequest2 request = Stapler.getCurrentRequest2();
             if (request != null) {
                 Ancestor ancestor = request.findAncestor(Job.class);
                 return ancestor == null ? null : (Job<?, ?>) ancestor.getObject();
@@ -679,19 +679,19 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+        public boolean configure(StaplerRequest2 req, JSONObject formData) throws FormException {
             save();
             return super.configure(req, formData);
         }
 
-        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {
+        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
             byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token
             RANDOM.nextBytes(random);
             String secretToken = Util.toHexString(random);
             response.setHeader("script", "document.getElementById('giteeSecretToken').value='" + secretToken + "'");
         }
 
-        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse response) {;
+        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {;
             response.setHeader("script", "document.getElementById('giteeSecretToken').value=''");
         }
     }
