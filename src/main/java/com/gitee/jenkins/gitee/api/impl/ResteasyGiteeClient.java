@@ -19,7 +19,7 @@ final class ResteasyGiteeClient implements GiteeClient {
     }
 
     @Override
-    public final String getHostUrl() {
+    public String getHostUrl() {
         return hostUrl;
     }
 
