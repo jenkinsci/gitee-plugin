@@ -8,7 +8,6 @@ import com.gitee.jenkins.util.JsonUtil;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.security.ACL;
-import hudson.security.ACLContext;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 
@@ -22,7 +21,7 @@ import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
  */
 public class PullRequestBuildAction extends BuildWebHookAction {
 
-    private static final Logger LOGGER = Logger.getLogger(PullRequestBuildAction.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(PullRequestBuildAction.class.getName());
     private Item project;
     private PullRequestHook pullRequestHook;
     private final String secretToken;
@@ -59,14 +58,12 @@ public class PullRequestBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Merge Request Hook is not supported for this project");
         }
-        try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
-                @Override
-                protected void performOnPost(GiteePushTrigger trigger) {
-                    trigger.onPost(pullRequestHook);
-                }
-            };
-        }
+        ACL.impersonate(ACL.SYSTEM, new TriggerNotifier(project, secretToken, Jenkins.getAuthentication()) {
+            @Override
+            protected void performOnPost(GiteePushTrigger trigger) {
+                trigger.onPost(pullRequestHook);
+            }
+        });
         throw responseWithHook(pullRequestHook);
     }
 }

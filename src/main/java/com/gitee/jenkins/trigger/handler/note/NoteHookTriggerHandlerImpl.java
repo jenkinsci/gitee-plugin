@@ -17,7 +17,7 @@ import hudson.plugins.git.RevisionParameterAction;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -110,8 +110,8 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             CauseAction causeAction = build.getAction(CauseAction.class);
             GiteeWebHookCause giteeWebHookCause = null;
             for (Cause cause : causeAction.getCauses()) {
-                if (cause instanceof GiteeWebHookCause webHookCause) {
-                    giteeWebHookCause = webHookCause;
+                if (cause instanceof GiteeWebHookCause) {
+                    giteeWebHookCause = (GiteeWebHookCause) cause;
                     break;
                 }
             }

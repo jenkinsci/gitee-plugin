@@ -3,12 +3,13 @@ package com.gitee.jenkins.webhook.build;
 import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
 import com.gitee.jenkins.util.JsonUtil;
+import com.gitee.jenkins.webhook.WebHookAction;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.security.ACL;
-import hudson.security.ACLContext;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.StaplerResponse;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +21,7 @@ import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
  */
 public class NoteBuildAction extends BuildWebHookAction {
 
-    private static final Logger LOGGER = Logger.getLogger(NoteBuildAction.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(NoteBuildAction.class.getName());
     private Item project;
     private NoteHook noteHook;
     private final String secretToken;
@@ -43,14 +44,12 @@ public class NoteBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Note Hook is not supported for this project");
         }
-        try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new BuildWebHookAction.TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
-                @Override
-                protected void performOnPost(GiteePushTrigger trigger) {
-                    trigger.onPost(noteHook);
-                }
-            };
-        }
+        ACL.impersonate(ACL.SYSTEM, new BuildWebHookAction.TriggerNotifier(project, secretToken, Jenkins.getAuthentication()) {
+            @Override
+            protected void performOnPost(GiteePushTrigger trigger) {
+                trigger.onPost(noteHook);
+            }
+        });
         throw responseWithHook(noteHook);
     }
 }

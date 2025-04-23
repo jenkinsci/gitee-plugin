@@ -1,8 +1,8 @@
 package com.gitee.jenkins.gitee.api.impl;
 
 import com.gitee.jenkins.gitee.api.model.*;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 
 /**

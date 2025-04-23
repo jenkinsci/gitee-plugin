@@ -7,7 +7,7 @@ import com.gitee.jenkins.gitee.api.GiteeClientBuilder;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.util.JsonUtil;
 import com.gitee.jenkins.util.LoggerUtil;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
@@ -16,7 +16,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.ProxyConfiguration;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
-import jakarta.ws.rs.client.ClientBuilder;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -26,23 +25,21 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder.HostnameVerificationPolicy;
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
+import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.jboss.resteasy.plugins.providers.JaxrsFormProvider;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
-import jakarta.annotation.Priority;
-import jakarta.ws.rs.Priorities;
-import jakarta.ws.rs.client.ClientRequestContext;
-import jakarta.ws.rs.client.ClientRequestFilter;
-import jakarta.ws.rs.client.ClientResponseContext;
-import jakarta.ws.rs.client.ClientResponseFilter;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.ext.RuntimeDelegate;
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.ClientResponseContext;
+import javax.ws.rs.client.ClientResponseFilter;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.RuntimeDelegate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,7 +63,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
 
     @Initializer(before = InitMilestone.PLUGINS_STARTED)
     public static void setRuntimeDelegate() {
-        RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
+        RuntimeDelegate.setInstance(new ResteasyProviderFactory());
     }
 
     private final Class<? extends GiteeApiProxy> apiProxyClass;
@@ -84,7 +81,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
         return buildClient(
             url,
             apiToken,
-            Jenkins.get().proxy,
+            Jenkins.getActiveInstance().proxy,
             ignoreCertificateErrors,
             connectionTimeout,
             readTimeout
@@ -92,10 +89,10 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
     }
 
     private GiteeClient buildClient(String url, String apiToken, ProxyConfiguration httpProxyConfig, boolean ignoreCertificateErrors, int connectionTimeout, int readTimeout) {
-        ResteasyClientBuilder builder = (ResteasyClientBuilder) ClientBuilder.newBuilder();
+        ResteasyClientBuilder builder = new ResteasyClientBuilder();
 
         if (ignoreCertificateErrors) {
-            builder.hostnameVerification(HostnameVerificationPolicy.ANY);
+            builder.hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.ANY);
             builder.disableTrustManager();
         }
 
@@ -107,15 +104,15 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
                     address.getPort(),
                     address.getHostName().startsWith("https") ? "https" : "http",
                     httpProxyConfig.getUserName(),
-                    httpProxyConfig.getSecretPassword().getPlainText());
+                    httpProxyConfig.getPassword());
             }
         }
 
         GiteeApiProxy apiProxy = builder
             .connectionPoolSize(60)
             .maxPooledPerRoute(30)
-            .connectTimeout(connectionTimeout, TimeUnit.SECONDS)
-            .readTimeout(readTimeout, TimeUnit.SECONDS)
+            .establishConnectionTimeout(connectionTimeout, TimeUnit.SECONDS)
+            .socketTimeout(readTimeout, TimeUnit.SECONDS)
             .register(new JacksonJsonProvider())
             .register(new JacksonConfig())
             .register(new ApiHeaderTokenFilter(apiToken))
@@ -230,7 +227,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
         }
     }
 
-    private static class ResteasyClientBuilder extends ResteasyClientBuilderImpl {
+    private static class ResteasyClientBuilder extends org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder {
         private CredentialsProvider proxyCredentials;
 
         @SuppressWarnings("UnusedReturnValue")
@@ -245,8 +242,8 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
 
         @SuppressWarnings("deprecation")
         @Override
-        public ClientHttpEngine getHttpEngine() {
-            ApacheHttpClient43Engine httpEngine = (ApacheHttpClient43Engine) super.getHttpEngine();
+        protected ClientHttpEngine initDefaultEngine() {
+            ApacheHttpClient4Engine httpEngine = (ApacheHttpClient4Engine) super.initDefaultEngine();
             if (proxyCredentials != null) {
                 ((DefaultHttpClient) httpEngine.getHttpClient()).setCredentialsProvider(proxyCredentials);
             }

@@ -6,7 +6,6 @@ import com.gitee.jenkins.util.JsonUtil;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.security.ACL;
-import hudson.security.ACLContext;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +22,7 @@ import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
  */
 public class PipelineBuildAction extends BuildWebHookAction {
 
-    private static final Logger LOGGER = Logger.getLogger(PipelineBuildAction.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(PipelineBuildAction.class.getName());
     private Item project;
     private PipelineHook pipelineBuildHook;
     private final String secretToken;
@@ -58,14 +57,12 @@ public class PipelineBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Pipeline Hook is not supported for this project");
         }
-        try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
-                @Override
-                protected void performOnPost(GiteePushTrigger trigger) {
-                    trigger.onPost(pipelineBuildHook);
-                }
-            };
-        }
+        ACL.impersonate(ACL.SYSTEM, new TriggerNotifier(project, secretToken, Jenkins.getAuthentication()) {
+            @Override
+            protected void performOnPost(GiteePushTrigger trigger) {
+                trigger.onPost(pipelineBuildHook);
+            }
+        });
         throw responseWithHook(pipelineBuildHook);
     }
 

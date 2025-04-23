@@ -18,7 +18,7 @@ import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.eclipse.jgit.transport.URIish;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
-import jakarta.servlet.ServletException;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -100,7 +100,8 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected void scheduleBuild(Job<?, ?> job, Action[] actions) {
         int projectBuildDelay = 0;
-        if (job instanceof ParameterizedJobMixIn.ParameterizedJob abstractProject) {
+        if (job instanceof ParameterizedJobMixIn.ParameterizedJob) {
+            ParameterizedJobMixIn.ParameterizedJob abstractProject = (ParameterizedJobMixIn.ParameterizedJob) job;
             if (abstractProject.getQuietPeriod() > projectBuildDelay) {
                 projectBuildDelay = abstractProject.getQuietPeriod();
             }
@@ -121,8 +122,8 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
     private GitSCM getGitSCM(SCMTriggerItem item) {
         if (item != null) {
             for (SCM scm : item.getSCMs()) {
-                if (scm instanceof GitSCM gitSCM) {
-                    return gitSCM;
+                if (scm instanceof GitSCM) {
+                    return (GitSCM) scm;
                 }
             }
         }
@@ -131,11 +132,11 @@ public abstract class AbstractWebHookTriggerHandler<H extends WebHook> implement
 
     protected void doStop(Run<?, ?> build) throws IOException, ServletException {
         if (build.isBuilding()) {
-            if (build instanceof AbstractBuild abstractBuild) {
-                abstractBuild.doStop();
+            if (build instanceof AbstractBuild) {
+                ((AbstractBuild) build).doStop();
                 LOGGER.log(Level.WARNING, "Abort incomplete build");
-            } else if (build instanceof WorkflowRun workflowRun) {
-                workflowRun.doStop();
+            } else if (build instanceof WorkflowRun) {
+                ((WorkflowRun) build).doStop();
                 LOGGER.log(Level.WARNING, "Abort incomplete build");
             } else {
                 LOGGER.log(Level.WARNING, "Unable to abort incomplete build, build type not found: " + build.getClass().getName());

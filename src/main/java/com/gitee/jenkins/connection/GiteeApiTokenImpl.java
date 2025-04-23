@@ -2,7 +2,6 @@ package com.gitee.jenkins.connection;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -27,8 +26,6 @@ public final class GiteeApiTokenImpl extends BaseStandardCredentials implements 
 
     @Extension
     public static class DescriptorImpl extends BaseStandardCredentialsDescriptor {
-
-        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.GiteeApiToken_name();

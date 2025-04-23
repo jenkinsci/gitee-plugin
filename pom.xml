@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>5.9</version>
+    <version>4.88</version>
     <relativePath />
   </parent>
 
@@ -17,7 +17,7 @@
   <licenses>
     <license>
       <name>GPL v2.0 License</name>
-      <url>https://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html</url>
+      <url>http://www.gnu.org/licenses/old-licenses/gpl-2.0-standalone.html</url>
     </license>
   </licenses>
 
@@ -52,8 +52,8 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.479</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <jenkins.baseline>2.452</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.4</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
   </properties>
 
@@ -63,7 +63,7 @@
         <!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>4545.v56392b_7ca_7b_a_</version>
+        <version>3944.v1a_e4f8b_452db_</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -107,15 +107,14 @@
 
     <!-- REST client dependencies -->
     <dependency>
+      <groupId>org.jboss.spec.javax.ws.rs</groupId>
+      <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+      <version>1.0.1.Final</version>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-client</artifactId>
-      <version>6.2.11.Final</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>httpclient</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>3.0.23.Final</version>
     </dependency>
     <dependency>
       <groupId>io.jenkins.plugins</groupId>
@@ -130,8 +129,8 @@
       <artifactId>apache-httpcomponents-client-4-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
-      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
       <!-- Needs to match the jackson version from plugin BOM -->
       <version>2.17.0</version>
     </dependency>

@@ -10,9 +10,9 @@ import java.util.HashSet;
  */
 class AntPathMatcherSet extends HashSet<String> {
 
-    private final transient AntPathMatcher matcher = new AntPathMatcher();
+    private transient final AntPathMatcher matcher = new AntPathMatcher();
 
-    public AntPathMatcherSet(Collection<String> c) {
+    public AntPathMatcherSet(Collection<? extends String> c) {
         super(c);
     }
 

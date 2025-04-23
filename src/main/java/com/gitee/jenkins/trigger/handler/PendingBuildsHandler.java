@@ -16,7 +16,7 @@ public class PendingBuildsHandler {
     private static final Logger LOGGER = Logger.getLogger(PendingBuildsHandler.class.getName());
 
     public void cancelPendingBuilds(Job<?, ?> job, Integer projectId, String branch) {
-        Queue queue = Jenkins.get().getQueue();
+        Queue queue = Jenkins.getInstance().getQueue();
         for (Queue.Item item : queue.getItems()) {
             if (!job.getName().equals(item.task.getName())) {
                 continue;
@@ -37,8 +37,8 @@ public class PendingBuildsHandler {
 
     private GiteeWebHookCause getGiteeWebHookCauseData(Queue.Item item) {
         for (Cause cause : item.getCauses()) {
-            if (cause instanceof GiteeWebHookCause webHookCause) {
-                return webHookCause;
+            if (cause instanceof GiteeWebHookCause) {
+                return (GiteeWebHookCause) cause;
             }
         }
         return null;

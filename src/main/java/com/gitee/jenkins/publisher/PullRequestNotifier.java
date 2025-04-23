@@ -22,8 +22,6 @@ import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
  * @author Robin Müller
  */
 public abstract class PullRequestNotifier extends Notifier implements MatrixAggregatable {
-
-    @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }

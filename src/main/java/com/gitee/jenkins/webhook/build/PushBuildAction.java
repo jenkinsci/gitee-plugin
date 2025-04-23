@@ -7,7 +7,6 @@ import com.gitee.jenkins.util.JsonUtil;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.security.ACL;
-import hudson.security.ACLContext;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import jenkins.plugins.git.GitSCMSource;
@@ -29,7 +28,7 @@ import static com.gitee.jenkins.util.LoggerUtil.toArray;
  */
 public class PushBuildAction extends BuildWebHookAction {
 
-    private static final Logger LOGGER = Logger.getLogger(PushBuildAction.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(PushBuildAction.class.getName());
     private final Item project;
     private PushHook pushHook;
     private final String secretToken;
@@ -67,20 +66,16 @@ public class PushBuildAction extends BuildWebHookAction {
         }
 
         if (project instanceof Job<?, ?>) {
-            try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-                new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
-                    @Override
-                    protected void performOnPost(GiteePushTrigger trigger) {
-                        trigger.onPost(pushHook);
-                    }
-                };
-            }
+            ACL.impersonate(ACL.SYSTEM, new TriggerNotifier(project, secretToken, Jenkins.getAuthentication()) {
+                @Override
+                protected void performOnPost(GiteePushTrigger trigger) {
+                    trigger.onPost(pushHook);
+                }
+            });
             throw responseWithHook(pushHook);
         }
         if (project instanceof SCMSourceOwner) {
-            try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-                new SCMSourceOwnerNotifier();
-            }
+            ACL.impersonate(ACL.SYSTEM, new SCMSourceOwnerNotifier());
             throw responseWithHook(pushHook);
         }
         throw HttpResponses.errorWithoutStack(409, "Push Hook is not supported for this project");
@@ -89,7 +84,8 @@ public class PushBuildAction extends BuildWebHookAction {
     private class SCMSourceOwnerNotifier implements Runnable {
         public void run() {
             for (SCMSource scmSource : ((SCMSourceOwner) project).getSCMSources()) {
-                if (scmSource instanceof GitSCMSource gitSCMSource) {
+                if (scmSource instanceof GitSCMSource) {
+                    GitSCMSource gitSCMSource = (GitSCMSource) scmSource;
                     try {
                         if (new URIish(gitSCMSource.getRemote()).equals(new URIish(gitSCMSource.getRemote()))) {
                             LOGGER.log(Level.FINE, "Notify scmSourceOwner {0} about changes for {1}",

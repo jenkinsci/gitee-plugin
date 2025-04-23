@@ -3,7 +3,6 @@ package com.gitee.jenkins.publisher;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Result;
@@ -14,8 +13,8 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import jakarta.ws.rs.ProcessingException;
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +27,6 @@ public class GiteeAcceptPullRequestPublisher extends PullRequestNotifier {
     @DataBoundConstructor
     public GiteeAcceptPullRequestPublisher() { }
 
-    @Override
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
@@ -41,7 +39,6 @@ public class GiteeAcceptPullRequestPublisher extends PullRequestNotifier {
             return true;
         }
 
-        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.GiteeAcceptPullRequestPublisher_DisplayName();

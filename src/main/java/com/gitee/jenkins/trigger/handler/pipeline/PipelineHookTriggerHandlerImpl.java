@@ -3,6 +3,7 @@ package com.gitee.jenkins.trigger.handler.pipeline;
 
 import com.gitee.jenkins.cause.CauseData;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
+import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.hook.model.PipelineEventObjectAttributes;
 import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
@@ -18,7 +19,7 @@ import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
 
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -108,7 +109,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
                 .withSourceRepoName(hook.getRepository()==null||hook.getRepository().getName()==null?"":hook.getRepository().getName())
                 .withSourceNamespace(hook.getProject()==null||hook.getProject().getNamespace()==null?"":hook.getProject().getNamespace())
                 .withSourceRepoSshUrl(hook.getRepository()==null||hook.getRepository().getGitSshUrl()==null?"":hook.getRepository().getGitSshUrl())
-                .withSourceRepoHttpUrl(hook.getRepository()==null||hook.getRepository().getGitHttpUrl()==null?"":hook.getRepository().getGitHttpUrl())
+                .withSourceRepoHttpUrl(hook.getRepository()==null||hook.getRepository()==null?"":hook.getRepository().getGitHttpUrl())
                 .withPullRequestTitle("")
                 .withTargetProjectId(hook.getProjectId())
                 .withTargetBranch(getTargetBranch(hook)==null?"":getTargetBranch(hook))
@@ -121,7 +122,7 @@ class PipelineHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pipel
                 .withRef(hook.getObjectAttributes().getRef()==null?"":hook.getObjectAttributes().getRef())
                 .withSha(hook.getObjectAttributes().getSha()==null?"":hook.getObjectAttributes().getSha())
                 .withBeforeSha(hook.getObjectAttributes().getBeforeSha()==null?"":hook.getObjectAttributes().getBeforeSha())
-                .withStatus(hook.getObjectAttributes().getStatus()==null?"":hook.getObjectAttributes().getStatus())
+                .withStatus(hook.getObjectAttributes().getStatus()==null?"":hook.getObjectAttributes().getStatus().toString())
                 .withStages(hook.getObjectAttributes().getStages()==null?"":hook.getObjectAttributes().getStages().toString())
                 .withCreatedAt(hook.getObjectAttributes().getCreatedAt()==null?"":hook.getObjectAttributes().getCreatedAt().toString())
                 .withFinishedAt(hook.getObjectAttributes().getFinishedAt()==null?"":hook.getObjectAttributes().getFinishedAt().toString())

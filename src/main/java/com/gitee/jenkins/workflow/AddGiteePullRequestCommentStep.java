@@ -2,22 +2,20 @@ package com.gitee.jenkins.workflow;
 
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
-import java.io.Serial;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import jakarta.ws.rs.ProcessingException;
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousStepExecution;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
-import org.jenkinsci.plugins.workflow.steps.SynchronousStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -49,7 +47,7 @@ public class AddGiteePullRequestCommentStep extends Step {
 	public StepExecution start(StepContext context) throws Exception {
 		return new AddGiteePullRequestCommentStepExecution(context, this);
 	}
-
+	
     public String getComment() {
         return comment;
     }
@@ -59,8 +57,7 @@ public class AddGiteePullRequestCommentStep extends Step {
         this.comment = StringUtils.isEmpty(comment) ? null : comment;
     }
 
-    public static class AddGiteePullRequestCommentStepExecution extends SynchronousStepExecution<Void> {
-        @Serial
+    public static class AddGiteePullRequestCommentStepExecution extends AbstractSynchronousStepExecution<Void> {
         private static final long serialVersionUID = 1;
 
         private final transient Run<?, ?> run;
@@ -72,7 +69,7 @@ public class AddGiteePullRequestCommentStep extends Step {
             this.step = step;
             run = context.get(Run.class);
         }
-
+        
         @Override
         protected Void run() throws Exception {
             GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
@@ -129,7 +126,6 @@ public class AddGiteePullRequestCommentStep extends Step {
     @Extension
     public static final class DescriptorImpl extends StepDescriptor {
 
-        @NonNull
         @Override
         public String getDisplayName() {
             return "Add comment on Gitee Pull Request";
@@ -139,7 +135,7 @@ public class AddGiteePullRequestCommentStep extends Step {
         public String getFunctionName() {
             return "addGiteeMRComment";
         }
-
+        
 		@Override
 		public Set<Class<?>> getRequiredContext() {
 			return ImmutableSet.of(TaskListener.class, Run.class);

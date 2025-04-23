@@ -22,14 +22,14 @@ public final class ProjectIdUtil {
             String baseUri = client.getHostUrl();
             String projectId;
             if (baseUri != null && remoteUrl.startsWith(baseUri)) {
-                projectId = new URIish(remoteUrl.substring(baseUri.length())).getPath();
+                projectId = new URIish(remoteUrl.substring(baseUri.length(), remoteUrl.length())).getPath();
             } else {
                 projectId = new URIish(remoteUrl).getPath();
             }
             if (projectId.startsWith(":")) {
                 projectId = projectId.substring(1);
             }
-
+            
             Matcher matcher = PROJECT_ID_PATTERN.matcher(projectId);
             if (matcher.matches()) {
                 return matcher.group("projectId");
