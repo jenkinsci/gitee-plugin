@@ -92,7 +92,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
     }
 
     private GiteeClient buildClient(String url, String apiToken, ProxyConfiguration httpProxyConfig, boolean ignoreCertificateErrors, int connectionTimeout, int readTimeout) {
-        ResteasyClientBuilder builder = (ResteasyClientBuilder) ClientBuilder.newBuilder();
+        HttpCredsResteasyClientBuilderImpl builder = (HttpCredsResteasyClientBuilderImpl) ClientBuilder.newBuilder();
 
         if (ignoreCertificateErrors) {
             builder.hostnameVerification(HostnameVerificationPolicy.ANY);
@@ -230,27 +230,17 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
         }
     }
 
-    private static class ResteasyClientBuilder extends ResteasyClientBuilderImpl {
+    private static class HttpCredsResteasyClientBuilderImpl extends ResteasyClientBuilderImpl {
         private CredentialsProvider proxyCredentials;
 
         @SuppressWarnings("UnusedReturnValue")
-        ResteasyClientBuilder defaultProxy(String hostname, int port, final String scheme, String username, String password) {
+        HttpCredsResteasyClientBuilderImpl defaultProxy(String hostname, int port, final String scheme, String username, String password) {
             super.defaultProxy(hostname, port, scheme);
             if (username != null && password != null) {
                 proxyCredentials = new BasicCredentialsProvider();
                 proxyCredentials.setCredentials(new AuthScope(hostname, port), new UsernamePasswordCredentials(username, password));
             }
             return this;
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public ClientHttpEngine getHttpEngine() {
-            ApacheHttpClient43Engine httpEngine = (ApacheHttpClient43Engine) super.getHttpEngine();
-            if (proxyCredentials != null) {
-                ((DefaultHttpClient) httpEngine.getHttpClient()).setCredentialsProvider(proxyCredentials);
-            }
-            return httpEngine;
         }
     }
 }
