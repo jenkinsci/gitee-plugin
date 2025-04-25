@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>5.9</version>
+    <version>5.12</version>
     <relativePath />
   </parent>
 
@@ -63,7 +63,7 @@
         <!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>4545.v56392b_7ca_7b_a_</version>
+        <version>4628.v2b_234a_1a_20d0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -133,7 +133,7 @@
       <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
       <artifactId>jackson-jakarta-rs-json-provider</artifactId>
       <!-- Needs to match the jackson version from plugin BOM -->
-      <version>2.17.0</version>
+      <version>2.18.3</version>
     </dependency>
 
     <!-- util dependencies -->

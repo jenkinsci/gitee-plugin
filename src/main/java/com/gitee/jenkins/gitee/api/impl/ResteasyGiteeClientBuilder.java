@@ -16,7 +16,6 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.ProxyConfiguration;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
-import jakarta.ws.rs.client.ClientBuilder;
 import jenkins.model.Jenkins;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -24,11 +23,10 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder.HostnameVerificationPolicy;
-import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+import org.jboss.resteasy.client.jaxrs.internal.proxy.ProxyBuilderImpl;
 import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.jboss.resteasy.plugins.providers.JaxrsFormProvider;
 import org.kohsuke.accmod.Restricted;
@@ -92,7 +90,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
     }
 
     private GiteeClient buildClient(String url, String apiToken, ProxyConfiguration httpProxyConfig, boolean ignoreCertificateErrors, int connectionTimeout, int readTimeout) {
-        HttpCredsResteasyClientBuilderImpl builder = (HttpCredsResteasyClientBuilderImpl) ClientBuilder.newBuilder();
+        HttpCredsResteasyClientBuilderImpl builder = new HttpCredsResteasyClientBuilderImpl();
 
         if (ignoreCertificateErrors) {
             builder.hostnameVerification(HostnameVerificationPolicy.ANY);
@@ -111,7 +109,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
             }
         }
 
-        GiteeApiProxy apiProxy = builder
+        ResteasyWebTarget target = builder
             .connectionPoolSize(60)
             .maxPooledPerRoute(30)
             .connectTimeout(connectionTimeout, TimeUnit.SECONDS)
@@ -122,8 +120,10 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
             .register(new LoggingFilter())
             .register(new RemoveAcceptEncodingFilter())
             .register(new JaxrsFormProvider())
-            .build().target(url)
-            .proxyBuilder(apiProxyClass)
+            .build().target(url);
+
+        // workaround for https://github.com/orgs/resteasy/discussions/4538 when using ResteasyWebTarget#proxyBuilder
+        GiteeApiProxy apiProxy = new ProxyBuilderImpl<>(apiProxyClass, target)
             .classloader(apiProxyClass.getClassLoader())
             .build();
 
@@ -232,6 +232,7 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
 
     private static class HttpCredsResteasyClientBuilderImpl extends ResteasyClientBuilderImpl {
         private CredentialsProvider proxyCredentials;
+
 
         @SuppressWarnings("UnusedReturnValue")
         HttpCredsResteasyClientBuilderImpl defaultProxy(String hostname, int port, final String scheme, String username, String password) {
