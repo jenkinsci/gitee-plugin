@@ -10,4 +10,5 @@ interface GiteeApiProxy {
     void headCurrentUser();
     void acceptPullRequest(String owner, String repo, Integer pullRequestId);
     User getCurrentUser();
+    RepoUser[] getRepositoryUsers(String owner, String repo, String type);
 }
