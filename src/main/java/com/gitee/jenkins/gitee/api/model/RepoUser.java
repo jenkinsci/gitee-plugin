@@ -54,9 +54,9 @@ public class RepoUser {
         }
         RepoUser that = (RepoUser) o;
         return new EqualsBuilder()
-                .append(contributions, this.contributions)
-                .append(name, this.name)
-                .append(email, this.email)
+                .append(contributions, that.contributions)
+                .append(name, that.name)
+                .append(email, that.email)
                 .isEquals();
     }
 

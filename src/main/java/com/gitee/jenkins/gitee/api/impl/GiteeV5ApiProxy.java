@@ -1,5 +1,7 @@
 package com.gitee.jenkins.gitee.api.impl;
 
+import java.util.List;
+
 import com.gitee.jenkins.gitee.api.model.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -43,7 +45,7 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/repos/{owner}/{repo}/contributors")
-    RepoUser[] getRepositoryUsers(@PathParam("owner") String owner, 
+    List<RepoUser> getRepositoryUsers(@PathParam("owner") String owner, 
                             @PathParam("repo") String repo,
                             @PathParam("type") String type);
 }

@@ -1,6 +1,8 @@
 package com.gitee.jenkins.gitee.api.impl;
 
 
+import java.util.List;
+
 import com.gitee.jenkins.gitee.api.model.*;
 
 
@@ -10,5 +12,5 @@ interface GiteeApiProxy {
     void headCurrentUser();
     void acceptPullRequest(String owner, String repo, Integer pullRequestId);
     User getCurrentUser();
-    RepoUser[] getRepositoryUsers(String owner, String repo, String type);
+    List<RepoUser> getRepositoryUsers(String owner, String repo, String type);
 }

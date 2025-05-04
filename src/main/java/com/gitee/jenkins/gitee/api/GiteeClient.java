@@ -1,5 +1,7 @@
 package com.gitee.jenkins.gitee.api;
 
+import java.util.List;
+
 import com.gitee.jenkins.gitee.api.model.*;
 
 public interface GiteeClient {
@@ -11,5 +13,6 @@ public interface GiteeClient {
 
     User getCurrentUser();
 
+    List<RepoUser> getRepositoryUsers(Repo repo);
 
 }
