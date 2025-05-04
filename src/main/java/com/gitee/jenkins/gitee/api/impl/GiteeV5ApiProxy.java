@@ -40,4 +40,10 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @Path("/user")
     User getCurrentUser();
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/repos/{owner}/{repo}/contributors")
+    RepoUser[] getRepositoryUsers(@PathParam("owner") String owner, 
+                            @PathParam("repo") String repo,
+                            @PathParam("type") String type);
 }
