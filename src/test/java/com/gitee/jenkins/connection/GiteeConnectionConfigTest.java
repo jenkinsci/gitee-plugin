@@ -97,6 +97,12 @@ public class GiteeConnectionConfigTest {
         assertThat(result.getMessage(), containsString("Connection refused"));
     }
 
+    @Test
+    void doCheckConnection_noProxy() {
+        jenkins.getInstance().proxy = new ProxyConfiguration("0.0.0.0", 80, "", "", "localhost");
+        assertThat(doCheckConnection("v5", Response.Status.OK), is(connection_success()));
+    }
+
     private String doCheckConnection(String clientBuilderId, Response.Status status) {
         HttpRequest request =
             request().withPath("/api/" + clientBuilderId + "/user").withHeader("PRIVATE-TOKEN", API_TOKEN);
