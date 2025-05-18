@@ -10,6 +10,8 @@ import static com.gitee.jenkins.connection.Messages.connection_success;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -18,6 +20,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.Domain;
+import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.impl.GiteeV5ClientBuilder;
 import hudson.ProxyConfiguration;
 import hudson.util.FormValidation;
@@ -141,4 +144,17 @@ public class GiteeConnectionConfigTest {
         assertThat(config.getConnections(), is(connectionList1));
     }
 
+    @Test
+    void getClient_isCached() {
+        GiteeConnection connection = new GiteeConnection(
+                "test", "http://localhost", API_TOKEN_ID, new GiteeV5ClientBuilder(), false, 10, 10);
+        GiteeConnectionConfig config = jenkins.get(GiteeConnectionConfig.class);
+        List<GiteeConnection> connectionList1 = new ArrayList<>();
+        connectionList1.add(connection);
+        config.setConnections(connectionList1);
+
+        GiteeClient client = config.getClient(connection.getName());
+        assertNotNull(client);
+        assertSame(client, config.getClient(connection.getName()));
+    }
 }
