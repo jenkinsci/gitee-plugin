@@ -18,12 +18,14 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.CredentialsStore;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.cloudbees.plugins.credentials.domains.Domain;
-
+import com.gitee.jenkins.gitee.api.impl.GiteeV5ClientBuilder;
 import hudson.ProxyConfiguration;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import jakarta.ws.rs.core.Response;
 import jenkins.model.Jenkins;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -114,4 +116,29 @@ public class GiteeConnectionConfigTest {
         mockServerClient.verify(request);
         return formValidation.getMessage();
     }
+    
+    @Test
+    void setConnectionsTest() {
+        GiteeConnection connection1 =
+                new GiteeConnection("1", "http://localhost", null, new GiteeV5ClientBuilder(), false, 10, 10);
+        GiteeConnection connection2 =
+                new GiteeConnection("2", "http://localhost", null, new GiteeV5ClientBuilder(), false, 10, 10);
+        GiteeConnectionConfig config = jenkins.get(GiteeConnectionConfig.class);
+        List<GiteeConnection> connectionList1 = new ArrayList<>();
+        connectionList1.add(connection1);
+
+        config.setConnections(connectionList1);
+        assertThat(config.getConnections(), is(connectionList1));
+
+        List<GiteeConnection> connectionList2 = new ArrayList<>();
+        connectionList2.add(connection1);
+        connectionList2.add(connection2);
+
+        config.setConnections(connectionList2);
+        assertThat(config.getConnections(), is(connectionList2));
+
+        config.setConnections(connectionList1);
+        assertThat(config.getConnections(), is(connectionList1));
+    }
+
 }
