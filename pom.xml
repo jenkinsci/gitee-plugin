@@ -195,6 +195,11 @@
       <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>matrix-auth</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
