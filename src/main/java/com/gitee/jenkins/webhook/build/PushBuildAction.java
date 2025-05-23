@@ -15,6 +15,8 @@ import jenkins.scm.api.SCMSource;
 import jenkins.scm.api.SCMSourceOwner;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.transport.URIish;
+import org.springframework.security.core.Authentication;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -35,6 +37,7 @@ public class PushBuildAction extends BuildWebHookAction {
     private final String secretToken;
 
     public PushBuildAction(Item project, String json, String secretToken) {
+        LOGGER.log(Level.INFO, json);
         LOGGER.log(Level.FINE, "Push: {0}", toPrettyPrint(json));
         this.project = project;
         this.pushHook = JsonUtil.read(json, PushHook.class);
@@ -61,25 +64,27 @@ public class PushBuildAction extends BuildWebHookAction {
     }
 
     public void execute() {
-        if (pushHook.getRepository() != null && pushHook.getRepository().getUrl() == null) {
+                if (pushHook.getRepository() != null && pushHook.getRepository().getUrl() == null) {
             LOGGER.log(Level.WARNING, "No repository url found.");
             return;
         }
 
         if (project instanceof Job<?, ?>) {
+            Authentication auth = Jenkins.getAuthentication2();
+            System.out.println(auth.getDetails());
             try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-                new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
+                new TriggerNotifier(project, secretToken, auth) {
                     @Override
                     protected void performOnPost(GiteePushTrigger trigger) {
                         trigger.onPost(pushHook);
                     }
-                };
+                }.run();
+                throw responseWithHook(pushHook);
             }
-            throw responseWithHook(pushHook);
         }
         if (project instanceof SCMSourceOwner) {
             try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-                new SCMSourceOwnerNotifier();
+                new SCMSourceOwnerNotifier().run();
             }
             throw responseWithHook(pushHook);
         }

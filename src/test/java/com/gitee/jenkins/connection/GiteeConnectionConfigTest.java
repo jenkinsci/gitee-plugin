@@ -202,7 +202,6 @@ public class GiteeConnectionConfigTest {
     }
 
     @Test
-    @Disabled // authenticationEnabled_anonymous_forbidden is disabled because of potential bug in codebase (fix coming later)
     void authenticationEnabled_anonymous_forbidden() throws Exception {
         boolean defaultValue = jenkins.get(GiteeConnectionConfig.class).isUseAuthenticatedEndpoint();
         assertTrue(defaultValue);
