@@ -1,6 +1,7 @@
 package com.gitee.jenkins.webhook.build;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import com.gitee.jenkins.gitee.hook.model.WebHook;
@@ -64,7 +65,7 @@ abstract class BuildWebHookAction implements WebHookAction {
             GiteePushTrigger trigger = GiteePushTrigger.getFromJob((Job<?, ?>) project);
             if (trigger != null) {
                 if (StringUtils.isEmpty(trigger.getSecretToken())) {
-                    checkPermission(Item.BUILD);
+                    checkPermission(Item.BUILD, project);
                 } else if (!StringUtils.equals(trigger.getSecretToken(), secretToken)) {
                     throw HttpResponses.errorWithoutStack(401, "Invalid token");
                 }
@@ -72,9 +73,9 @@ abstract class BuildWebHookAction implements WebHookAction {
             }
         }
 
-        private void checkPermission(Permission permission) {
-            if (((GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class)).isUseAuthenticatedEndpoint()) {
-                if (!Jenkins.get().getACL().hasPermission2(authentication, permission)) {
+        private void checkPermission(Permission permission, Item project) {
+            if (((GiteeConnectionConfig) Objects.requireNonNull(Jenkins.get().getDescriptor(GiteeConnectionConfig.class))).isUseAuthenticatedEndpoint()) {
+                if (!project.getACL().hasPermission2(authentication, permission)) {
                     String message = authentication.getName() + " is missing the " + permission.group.title+"/"+permission.name+ " permission";
                     LOGGER.finest("Unauthorized (Did you forget to add API Token to the web hook ?)");
                     throw HttpResponses.errorWithoutStack(403, message);

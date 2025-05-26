@@ -10,6 +10,7 @@ import hudson.security.ACLContext;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.core.Authentication;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,13 +59,14 @@ public class PipelineBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Pipeline Hook is not supported for this project");
         }
+        Authentication auth = Jenkins.getAuthentication2();
         try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
+            new TriggerNotifier(project, secretToken, auth) {
                 @Override
                 protected void performOnPost(GiteePushTrigger trigger) {
                     trigger.onPost(pipelineBuildHook);
                 }
-            };
+            }.run();
         }
         throw responseWithHook(pipelineBuildHook);
     }

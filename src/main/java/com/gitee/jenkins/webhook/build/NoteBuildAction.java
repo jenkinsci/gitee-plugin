@@ -13,6 +13,8 @@ import jenkins.model.Jenkins;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.springframework.security.core.Authentication;
+
 import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
 
 /**
@@ -43,13 +45,14 @@ public class NoteBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Note Hook is not supported for this project");
         }
+        Authentication auth = Jenkins.getAuthentication2();
         try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new BuildWebHookAction.TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
+            new BuildWebHookAction.TriggerNotifier(project, secretToken, auth) {
                 @Override
                 protected void performOnPost(GiteePushTrigger trigger) {
                     trigger.onPost(noteHook);
                 }
-            };
+            }.run();
         }
         throw responseWithHook(noteHook);
     }

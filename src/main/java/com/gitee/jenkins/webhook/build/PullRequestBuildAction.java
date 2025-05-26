@@ -15,6 +15,8 @@ import jenkins.model.Jenkins;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.springframework.security.core.Authentication;
+
 import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
 
 /**
@@ -59,13 +61,14 @@ public class PullRequestBuildAction extends BuildWebHookAction {
         if (!(project instanceof Job<?, ?>)) {
             throw HttpResponses.errorWithoutStack(409, "Merge Request Hook is not supported for this project");
         }
+        Authentication auth = Jenkins.getAuthentication2();
         try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
-            new TriggerNotifier(project, secretToken, Jenkins.getAuthentication2()) {
+            new TriggerNotifier(project, secretToken, auth) {
                 @Override
                 protected void performOnPost(GiteePushTrigger trigger) {
                     trigger.onPost(pullRequestHook);
                 }
-            };
+            }.run();
         }
         throw responseWithHook(pullRequestHook);
     }

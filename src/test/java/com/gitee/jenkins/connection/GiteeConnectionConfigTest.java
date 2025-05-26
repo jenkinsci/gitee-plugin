@@ -52,7 +52,6 @@ import org.jenkinsci.plugins.matrixauth.PermissionEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
@@ -202,7 +201,6 @@ public class GiteeConnectionConfigTest {
     }
 
     @Test
-    @Disabled // authenticationEnabled_anonymous_forbidden is disabled because of potential bug in codebase (fix coming later)
     void authenticationEnabled_anonymous_forbidden() throws Exception {
         boolean defaultValue = jenkins.get(GiteeConnectionConfig.class).isUseAuthenticatedEndpoint();
         assertTrue(defaultValue);
