@@ -1,11 +1,10 @@
 package com.gitee.jenkins.connection;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +13,6 @@ import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
@@ -24,7 +22,6 @@ import com.cloudbees.plugins.credentials.domains.Domain;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.impl.GiteeV5ClientBuilder;
 
-import hudson.security.Permission;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 
@@ -33,10 +30,9 @@ public class GiteeConnectionTest {
     private static final String API_TOKEN = "secret";
     private static final String API_TOKEN_ID = "apiTokenId";
     private static final String API_TOKEN_ID_2 = "apiTokenId2";
+    private static final String API_TOKEN_ID_NOT_STORED = "apiTokenNotStored";
 
     private static JenkinsRule jenkins;
-
-    private static GiteeConnection connection;
     
     @BeforeAll
     static void setUp(JenkinsRule rule) throws IOException {
@@ -60,15 +56,24 @@ public class GiteeConnectionTest {
                                 Secret.fromString(API_TOKEN)));
             }
         }
-
-        connection = new GiteeConnection(
-                "test", "http://localhost", API_TOKEN_ID, new GiteeV5ClientBuilder(), false, 10, 10); 
     }
 
     @Test
     void doGetClientSuccessTest() {
+        GiteeConnection connection = new GiteeConnection(
+                "test", "http://localhost", API_TOKEN_ID, new GiteeV5ClientBuilder(), false, 10, 10); 
+
         assertThat(API_TOKEN_ID, is(equalTo(connection.getApiTokenId())));
         GiteeClient client = connection.getClient();
         assertThat(client, notNullValue());
+    }
+
+    @Test
+    void doGetClientThrowExceptionTest() {
+        GiteeConnection connection = new GiteeConnection(
+                "test", "http://localhost", API_TOKEN_ID_NOT_STORED, new GiteeV5ClientBuilder(), false, 10, 10);
+        
+        assertThat(connection.getApiTokenId(), equalTo(API_TOKEN_ID_NOT_STORED));
+        assertThrows(IllegalStateException.class, () -> { connection.getClient(); });
     }
 }
