@@ -29,7 +29,6 @@ import jenkins.model.Jenkins;
 public class GiteeConnectionTest {
     private static final String API_TOKEN = "secret";
     private static final String API_TOKEN_ID = "apiTokenId";
-    private static final String API_TOKEN_ID_2 = "apiTokenId2";
     private static final String API_TOKEN_ID_NOT_STORED = "apiTokenNotStored";
 
     private static JenkinsRule jenkins;
@@ -46,13 +45,6 @@ public class GiteeConnectionTest {
                                 CredentialsScope.SYSTEM,
                                 API_TOKEN_ID,
                                 "Gitee API Token",
-                                Secret.fromString(API_TOKEN)));
-                credentialsStore.addCredentials(
-                        domains.get(0),
-                        new StringCredentialsImpl(
-                                CredentialsScope.SYSTEM,
-                                API_TOKEN_ID_2,
-                                "Gitee API Token 2",
                                 Secret.fromString(API_TOKEN)));
             }
         }
