@@ -61,7 +61,7 @@ public class GiteeConnectionTest {
     }
 
     @Test
-    void doGetClientThrowExceptionTest() {
+    void doGetClientIdNotStoredTest() {
         GiteeConnection connection = new GiteeConnection(
                 "test", "http://localhost", API_TOKEN_ID_NOT_STORED, new GiteeV5ClientBuilder(), false, 10, 10);
         
