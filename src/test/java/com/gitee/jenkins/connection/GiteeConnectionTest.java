@@ -1,3 +1,8 @@
+/**
+ * Adapted from GitLab automated tests
+ * https://github.com/jenkinsci/gitlab-plugin/tree/master/src/test/java/com/dabsquared/gitlabjenkins
+ */
+
 package com.gitee.jenkins.connection;
 
 import static org.hamcrest.CoreMatchers.equalTo;

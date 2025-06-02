@@ -61,7 +61,7 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
         return useAuthenticatedEndpoint;
     }
 
-    void setUseAuthenticatedEndpoint(boolean useAuthenticatedEndpoint) {
+    public void setUseAuthenticatedEndpoint(boolean useAuthenticatedEndpoint) {
         this.useAuthenticatedEndpoint = useAuthenticatedEndpoint;
     }
 
