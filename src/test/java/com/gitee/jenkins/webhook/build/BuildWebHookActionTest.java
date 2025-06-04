@@ -59,7 +59,7 @@ public class BuildWebHookActionTest {
     }
 
     @Test
-        void testNotifierTokenDoesNotMatchString() {
+    void testNotifierTokenDoesNotMatchString() {
         String triggerToken = "testNotifierTokenDoesNotMatchString-token";
         trigger.setSecretToken(triggerToken);
         String actionToken = triggerToken + "-no-match"; // Won't match
