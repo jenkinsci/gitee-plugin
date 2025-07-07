@@ -127,9 +127,9 @@ final class TestUtility {
 
     static <P extends PullRequestNotifier> P preparePublisher(P publisher, AbstractBuild build) {
         P spyPublisher = spy(publisher);
-        PullRequest mergeRequest = new PullRequest(
+        PullRequest pullRequest = new PullRequest(
                 PULL_REQUEST_ID, PULL_REQUEST_IID, PULL_COMMIT_SHA, "", "", PROJECT_ID, PROJECT_ID, "", "", String.format("%d/%s", PROJECT_ID, REPO_PATH));
-        doReturn(mergeRequest).when(spyPublisher).getPullRequest(build);
+        doReturn(pullRequest).when(spyPublisher).getPullRequest(build);
         return spyPublisher;
     }
 
