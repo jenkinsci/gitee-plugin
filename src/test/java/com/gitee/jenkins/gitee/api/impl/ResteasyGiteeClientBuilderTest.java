@@ -1,3 +1,8 @@
+/**
+ * Adapted from GitLab automated tests
+ * https://github.com/jenkinsci/gitlab-plugin/tree/master/src/test/java/com/dabsquared/gitlabjenkins
+ */
+
 package com.gitee.jenkins.gitee.api.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
