@@ -111,7 +111,6 @@ class GiteeEnvironmentContributorTest {
     }
 
     private void assertEnv(EnvVars env) {
-        System.out.println(env.toString());
         assertEquals("1", env.get("giteePullRequestId"));
         assertEquals("git@gitee.com:test.git", env.get("giteeSourceRepoUrl"));
         assertEquals("master", env.get("giteeTargetBranch"));
