@@ -5,7 +5,7 @@
 
 package com.gitee.jenkins.webhook.build;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,7 +32,7 @@ import hudson.security.ACL;
  * @author Mark Waite
  */
 @WithJenkins
-public class BuildWebHookActionTest {
+class BuildWebHookActionTest {
     private JenkinsRule j;
 
     private FreeStyleProject project;
