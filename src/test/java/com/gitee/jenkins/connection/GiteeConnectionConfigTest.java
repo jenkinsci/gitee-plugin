@@ -10,7 +10,7 @@ import static com.gitee.jenkins.connection.Messages.connection_success;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -62,7 +62,7 @@ import org.mockserver.model.MediaType;
 
 @WithJenkins
 @ExtendWith(MockServerExtension.class)
-public class GiteeConnectionConfigTest {
+class GiteeConnectionConfigTest {
     private static final String API_TOKEN = "secret";
     private static final String API_TOKEN_ID = "apiTokenId";
     
@@ -100,7 +100,7 @@ public class GiteeConnectionConfigTest {
     }
 
     @Test
-    public void doCheckConnection_success() {
+    void doCheckConnection_success() {
         String expected = connection_success();
         assertThat(doCheckConnection("v5", Response.Status.OK), is(expected));
     }
