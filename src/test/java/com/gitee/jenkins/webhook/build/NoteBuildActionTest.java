@@ -70,39 +70,33 @@ class NoteBuildActionTest {
     }
 
     @Test
-    void build() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> {
-            FreeStyleProject testProject = jenkins.createFreeStyleProject();
-            testProject.addTrigger(trigger);
-            new NoteBuildAction(testProject, getJson("NoteEvent.json"), null).execute(response);
-
-            verify(trigger).onPost(any(NoteHook.class));
-        });
+    void build() throws Exception {
+        FreeStyleProject testProject = jenkins.createFreeStyleProject();
+        testProject.addTrigger(trigger);
+        assertThrows(HttpResponses.HttpResponseException.class, () ->
+            new NoteBuildAction(testProject, getJson("NoteEvent.json"), null).execute(response));
+        verify(trigger).onPost(any(NoteHook.class));
     }
 
     @Test
-    void build_alreadyBuiltPR_alreadyBuiltPR() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> {
-            FreeStyleProject testProject = jenkins.createFreeStyleProject();
-            testProject.addTrigger(trigger);
-            testProject.setScm(new GitSCM(gitRepoUrl));
-            QueueTaskFuture<?> future = testProject.scheduleBuild2(
-                    0, new ParametersAction(new StringParameterValue("gitlabTargetBranch", "master")));
-            future.get();
-            new NoteBuildAction(testProject, getJson("NoteEvent_alreadyBuiltMR.json"), null).execute(response);
-
-            verify(trigger).onPost(any(NoteHook.class));
-        });
+    void build_alreadyBuiltPR_alreadyBuiltPR() throws Exception {
+        FreeStyleProject testProject = jenkins.createFreeStyleProject();
+        testProject.addTrigger(trigger);
+        testProject.setScm(new GitSCM(gitRepoUrl));
+        QueueTaskFuture<?> future = testProject.scheduleBuild2(
+            0, new ParametersAction(new StringParameterValue("gitlabTargetBranch", "master")));
+        future.get();
+        assertThrows(HttpResponses.HttpResponseException.class, () ->
+            new NoteBuildAction(testProject, getJson("NoteEvent_alreadyBuiltMR.json"), null).execute(response));
+        verify(trigger).onPost(any(NoteHook.class));
     }
 
     @Test
-    void build_alreadyBuiltPR_differentTargetBranch() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> {
-            FreeStyleProject testProject = jenkins.createFreeStyleProject();
-            testProject.addTrigger(trigger);
-            
-            testProject.setScm(new GitSCM(gitRepoUrl));
-            QueueTaskFuture<?> future = testProject.scheduleBuild2(
+    void build_alreadyBuiltPR_differentTargetBranch() throws Exception {
+        FreeStyleProject testProject = jenkins.createFreeStyleProject();
+        testProject.addTrigger(trigger);
+        testProject.setScm(new GitSCM(gitRepoUrl));
+        QueueTaskFuture<?> future = testProject.scheduleBuild2(
                     0,
                     new GiteeWebHookCause(CauseDataBuilder.causeData()
                             .withActionType(CauseData.ActionType.NOTE)
@@ -129,11 +123,10 @@ class NoteBuildActionTest {
                             .withLastCommit("123")
                             .withTargetProjectUrl("https://gitee.com/test")
                             .build()));
-            future.get();
-            new NoteBuildAction(testProject, getJson("NoteEvent_alreadyBuiltMR.json"), null).execute(response);
-
-            verify(trigger).onPost(any(NoteHook.class));
-        });
+        future.get();
+        assertThrows(HttpResponses.HttpResponseException.class, () ->
+            new NoteBuildAction(testProject, getJson("NoteEvent_alreadyBuiltMR.json"), null).execute(response));
+        verify(trigger).onPost(any(NoteHook.class));
     }
 
     private String getJson(String name) throws Exception {

@@ -6,7 +6,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -68,33 +67,25 @@ class PushBuildActionTest {
     }
 
     @Test
-    void build() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> {
-            try {
-                FreeStyleProject testProject = jenkins.createFreeStyleProject();
-                testProject.addTrigger(trigger);
-
-                // exception.expect(HttpResponses.HttpResponseException.class);
-                new PushBuildAction(testProject, getJson("PushEvent.json"), null).execute(response);
-            } finally {
-                ArgumentCaptor<PushHook> pushHookArgumentCaptor = ArgumentCaptor.forClass(PushHook.class);
-                verify(trigger).onPost(pushHookArgumentCaptor.capture());
-                assertThat(pushHookArgumentCaptor.getValue().getProject(), is(notNullValue()));
-                assertThat(pushHookArgumentCaptor.getValue().getProject().getWebUrl(), is(notNullValue()));
-            }
-        });
+    void build() throws Exception {
+        FreeStyleProject testProject = jenkins.createFreeStyleProject();
+        testProject.addTrigger(trigger);
+        assertThrows(HttpResponses.HttpResponseException.class, () ->
+                new PushBuildAction(testProject, getJson("PushEvent.json"), null).execute(response));
+        ArgumentCaptor<PushHook> pushHookArgumentCaptor = ArgumentCaptor.forClass(PushHook.class);
+        verify(trigger).onPost(pushHookArgumentCaptor.capture());
+        assertThat(pushHookArgumentCaptor.getValue().getProject(), is(notNullValue()));
+        assertThat(pushHookArgumentCaptor.getValue().getProject().getWebUrl(), is(notNullValue()));
     }
 
     @Test
-    void invalidToken() {
-        assertThrows(HttpResponses.HttpResponseException.class, () -> {
-            FreeStyleProject testProject = jenkins.createFreeStyleProject();
-            when(trigger.getSecretToken()).thenReturn("secret");
-            testProject.addTrigger(trigger);
-            new PushBuildAction(testProject, getJson("PushEvent.json"), "wrong-secret").execute(response);
-
-            verify(trigger, never()).onPost(any(PushHook.class));
-        });
+    void invalidToken() throws Exception {
+        FreeStyleProject testProject = jenkins.createFreeStyleProject();
+        when(trigger.getSecretToken()).thenReturn("secret");
+        testProject.addTrigger(trigger);
+        assertThrows(HttpResponses.HttpResponseException.class, () ->
+            new PushBuildAction(testProject, getJson("PushEvent.json"), "wrong-secret").execute(response));
+        verify(trigger, never()).onPost(any(PushHook.class));
     }
 
     private String getJson(String name) throws Exception {

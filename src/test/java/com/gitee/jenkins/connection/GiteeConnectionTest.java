@@ -31,7 +31,7 @@ import hudson.util.Secret;
 import jenkins.model.Jenkins;
 
 @WithJenkins
-public class GiteeConnectionTest {
+class GiteeConnectionTest {
     private static final String API_TOKEN = "secret";
     private static final String API_TOKEN_ID = "apiTokenId";
     private static final String API_TOKEN_ID_NOT_STORED = "apiTokenNotStored";
@@ -71,6 +71,6 @@ public class GiteeConnectionTest {
                 "test", "http://localhost", API_TOKEN_ID_NOT_STORED, new GiteeV5ClientBuilder(), false, 10, 10);
         
         assertThat(connection.getApiTokenId(), equalTo(API_TOKEN_ID_NOT_STORED));
-        assertThrows(IllegalStateException.class, () -> { connection.getClient(); });
+        assertThrows(IllegalStateException.class, connection::getClient);
     }
 }
