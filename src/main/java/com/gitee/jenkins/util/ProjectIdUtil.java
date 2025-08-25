@@ -23,6 +23,11 @@ public final class ProjectIdUtil {
             String projectId;
             if (baseUri != null && remoteUrl.startsWith(baseUri)) {
                 projectId = new URIish(remoteUrl.substring(baseUri.length())).getPath();
+                if (projectId.contains(":")) {
+                    projectId = projectId.substring(projectId.indexOf(":"));
+                } else if (projectId.startsWith(".")) {
+                    projectId = projectId.substring(projectId.indexOf("/"));
+                }
             } else {
                 projectId = new URIish(remoteUrl).getPath();
             }
