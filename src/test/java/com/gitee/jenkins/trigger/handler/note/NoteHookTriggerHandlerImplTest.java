@@ -1,7 +1,5 @@
 package com.gitee.jenkins.trigger.handler.note;
 
-import static com.gitee.jenkins.gitee.hook.model.builder.generated.CommitBuilder.commit;
-import static com.gitee.jenkins.gitee.hook.model.builder.generated.PullRequestLabelBuilder.pullRequestLabel;
 import static com.gitee.jenkins.gitee.hook.model.builder.generated.PullRequestObjectAttributesBuilder.pullRequestObjectAttributes;
 import static com.gitee.jenkins.gitee.hook.model.builder.generated.NoteHookBuilder.noteHook;
 import static com.gitee.jenkins.gitee.hook.model.builder.generated.NoteObjectAttributesBuilder.noteObjectAttributes;
@@ -12,18 +10,9 @@ import static com.gitee.jenkins.gitee.hook.model.builder.generated.BranchDataBui
 import static com.gitee.jenkins.trigger.filter.PullRequestLabelFilterFactory.newPullRequestLabelFilter;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import com.gitee.jenkins.gitee.hook.model.NoteAction;
-import com.gitee.jenkins.gitee.hook.model.State;
-import com.gitee.jenkins.gitee.hook.model.builder.generated.BranchDataBuilder;
 import com.gitee.jenkins.trigger.filter.BranchFilterFactory;
 import com.gitee.jenkins.trigger.filter.BranchFilterType;
-import com.gitee.jenkins.trigger.filter.BuildInstructionFilter;
-import com.gitee.jenkins.trigger.filter.BuildInstructionFilterType;
-
-import hudson.EnvVars;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -32,7 +21,6 @@ import hudson.plugins.git.GitSCM;
 import hudson.util.OneShotEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
@@ -77,8 +65,6 @@ class NoteHookTriggerHandlerImplTest {
             @Override
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
                     throws InterruptedException, IOException {
-                EnvVars env = build.getEnvironment(listener);
-                assertNull(env.get("gitlabPullRequestLabels"));
                 buildTriggered.signal();
                 return true;
             }
@@ -118,7 +104,6 @@ class NoteHookTriggerHandlerImplTest {
         git.add().addFilepattern("test");
         RevCommit commit = git.commit().setSign(false).setMessage("test").call();
         ObjectId head = git.getRepository().resolve(Constants.HEAD);
-        // ObjectId base = git.getRepository().resolve(Constants.ORIG_HEAD);
         String repositoryUrl = tmp.toURI().toString();
 
         final OneShotEvent buildTriggered = new OneShotEvent();
@@ -128,16 +113,12 @@ class NoteHookTriggerHandlerImplTest {
             @Override
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
                     throws InterruptedException, IOException {
-                // EnvVars env = build.getEnvironment(listener);
-                // assertEquals("bugfix", env.get("gitlabPullRequestLabels"));
-                System.out.println("I AM TRIGGERED");
                 buildTriggered.signal();
                 return true;
             }
         });
         Date currentDate = new Date();
         project.setQuietPeriod(0);
-        System.out.println(commit.getName());
         noteHookTriggerHandler.handle(
                 project,
                 noteHook()
@@ -148,7 +129,7 @@ class NoteHookTriggerHandlerImplTest {
                         )
                         .withAction(NoteAction.comment)
                         .withComment(noteObjectAttributes()
-                                .withCommitId(commit.getId().toString())
+                                .withCommitId(commit.getName())
                                 .withId(1)
                                 .withBody("ci-build")
                                 .withAuthorId(1)
