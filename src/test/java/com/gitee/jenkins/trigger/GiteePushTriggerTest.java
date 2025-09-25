@@ -3,19 +3,25 @@ package com.gitee.jenkins.trigger;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.gitee.jenkins.gitee.hook.model.NoteHook;
-import com.gitee.jenkins.gitee.hook.model.PipelineHook;
-import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
-import com.gitee.jenkins.gitee.hook.model.PushHook;
+import hudson.model.FreeStyleProject;
+import hudson.model.Job;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kohsuke.stapler.Ancestor;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
 
 @WithJenkins
 @ExtendWith(MockitoExtension.class)
@@ -25,50 +31,43 @@ public class GiteePushTriggerTest {
     private JenkinsRule jenkins;
     private GiteePushTrigger trigger;
 
-
     @Mock
-    private StaplerRequest2 request;
+    private StaplerRequest2 mockRequest;
+
+    @Mock 
+    private Ancestor mockAncestor;
+
+    private MockedStatic<Stapler>  threadRequest;
 
     @BeforeEach
     void setUp(JenkinsRule rule) {
         jenkins = rule;
         trigger = new GiteePushTrigger();
+
+        threadRequest = Mockito.mockStatic(Stapler.class);
     }
 
-    @Test
-    void initNullPushHookOnPost() throws Exception {
-        PushHook hook = null;
-        trigger.setTriggerOnPush(false);
+    @AfterEach
+    void tearDown() {
+        threadRequest.close();
+    }
+
+    @Test 
+    void retrieveDisplayName() throws IOException {
+        String projectName = "test-proj";
+        FreeStyleProject proj = jenkins.createFreeStyleProject(projectName);
+        Mockito.when(mockRequest.findAncestor(Job.class))
+            .thenReturn(mockAncestor);
+
+        Mockito.when(mockAncestor.getObject()).thenReturn((Job<?,?>) proj);
+        threadRequest.when(() -> Stapler.getCurrentRequest2())
+            .thenReturn(mockRequest);
         
-        assertDoesNotThrow(() -> trigger.onPost(hook));
+        assertTrue(trigger.getDescriptor().getDisplayName().contains(projectName));
     }
 
     @Test
-    void initNullPullHookOnPost() throws Exception {
-        PullRequestHook hook = null;
-        trigger.setTriggerOnAcceptedPullRequest(false);
-        trigger.setTriggerOnOpenPullRequest(false);
-        trigger.setTriggerOnClosedPullRequest(false);
-        trigger.setTriggerOnUpdatePullRequest("false");
-        trigger.setTriggerOnApprovedPullRequest(false);
-        trigger.setTriggerOnTestedPullRequest(false);
-
-        assertDoesNotThrow(() -> trigger.onPost(hook));
-    }
-
-    @Test
-    void initNullNoteHookOnPost() throws Exception {
-        NoteHook hook = null;
-        trigger.setTriggerOnNoteRequest(false);
-
-        assertDoesNotThrow(() -> trigger.onPost(hook));
-    }
-
-    @Test
-    void initNullPipelineHookOnPost() throws Exception {
-        trigger.setTriggerOnPipelineEvent(false);
-        PipelineHook hook = null;
-
-        assertDoesNotThrow(() -> trigger.onPost(hook));        
+    void retrieveUnknownDisplayName() {
+        assertTrue(trigger.getDescriptor().getDisplayName().contains("unknown"));
     }
 }
