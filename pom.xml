@@ -135,7 +135,7 @@
       <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
       <artifactId>jackson-jakarta-rs-json-provider</artifactId>
       <!-- Needs to match the jackson version from plugin BOM -->
-      <version>2.19.2</version>
+      <version>2.20.0</version>
     </dependency>
 
     <!-- util dependencies -->
