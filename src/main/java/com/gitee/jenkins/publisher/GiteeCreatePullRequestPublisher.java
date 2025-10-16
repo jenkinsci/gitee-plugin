@@ -104,7 +104,6 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             return true;
         }
 
-        if ()
         client.createPullRequest(owner, repo, title, base, head);
         return true;
     }
