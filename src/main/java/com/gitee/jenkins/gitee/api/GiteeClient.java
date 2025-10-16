@@ -11,5 +11,6 @@ public interface GiteeClient {
 
     User getCurrentUser();
 
+    void createPullRequest(String owner, String repo, String title, String base, String head);
 
 }

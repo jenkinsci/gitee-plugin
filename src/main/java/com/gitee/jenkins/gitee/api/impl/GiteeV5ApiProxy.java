@@ -30,6 +30,16 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
                                 @PathParam("prNumber") Integer prNumber,
                                 @FormParam("body") String body);
 
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Path("/repos/{ownerPath}/{repoPath}/pulls")
+    void createPullRequest(@PathParam("ownerPath") String ownerPath,
+                            @PathParam("repoPath") String repoPath,
+                            @FormParam("title") String title,
+                            @FormParam("base") String base,
+                            @FormParam("head") String head);
+
     @HEAD
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/user")

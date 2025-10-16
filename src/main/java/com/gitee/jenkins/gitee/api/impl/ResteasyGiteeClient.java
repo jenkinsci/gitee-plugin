@@ -35,6 +35,11 @@ final class ResteasyGiteeClient implements GiteeClient {
     }
 
     @Override
+    public void createPullRequest(String owner, String repo, String title, String base, String head) {
+        api.createPullRequest(owner, repo, title, base, head);
+    }
+
+    @Override
     public User getCurrentUser() {
         return api.getCurrentUser();
     }
