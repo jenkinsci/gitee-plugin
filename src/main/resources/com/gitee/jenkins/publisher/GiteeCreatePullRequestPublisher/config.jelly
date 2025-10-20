@@ -1,0 +1,22 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form">
+    <f:entry title="${%Repo.name}" field="repo">
+        <f:textbox name="repo" field="repo"/>
+    </f:entry>
+    <f:entry title="${%Owner.name}" field="owner">
+        <f:textbox name="owner" field="owner"/>
+    </f:entry>
+    <f:entry title="${%Title.of.pull.request}" field="title">
+        <f:textbox name="title" field="title"/>
+        <f:entry title="${%Add.datetime}" field="addDatetime">
+            <f:checkbox/>
+        </f:entry>
+    </f:entry>
+    <f:entry title="${%Target.branch}" field="base">
+        <f:textbox name="base" field="base"/>
+    </f:entry>
+    <f:entry title="${%Source.branch}" field="head">
+        <f:textbox name="head" field="head"/>
+    </f:entry>
+</j:jelly>

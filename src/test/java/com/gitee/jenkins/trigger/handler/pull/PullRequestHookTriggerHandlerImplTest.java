@@ -995,6 +995,11 @@ class PullRequestHookTriggerHandlerImplTest {
         public User getCurrentUser() {
             throw new UnsupportedOperationException("Unimplemented method 'getCurrentUser'");
         }
+
+        @Override
+        public void createPullRequest(String owner, String repo, String title, String base, String head) {
+                throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        }
     }
 
     private class TestPublisher extends GiteeMessagePublisher {
