@@ -1,12 +1,16 @@
 package com.gitee.jenkins.publisher;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.util.LoggerUtil;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.Launcher;
@@ -30,7 +34,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     private String title;
     private String base;
     private String head;
-    private boolean doCreateBranch = false;
+    private boolean addDatetime;
 
     @DataBoundConstructor
     public GiteeCreatePullRequestPublisher() { }
@@ -60,8 +64,8 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         return head;
     }
 
-    public boolean doCreateBranch() {
-        return doCreateBranch;
+    public boolean getAddDatetime() {
+        return addDatetime;
     }
 
     @DataBoundSetter
@@ -90,8 +94,8 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     }
 
     @DataBoundSetter
-    public void setDoCreateBranch(boolean doCreateBranch) {
-        this.doCreateBranch = doCreateBranch;
+    public void setAddDatetime(boolean addDatetime) {
+        this.addDatetime = addDatetime;
     }
 
     @Override
@@ -104,7 +108,13 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             return true;
         }
 
-        client.createPullRequest(owner, repo, title, base, head);
+        String pullRequestTitle = title;
+        if (addDatetime) {
+            pullRequestTitle = LocalDateTime.now().toString() + title;
+        }
+        client.createPullRequest(owner, repo, pullRequestTitle, base, head);
+
+        LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
         return true;
     }
 
