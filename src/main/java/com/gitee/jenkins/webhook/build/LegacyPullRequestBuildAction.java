@@ -1,0 +1,75 @@
+package com.gitee.jenkins.webhook.build;
+
+import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
+import com.gitee.jenkins.trigger.GiteePushTrigger;
+import com.gitee.jenkins.gitee.hook.model.PullRequestObjectAttributes;
+import com.gitee.jenkins.gitee.hook.model.Project;
+import com.gitee.jenkins.util.JsonUtil;
+import hudson.model.Item;
+import hudson.model.Job;
+import hudson.security.ACL;
+import hudson.security.ACLContext;
+import hudson.util.HttpResponses;
+import jenkins.model.Jenkins;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.springframework.security.core.Authentication;
+
+import static com.gitee.jenkins.util.JsonUtil.toPrettyPrint;
+
+/**
+ * @author Robin Müller
+ */
+public class LegacyPullRequestBuildAction extends LegacyBuildWebHookAction {
+
+    private static final Logger LOGGER = Logger.getLogger(LegacyPullRequestBuildAction.class.getName());
+    private Item project;
+    private PullRequestHook pullRequestHook;
+    private final String secretToken;
+
+    public LegacyPullRequestBuildAction(Item project, String json, String secretToken) {
+        LOGGER.log(Level.FINE, "PullRequest: {0}", toPrettyPrint(json));
+        this.project = project;
+        this.pullRequestHook = JsonUtil.read(json, PullRequestHook.class);
+        this.pullRequestHook.setJsonBody(json);
+        this.secretToken = secretToken;
+    }
+
+    void processForCompatibility() {
+        final PullRequestObjectAttributes attributes = this.pullRequestHook.getPullRequest();
+        if (attributes != null) {
+            final Project source = attributes.getSource();
+            if (source != null && source.getGitHttpUrl() != null) {
+                if (source.getUrl() == null) {
+                    source.setUrl(source.getGitHttpUrl());
+                }
+                if (source.getHomepage() == null) {
+                    source.setHomepage(source.getGitHttpUrl().substring(0, source.getGitHttpUrl().lastIndexOf(".git")));
+                }
+            }
+
+            // The PullRequestHookTriggerHandlerImpl is looking for Project
+            if (pullRequestHook.getRepo() == null && attributes.getTarget() != null) {
+                pullRequestHook.setRepo(attributes.getTarget());
+            }
+        }
+    }
+
+    public void execute() {
+        if (!(project instanceof Job<?, ?>)) {
+            throw HttpResponses.errorWithoutStack(409, "Merge Request Hook is not supported for this project");
+        }
+        Authentication auth = Jenkins.getAuthentication2();
+        try (ACLContext ignored = ACL.as2(ACL.SYSTEM2)) {
+            new TriggerNotifier(project, secretToken, auth) {
+                @Override
+                protected void performOnPost(GiteePushTrigger trigger) {
+                    trigger.onPost(pullRequestHook);
+                }
+            }.run();
+        }
+        throw responseWithHook(pullRequestHook);
+    }
+}
