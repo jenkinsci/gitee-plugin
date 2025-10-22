@@ -1,9 +1,13 @@
 package com.gitee.jenkins.webhook;
 
 import com.gitee.jenkins.util.ACLUtil;
-import com.gitee.jenkins.webhook.build.PullRequestBuildAction;
+import com.gitee.jenkins.webhook.build.LegacyPullRequestBuildAction;
+import com.gitee.jenkins.webhook.build.LegacyNoteBuildAction;
+import com.gitee.jenkins.webhook.build.LegacyPipelineBuildAction;
+import com.gitee.jenkins.webhook.build.LegacyPushBuildAction;
 import com.gitee.jenkins.webhook.build.NoteBuildAction;
 import com.gitee.jenkins.webhook.build.PipelineBuildAction;
+import com.gitee.jenkins.webhook.build.PullRequestBuildAction;
 import com.gitee.jenkins.webhook.build.PushBuildAction;
 import com.gitee.jenkins.webhook.status.BranchBuildPageRedirectAction;
 import com.gitee.jenkins.webhook.status.BranchStatusPngAction;
@@ -106,10 +110,14 @@ public class ActionResolver {
         }
         String tokenHeader = request.getHeader("X-Gitee-Token");
         return switch (eventHeader) {
-            case "Merge Request Hook" -> new PullRequestBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Push Hook", "Tag Push Hook" -> new PushBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Note Hook" -> new NoteBuildAction(project, getRequestBody(request), tokenHeader);
-            case "Pipeline Hook" -> new PipelineBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Merge Request Hook" -> new LegacyPullRequestBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Push Hook", "Tag Push Hook" -> new LegacyPushBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Note Hook" -> new LegacyNoteBuildAction(project, getRequestBody(request), tokenHeader);
+            case "Pipeline Hook" -> new LegacyPipelineBuildAction(project, getRequestBody(request), tokenHeader);
+            case "merge_request_hooks" -> new PullRequestBuildAction(project, getRequestBody(request), tokenHeader);
+            case "push_hooks", "tag_push_hooks" -> new PushBuildAction(project, getRequestBody(request), tokenHeader);
+            case "note_hooks" -> new NoteBuildAction(project, getRequestBody(request), tokenHeader);
+            case "pipeline_hooks" -> new PipelineBuildAction(project, getRequestBody(request), tokenHeader);
             default -> {
                 LOGGER.log(Level.FINE, "Unsupported X-Gitee-Event header: {0}", eventHeader);
                 yield new NoopAction();
