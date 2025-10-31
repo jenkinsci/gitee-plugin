@@ -20,6 +20,7 @@ import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
@@ -112,9 +113,12 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         if (addDatetime) {
             pullRequestTitle = LocalDateTime.now().toString() + title;
         }
-        client.createPullRequest(owner, repo, pullRequestTitle, base, head);
 
-        LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
+        if (build.getResult() == Result.SUCCESS) {
+            client.createPullRequest(owner, repo, pullRequestTitle, base, head);
+            LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
+        }
+        
         return true;
     }
 

@@ -48,6 +48,7 @@ final class TestUtility {
     static final String GITEE_CONNECTION_V5 = "GiteeV5";
     static final String BUILD_URL = "/build/123";
     static final String REPO_PATH = "testPath";
+    static final String OWNER_PATH = "testUser";
     static final String PULL_COMMIT_SHA = "eKJ3wuqJT98Kc8TCcBK7oggLR1E9Bty7eqSHfSLT";
     static final int BUILD_NUMBER = 1;
     static final int PROJECT_ID = 3;
