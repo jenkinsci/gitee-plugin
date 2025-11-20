@@ -1,6 +1,8 @@
 package com.gitee.jenkins.gitee.api.impl;
 
 
+import java.util.List;
+
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.*;
 import com.google.common.base.Function;
@@ -35,8 +37,13 @@ final class ResteasyGiteeClient implements GiteeClient {
     }
 
     @Override
-    public void createPullRequest(String owner, String repo, String title, String base, String head) {
-        api.createPullRequest(owner, repo, title, base, head);
+    public void createPullRequest(PullRequest pr) {
+        api.createPullRequest(pr.getRepoOwner(), pr.getRepoPath(), pr.getTitle(), pr.getTargetBranch(), pr.getSourceBranch(), pr.getDescription());
+    }
+
+    @Override
+    public List<PullRequest> getPullRequest(PullRequest pr) {
+        return api.getPullRequest(pr.getRepoOwner(), pr.getRepoPath(), pr.getTargetBranch(), pr.getSourceBranch());
     }
 
     @Override

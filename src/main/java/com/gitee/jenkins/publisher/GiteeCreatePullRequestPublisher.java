@@ -9,6 +9,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
+import com.gitee.jenkins.gitee.api.model.builder.generated.PullRequestBuilder;
 import com.gitee.jenkins.util.LoggerUtil;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -35,6 +37,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     private String title;
     private String base;
     private String head;
+    private String body;
     private boolean addDatetime;
 
     @DataBoundConstructor
@@ -69,6 +72,10 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         return addDatetime;
     }
 
+    public String getBody() {
+        return body;
+    }
+
     @DataBoundSetter
     public void setRepo(String repo) {
         this.repo = repo;
@@ -99,6 +106,11 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         this.addDatetime = addDatetime;
     }
 
+    @DataBoundSetter
+    public void setBody(String body) {
+        this.body = body;
+    }
+
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
@@ -115,7 +127,25 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         }
 
         if (build.getResult() == Result.SUCCESS) {
-            client.createPullRequest(owner, repo, pullRequestTitle, base, head);
+            PullRequest pr = PullRequestBuilder.pullRequest()
+                    .withRepoOwner(owner)
+                    .withRepoPath(repo)
+                    .withTitle(pullRequestTitle)
+                    .withSourceBranch(head)
+                    .withTargetBranch(base)
+                    .withDescription(body)
+                    .build();
+            
+            if (!client.getPullRequest(pr).isEmpty()) {
+                LOGGER.log(Level.INFO, "Pull request {0} -> {1} already exists", LoggerUtil.toArray(head, base));
+                if (launcher != null) {
+                    launcher.getListener().getLogger().println("Pull request {0} -> {1} already exists");
+                }
+                
+                return true;
+            }
+
+            client.createPullRequest(pr);
             LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
         }
         
