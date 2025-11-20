@@ -1,5 +1,7 @@
 package com.gitee.jenkins.gitee.api;
 
+import java.util.List;
+
 import com.gitee.jenkins.gitee.api.model.*;
 
 public interface GiteeClient {
@@ -11,6 +13,8 @@ public interface GiteeClient {
 
     User getCurrentUser();
 
-    void createPullRequest(String owner, String repo, String title, String base, String head);
+    void createPullRequest(PullRequest pr);
+
+    List<PullRequest> getPullRequest(PullRequest pr);
 
 }

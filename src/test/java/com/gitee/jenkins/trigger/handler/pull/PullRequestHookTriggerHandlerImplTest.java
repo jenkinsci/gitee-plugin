@@ -36,6 +36,7 @@ import hudson.plugins.git.GitSCM;
 import hudson.util.OneShotEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
@@ -997,8 +998,13 @@ class PullRequestHookTriggerHandlerImplTest {
         }
 
         @Override
-        public void createPullRequest(String owner, String repo, String title, String base, String head) {
-                throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        public void createPullRequest(PullRequest pr) {
+            throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        }
+
+        @Override
+        public List<PullRequest> getPullRequest(PullRequest pr) {
+            throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
         }
     }
 

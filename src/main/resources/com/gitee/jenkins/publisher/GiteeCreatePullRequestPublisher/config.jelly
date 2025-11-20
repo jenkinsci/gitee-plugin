@@ -19,4 +19,7 @@
     <f:entry title="${%Source.branch}" field="head">
         <f:textbox name="head" field="head"/>
     </f:entry>
+    <f:entry title="${%body}" field="body">
+        <f:textbox name="body" field="body"/>
+    </f:entry>
 </j:jelly>
