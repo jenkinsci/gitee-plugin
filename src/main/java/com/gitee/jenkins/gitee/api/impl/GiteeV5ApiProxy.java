@@ -62,4 +62,10 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     @Path("/user")
     User getCurrentUser();
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/repos/{ownerPath}/{repoPath}/labels")
+    List<Label> getLabels(@PathParam("ownerPath") String ownerPath,
+                        @PathParam("repoPath") String repoPath);
+
 }

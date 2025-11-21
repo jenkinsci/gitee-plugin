@@ -50,4 +50,9 @@ final class ResteasyGiteeClient implements GiteeClient {
     public User getCurrentUser() {
         return api.getCurrentUser();
     }
+
+    @Override
+    public List<Label> getLabels(String owner, String repo) {
+        return api.getLabels(owner, repo);
+    }
 }

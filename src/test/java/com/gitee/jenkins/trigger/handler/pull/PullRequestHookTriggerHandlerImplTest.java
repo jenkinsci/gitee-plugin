@@ -13,6 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
 import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.Label;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.api.model.User;
 import com.gitee.jenkins.gitee.hook.model.Action;
@@ -1005,6 +1006,11 @@ class PullRequestHookTriggerHandlerImplTest {
         @Override
         public List<PullRequest> getPullRequest(PullRequest pr) {
             throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        }
+
+        @Override
+        public List<Label> getLabels(String owner, String repo) {
+                throw new UnsupportedOperationException("Unimplemented method 'getLabels'");
         }
     }
 
