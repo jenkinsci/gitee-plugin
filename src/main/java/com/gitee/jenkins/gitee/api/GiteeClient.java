@@ -15,6 +15,8 @@ public interface GiteeClient {
 
     void createPullRequest(PullRequest pr);
 
+    List<Label> getLabels(String owner, String repo);
+
     List<PullRequest> getPullRequest(PullRequest pr);
 
 }

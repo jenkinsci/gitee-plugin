@@ -14,4 +14,5 @@ interface GiteeApiProxy {
     void createPullRequest(String owner, String repo, String title, String base, String head, String body);
     List<PullRequest> getPullRequest(String owner, String repo, String base, String head);
     User getCurrentUser();
+    List<Label> getLabels(String owner, String repo);
 }
