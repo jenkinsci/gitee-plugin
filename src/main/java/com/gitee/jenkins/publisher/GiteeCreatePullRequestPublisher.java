@@ -84,7 +84,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     @DataBoundSetter
     public void setOwner(String owner) {
         this.owner = owner;
-    } 
+    }
 
     @DataBoundSetter
     public void setTitle(String title) {
@@ -123,7 +123,11 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
 
         String pullRequestTitle = title;
         if (addDatetime) {
-            pullRequestTitle = LocalDateTime.now().toString() + title;
+            StringBuilder newTitle = new StringBuilder();
+            newTitle.append(LocalDateTime.now().toString());
+            newTitle.append(" ");
+            newTitle.append(title);
+            pullRequestTitle = newTitle.toString();
         }
 
         if (build.getResult() == Result.SUCCESS) {
@@ -149,6 +153,29 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
         }
         
+        if (build.getResult() == Result.SUCCESS) {
+            PullRequest pr = PullRequestBuilder.pullRequest()
+                    .withRepoOwner(owner)
+                    .withRepoPath(repo)
+                    .withTitle(pullRequestTitle)
+                    .withSourceBranch(head)
+                    .withTargetBranch(base)
+                    .withDescription(body)
+                    .build();
+            
+            if (!client.getPullRequest(pr).isEmpty()) {
+                LOGGER.log(Level.INFO, "Pull request {0} -> {1} already exists", LoggerUtil.toArray(head, base));
+                if (launcher != null) {
+                    launcher.getListener().getLogger().println("Pull request {0} -> {1} already exists");
+                }
+                
+                return true;
+            }
+
+            client.createPullRequest(pr);
+            LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
+        }
+
         return true;
     }
 
