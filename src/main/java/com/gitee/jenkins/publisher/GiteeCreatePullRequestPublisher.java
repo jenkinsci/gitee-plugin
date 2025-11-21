@@ -84,7 +84,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     @DataBoundSetter
     public void setOwner(String owner) {
         this.owner = owner;
-    } 
+    }
 
     @DataBoundSetter
     public void setTitle(String title) {
@@ -123,9 +123,13 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
 
         String pullRequestTitle = title;
         if (addDatetime) {
-            pullRequestTitle = LocalDateTime.now().toString() + title;
+            StringBuilder newTitle = new StringBuilder();
+            newTitle.append(LocalDateTime.now().toString());
+            newTitle.append(" ");
+            newTitle.append(title);
+            pullRequestTitle = newTitle.toString();
         }
-
+        
         if (build.getResult() == Result.SUCCESS) {
             PullRequest pr = PullRequestBuilder.pullRequest()
                     .withRepoOwner(owner)
@@ -148,7 +152,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             client.createPullRequest(pr);
             LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
         }
-        
+
         return true;
     }
 
