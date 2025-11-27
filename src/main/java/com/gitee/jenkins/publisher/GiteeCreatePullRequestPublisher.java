@@ -2,6 +2,10 @@ package com.gitee.jenkins.publisher;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,6 +13,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.Label;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.api.model.builder.generated.PullRequestBuilder;
 import com.gitee.jenkins.util.LoggerUtil;
@@ -20,8 +25,10 @@ import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractDescribableImpl;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Descriptor;
 import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
@@ -38,6 +45,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     private String base;
     private String head;
     private String body;
+    private List<LabelNameEntry> labelNames = Collections.<LabelNameEntry>emptyList();
     private boolean addDatetime;
 
     @DataBoundConstructor
@@ -76,6 +84,10 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         return body;
     }
 
+    public List<LabelNameEntry> getLabelNames() {
+        return labelNames;
+    }
+
     @DataBoundSetter
     public void setRepo(String repo) {
         this.repo = repo;
@@ -111,9 +123,21 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         this.body = body;
     }
 
+    @DataBoundSetter
+    public void setLabelNames(List<LabelNameEntry> labelNames) {
+        this.labelNames = labelNames;
+    }
+
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
+        
+        ArrayList<String> labels = new ArrayList<String>();
+        for(LabelNameEntry entry : labelNames) {
+            if (!labels.contains(entry.toString())) {
+                labels.add(entry.toString());
+            }
+        }
 
         GiteeClient client = getClient(build);
         if (client == null) {
@@ -138,6 +162,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
                     .withSourceBranch(head)
                     .withTargetBranch(base)
                     .withDescription(body)
+                    .withLabels(labels)
                     .build();
             
             if (!client.getPullRequest(pr).isEmpty()) {
@@ -202,6 +227,32 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         @Override
         public String getDisplayName() {
             return Messages.GiteeCreatePullRequestPublisher_DisplayName();
+        }
+
+    }
+
+    public static final class LabelNameEntry extends AbstractDescribableImpl<LabelNameEntry> {
+        private final String text;
+
+        @DataBoundConstructor public LabelNameEntry(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+        @Extension 
+        public static class DescriptorImpl extends Descriptor<LabelNameEntry> {
+            @Override 
+            public String getDisplayName() {
+                return "Label";
+            }
         }
     }
 }
