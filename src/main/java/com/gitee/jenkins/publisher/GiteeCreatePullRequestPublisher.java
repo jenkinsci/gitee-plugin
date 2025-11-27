@@ -138,8 +138,6 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
                 labels.add(entry.toString());
             }
         }
-        
-        LOGGER.info(labels.toString());
 
         GiteeClient client = getClient(build);
         if (client == null) {
