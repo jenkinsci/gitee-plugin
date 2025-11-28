@@ -1,6 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
-         xmlns:f="/lib/form">
+         xmlns:f="/lib/form"
+         xmlns:st="jelly:stapler">
   <f:entry title="${%Enabled.Gitee.Triggers}" help="/plugin/gitee/help/help-pull-request-refspec.html">
     <table>
       <f:entry title="${%Push}" field="triggerOnPush">
@@ -119,6 +120,7 @@
     </table>
   </f:entry>
   <f:entry title="${%Secret.Token}" help="/plugin/gitee/help/help-secretToken.html">
+    <st:adjunct includes="com.gitee.jenkins.trigger.GiteePushTrigger.adjunct"/>
     <table>
       <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>
       <f:validateButton title="${%Generate}" method="generateSecretToken"/>
