@@ -11,6 +11,11 @@ import static com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandl
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import com.gitee.jenkins.connection.GiteeConnectionProperty;
+import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.Label;
+import com.gitee.jenkins.gitee.api.model.PullRequest;
+import com.gitee.jenkins.gitee.api.model.User;
 import com.gitee.jenkins.gitee.hook.model.Action;
 import com.gitee.jenkins.gitee.hook.model.ActionDesc;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
@@ -18,6 +23,7 @@ import com.gitee.jenkins.gitee.hook.model.State;
 import com.gitee.jenkins.gitee.hook.model.builder.generated.BranchDataBuilder;
 import com.gitee.jenkins.gitee.hook.model.builder.generated.PullRequestHookBuilder;
 import com.gitee.jenkins.gitee.hook.model.builder.generated.PullRequestObjectAttributesBuilder;
+import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.filter.BranchFilterFactory;
 import com.gitee.jenkins.trigger.filter.BranchFilterType;
 import com.gitee.jenkins.trigger.filter.BuildInstructionFilterType;
@@ -31,6 +37,7 @@ import hudson.plugins.git.GitSCM;
 import hudson.util.OneShotEvent;
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Constants;
@@ -42,6 +49,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 /**
  * @author Robin Müller
@@ -89,6 +98,37 @@ class PullRequestHookTriggerHandlerImplTest {
 
         assertThat(buildTriggered.isSignaled(), is(true));
         jenkins.assertBuildStatusSuccess(jenkins.waitForCompletion(buildHolder.get()));
+    }
+
+    @Test
+    void pullRequest_do_not_build_when_is_not_mergeable_client_response() throws Exception {
+        FreeStyleProject project = jenkins.createFreeStyleProject();
+        
+        MockedStatic<GiteeConnectionProperty> config = Mockito.mockStatic(GiteeConnectionProperty.class);
+        MockedStatic<GiteeMessagePublisher> publisher = Mockito.mockStatic(GiteeMessagePublisher.class);
+        TestGiteeClient client = new TestGiteeClient();
+
+        config.when(() -> GiteeConnectionProperty.getClient(project)).thenReturn(client);
+        publisher.when(() -> GiteeMessagePublisher.getFromJob(project)).thenReturn(new TestPublisher());
+        
+        PullRequestHookTriggerHandler pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(
+                true,
+                "1",
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false);
+                
+        final AtomicReference<FreeStyleBuild> buildHolder = new AtomicReference<>();
+        OneShotEvent buildTriggered = doHandle(pullRequestHookTriggerHandler, State.opened, Action.open, buildHolder, false, project);
+
+        assertThat(buildTriggered.isSignaled(), is(false));
+        assertThat(client.getMessage(), is(":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict."));
     }
 
     @Test
@@ -713,7 +753,9 @@ class PullRequestHookTriggerHandlerImplTest {
         return doHandle(
                 pullRequestHookTriggerHandler,
                 pullRequestHook().withAction(action),
-                buildHolder);
+                buildHolder,
+                true,
+                null);
     }
 
     private OneShotEvent doHandle(
@@ -724,7 +766,9 @@ class PullRequestHookTriggerHandlerImplTest {
         return doHandle(
                 pullRequestHookTriggerHandler,
                 pullRequestHook().withState(state),
-                buildHolder);
+                buildHolder,
+                true,
+                null);
     }
 
     private OneShotEvent doHandle(
@@ -736,7 +780,9 @@ class PullRequestHookTriggerHandlerImplTest {
         return doHandle(
                 pullRequestHookTriggerHandler,
                 pullRequestHook().withState(state).withAction(action),
-                buildHolder);
+                buildHolder,
+                true,
+                null);
     }
 
     private OneShotEvent doHandle(
@@ -749,13 +795,33 @@ class PullRequestHookTriggerHandlerImplTest {
         return doHandle(
                 pullRequestHookTriggerHandler,
                 pullRequestHook().withState(state).withAction(action).withActionDesc(desc),
-                buildHolder);
+                buildHolder,
+                true,
+                null);
     }
 
     private OneShotEvent doHandle(
             PullRequestHookTriggerHandler pullRequestHookTriggerHandler,
+            State state,
+            Action action,
+            AtomicReference<FreeStyleBuild> buildHolder,
+            boolean isMergeable,
+            FreeStyleProject project)
+            throws Exception {
+        return doHandle(
+                pullRequestHookTriggerHandler,
+                pullRequestHook().withState(state).withAction(action),
+                buildHolder,
+                isMergeable,
+                project);
+     }
+
+    private OneShotEvent doHandle(
+            PullRequestHookTriggerHandler pullRequestHookTriggerHandler,
             PullRequestHookBuilder builder,
-            AtomicReference<FreeStyleBuild> buildHolder)
+            AtomicReference<FreeStyleBuild> buildHolder,
+            boolean isMergeable,
+            FreeStyleProject project)
             throws Exception {
         Git.init().setDirectory(tmp).call();
         File.createTempFile("test", null, tmp);
@@ -766,7 +832,9 @@ class PullRequestHookTriggerHandlerImplTest {
         String repositoryUrl = tmp.toURI().toString();
 
         final OneShotEvent buildTriggered = new OneShotEvent();
-        FreeStyleProject project = jenkins.createFreeStyleProject();
+        if (project == null) {
+            project = jenkins.createFreeStyleProject();
+        }
         project.setScm(new GitSCM(repositoryUrl));
         project.getBuildersList().add(new TestBuilder() {
             @Override
@@ -780,7 +848,7 @@ class PullRequestHookTriggerHandlerImplTest {
         PullRequestHook hook = builder
                         .withPullRequest(defaultPullRequestObjectAttributes(("refs/heads/" + git.nameRev().add(head).call().get(head)))
                                 .withMergeCommitSha(commit.getName())
-                                .withMergeable(true)
+                                .withMergeable(isMergeable)
                                 .build()) 
                         .withRepo(project()
                                 .withId(3)
@@ -838,6 +906,7 @@ class PullRequestHookTriggerHandlerImplTest {
                                 .withUrl("git@gitee.com:test.git")
                                 .withSshUrl("git@gitee.com:test.git")
                                 .withGitHttpUrl("https://gitee.com/test.git")
+                                .withPathWithNamespace("/test")
                                 .build())
                         .withPullRequest(defaultPullRequestObjectAttributes("test")
                                 .withBody(MRDescription)
@@ -867,6 +936,7 @@ class PullRequestHookTriggerHandlerImplTest {
                                 .withUrl("git@gitee.com:test.git")
                                 .withSshUrl("git@gitee.com:test.git")
                                 .withGitHttpUrl("https://gitee.com/test.git")
+                                .withPathWithNamespace("/test")
                                 .build());
                                 
         if (ref != null && !ref.equals("")) {
@@ -891,8 +961,62 @@ class PullRequestHookTriggerHandlerImplTest {
                                 .withUrl("git@gitee.com:test.git")
                                 .withSshUrl("git@gitee.com:test.git")
                                 .withGitHttpUrl("https://gitee.com/test.git")
+                                .withPathWithNamespace("/test")
                                 .build())
                         .build())
                 .withHead(headBuilder.build());
+    }
+
+    private class TestGiteeClient implements GiteeClient {
+        private String message;
+
+        public TestGiteeClient() {
+
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public String getHostUrl() {
+            throw new UnsupportedOperationException("Unimplemented method 'getHostUrl'");
+        }
+
+        @Override
+        public void acceptPullRequest(PullRequest mr, String mergeCommitMessage, boolean shouldRemoveSourceBranch) {
+            throw new UnsupportedOperationException("Unimplemented method 'acceptPullRequest'");
+        }
+
+        @Override
+        public void createPullRequestNote(PullRequest mr, String body) {
+            message = body;
+        }
+
+        @Override
+        public User getCurrentUser() {
+            throw new UnsupportedOperationException("Unimplemented method 'getCurrentUser'");
+        }
+
+        @Override
+        public void createPullRequest(PullRequest pr) {
+            throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        }
+
+        @Override
+        public List<PullRequest> getPullRequest(PullRequest pr) {
+            throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
+        }
+
+        @Override
+        public List<Label> getLabels(String owner, String repo) {
+                throw new UnsupportedOperationException("Unimplemented method 'getLabels'");
+        }
+    }
+
+    private class TestPublisher extends GiteeMessagePublisher {
+        public TestPublisher() {
+            super();
+        }
     }
 }

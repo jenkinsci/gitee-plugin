@@ -127,7 +127,7 @@ class ActionResolverTest {
         jenkins.createFreeStyleProject(projectName);
         when(request.getRestOfPath()).thenReturn("");
         when(request.getMethod()).thenReturn("POST");
-        when(request.getHeader("X-Gitee-Event")).thenReturn("Merge Request Hook");
+        when(request.getHeader("X-Gitee-Event")).thenReturn("merge_request_hooks");
         when(request.getInputStream())
                 .thenReturn(new ResourceServletInputStream("ActionResolverTest_pullRequest.json"));
 
@@ -142,7 +142,7 @@ class ActionResolverTest {
         jenkins.createFreeStyleProject(projectName);
         when(request.getRestOfPath()).thenReturn("");
         when(request.getMethod()).thenReturn("POST");
-        when(request.getHeader("X-Gitee-Event")).thenReturn("Note Hook");
+        when(request.getHeader("X-Gitee-Event")).thenReturn("note_hooks");
         when(request.getInputStream()).thenReturn(new ResourceServletInputStream("ActionResolverTest_postNote.json"));
 
         WebHookAction resolvedAction = new ActionResolver().resolve(projectName, request);
@@ -156,7 +156,7 @@ class ActionResolverTest {
         jenkins.createFreeStyleProject(projectName);
         when(request.getRestOfPath()).thenReturn("");
         when(request.getMethod()).thenReturn("POST");
-        when(request.getHeader("X-Gitee-Event")).thenReturn("Push Hook");
+        when(request.getHeader("X-Gitee-Event")).thenReturn("push_hooks");
         when(request.getInputStream()).thenReturn(new ResourceServletInputStream("ActionResolverTest_postPush.json"));
 
         WebHookAction resolvedAction = new ActionResolver().resolve(projectName, request);
@@ -170,7 +170,7 @@ class ActionResolverTest {
         jenkins.createFreeStyleProject(projectName);
         when(request.getRestOfPath()).thenReturn("");
         when(request.getMethod()).thenReturn("POST");
-        when(request.getHeader("X-Gitee-Event")).thenReturn("Tag Push Hook");
+        when(request.getHeader("X-Gitee-Event")).thenReturn("tag_push_hooks");
         when(request.getInputStream())
                 .thenReturn(new ResourceServletInputStream("ActionResolverTest_postPushTag.json"));
 
