@@ -121,10 +121,8 @@
   </f:entry>
   <f:entry title="${%Secret.Token}" help="/plugin/gitee/help/help-secretToken.html">
     <st:adjunct includes="com.gitee.jenkins.trigger.GiteePushTrigger.adjunct"/>
-    <table>
-      <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>
-      <f:validateButton title="${%Generate}" method="generateSecretToken"/>
-      <f:validateButton title="${%Clear}" method="clearSecretToken"/>
-    </table>
+    <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>
+    <button class="jenkins-button gitee-generate jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Generate}</button>
+    <button class="jenkins-button gitee-clear jenkins-!-margin-top-1">${%Clear}</button>
   </f:entry>
 </j:jelly>
