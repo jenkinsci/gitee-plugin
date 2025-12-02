@@ -53,8 +53,7 @@
     <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.baseline>2.504</jenkins.baseline>
-    <!-- TODO https://github.com/jenkinsci/jenkins/pull/20345 -->
-    <jenkins.version>2.537-rc37711.669feb_d92990</jenkins.version>
+    <jenkins.version>2.540</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <mockserver.version>5.15.0</mockserver.version>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
