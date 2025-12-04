@@ -22,7 +22,7 @@
     <f:entry title="${%body}" field="body">
         <f:textarea name="body" field="body"/>
     </f:entry>
-    <f:entry title="labelNames" field="labelNames">
-        <f:repeatableHeteroProperty hasHeader="true" addCaption="Add label" />
+    <f:entry title="${%Label.names}" field="labelNames">
+        <f:repeatableHeteroProperty hasHeader="true" addCaption="${%Label.names}" />
     </f:entry>
 </j:jelly>
