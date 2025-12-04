@@ -223,6 +223,11 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             return true;
         }
 
+        @Override
+        public String getHelpFile() {
+            return "/plugin/gitee/help/help-createPullRequest.html";
+        }
+
         @NonNull
         @Override
         public String getDisplayName() {
