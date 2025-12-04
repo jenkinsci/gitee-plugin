@@ -35,16 +35,13 @@ import net.karneim.pojobuilder.GeneratePojoBuilder;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.Ancestor;
-import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
-import java.security.SecureRandom;
 
 import static com.gitee.jenkins.trigger.filter.BranchFilterConfig.BranchFilterConfigBuilder.branchFilterConfig;
 import static com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandlerFactory.newPullRequestHookTriggerHandler;
@@ -61,9 +58,6 @@ import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFacto
  *
  */
 public class GiteePushTrigger extends Trigger<Job<?, ?>> {
-
-    private static final SecureRandom RANDOM = new SecureRandom();
-
     private boolean triggerOnPush = true;
     private boolean triggerOnCommitComment = false;
     private boolean triggerOnOpenPullRequest = true;
@@ -681,17 +675,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         public boolean configure(StaplerRequest2 req, JSONObject formData) throws FormException {
             save();
             return super.configure(req, formData);
-        }
-
-        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
-            byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token
-            RANDOM.nextBytes(random);
-            String secretToken = Util.toHexString(random);
-            response.setHeader("script", "document.getElementById('giteeSecretToken').value='" + secretToken + "'");
-        }
-
-        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
-            response.setHeader("script", "document.getElementById('giteeSecretToken').value=''");
         }
     }
 }
