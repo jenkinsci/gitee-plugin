@@ -48,6 +48,10 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     private List<LabelNameEntry> labelNames = Collections.<LabelNameEntry>emptyList();
     private boolean addDatetime;
 
+    private boolean pruneSourceBranch = false;
+    private boolean isDraft = false;
+    private boolean isSquashMerge = false;
+
     @DataBoundConstructor
     public GiteeCreatePullRequestPublisher() { }
 
@@ -86,6 +90,18 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
 
     public List<LabelNameEntry> getLabelNames() {
         return labelNames;
+    }
+
+    public boolean getPruneSourceBranch() {
+        return pruneSourceBranch;
+    }
+
+    public boolean getIsDraft() {
+        return isDraft;
+    }
+
+    public boolean getIsSquashMerge() {
+        return isSquashMerge;
     }
 
     @DataBoundSetter
@@ -128,6 +144,21 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         this.labelNames = labelNames;
     }
 
+    @DataBoundSetter
+    public void setPruneSourceBranch(boolean pruneSourceBranch) {
+        this.pruneSourceBranch = pruneSourceBranch;
+    }
+
+    @DataBoundSetter
+    public void setIsDraft(boolean isDraft) {
+        this.isDraft = isDraft;
+    }
+
+    @DataBoundSetter
+    public void setIsSquashMerge(boolean isSquashMerge) {
+        this.isSquashMerge = isSquashMerge;
+    }
+
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
@@ -168,13 +199,13 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             if (!client.getPullRequest(pr).isEmpty()) {
                 LOGGER.log(Level.INFO, "Pull request {0} -> {1} already exists", LoggerUtil.toArray(head, base));
                 if (launcher != null) {
-                    launcher.getListener().getLogger().println("Pull request {0} -> {1} already exists");
+                    launcher.getListener().getLogger().printf("Pull request {0} -> {1} already exists", head, base);
                 }
                 
                 return true;
             }
 
-            client.createPullRequest(pr);
+            client.createPullRequest(pr, pruneSourceBranch, isDraft, isSquashMerge);
             LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
         }
 

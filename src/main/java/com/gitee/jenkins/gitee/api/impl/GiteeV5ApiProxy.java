@@ -41,7 +41,10 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
                             @FormParam("title") String title,
                             @FormParam("base") String base,
                             @FormParam("head") String head,
-                            @FormParam("body") String body);
+                            @FormParam("body") String body,
+                            @FormParam("prune_source_branch") Boolean pruneSourceBranch,
+                            @FormParam("draft") Boolean isDraft,
+                            @FormParam("squash") Boolean isSquashMerge);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

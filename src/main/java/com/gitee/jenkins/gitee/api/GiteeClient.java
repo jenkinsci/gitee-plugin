@@ -13,7 +13,7 @@ public interface GiteeClient {
 
     User getCurrentUser();
 
-    void createPullRequest(PullRequest pr);
+    void createPullRequest(PullRequest pr, boolean pruneSourceBranch, boolean draft, boolean squash);
 
     List<Label> getLabels(String owner, String repo);
 

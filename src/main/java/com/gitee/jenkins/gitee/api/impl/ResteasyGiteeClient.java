@@ -1,18 +1,15 @@
 package com.gitee.jenkins.gitee.api.impl;
 
-
 import java.util.List;
 
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.*;
 import com.google.common.base.Function;
 
-
 final class ResteasyGiteeClient implements GiteeClient {
     private final String hostUrl;
     private final GiteeApiProxy api;
     private final Function<PullRequest, Integer> pullRequestIdProvider;
-
 
     ResteasyGiteeClient(String hostUrl, GiteeApiProxy api, Function<PullRequest, Integer> pullRequestIdProvider) {
         this.hostUrl = hostUrl;
@@ -37,8 +34,9 @@ final class ResteasyGiteeClient implements GiteeClient {
     }
 
     @Override
-    public void createPullRequest(PullRequest pr) {
-        api.createPullRequest(pr.getRepoOwner(), pr.getRepoPath(), pr.getTitle(), pr.getTargetBranch(), pr.getSourceBranch(), pr.getDescription());
+    public void createPullRequest(PullRequest pr, boolean pruneSourceBranch, boolean isDraft, boolean isSquashMerge) {
+        api.createPullRequest(pr.getRepoOwner(), pr.getRepoPath(), pr.getTitle(), pr.getTargetBranch(),
+                pr.getSourceBranch(), pr.getDescription(), pruneSourceBranch, isDraft, isSquashMerge);
     }
 
     @Override

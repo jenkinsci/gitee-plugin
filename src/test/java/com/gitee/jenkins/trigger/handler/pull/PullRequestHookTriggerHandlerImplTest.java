@@ -999,7 +999,7 @@ class PullRequestHookTriggerHandlerImplTest {
         }
 
         @Override
-        public void createPullRequest(PullRequest pr) {
+        public void createPullRequest(PullRequest pr, boolean pruneSourceBranch, boolean isDraft, boolean isSquashMerge) {
             throw new UnsupportedOperationException("Unimplemented method 'createPullRequest'");
         }
 
