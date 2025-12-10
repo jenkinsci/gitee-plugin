@@ -12,7 +12,7 @@ interface GiteeApiProxy {
     void acceptPullRequest(String owner, String repo, Integer pullRequestId);
 
     void createPullRequest(String owner, String repo, String title, String base, String head, String body,
-            boolean pruneSourceBranch, boolean draft, boolean squash);
+            Boolean pruneSourceBranch, Boolean draft, Boolean squash);
 
     List<PullRequest> getPullRequest(String owner, String repo, String base, String head);
 
