@@ -53,4 +53,16 @@ final class ResteasyGiteeClient implements GiteeClient {
     public List<Label> getLabels(String owner, String repo) {
         return api.getLabels(owner, repo);
     }
+
+    @Override
+    public WebHook createWebHook(String owner, String repo, WebHook hook) {
+        return api.createWebHook(owner, repo, hook.getUrl(), hook.getTitle(), hook.getEncryptionType(),
+                hook.getPushEvents(), hook.getTagPushEvents(), hook.getIssuesEvents(), hook.getNoteEvents(),
+                hook.getMergeRequestsEvents());
+    }
+
+    @Override
+    public List<WebHook> getWebHooks(String owner, String repo) {
+        return api.getWebHooks(owner, repo);
+    }
 }

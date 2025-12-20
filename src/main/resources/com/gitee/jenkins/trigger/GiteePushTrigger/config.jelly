@@ -125,4 +125,7 @@
     <button class="jenkins-button gitee-generate jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Generate}</button>
     <button class="jenkins-button gitee-clear jenkins-!-margin-top-1">${%Clear}</button>
   </f:entry>
+  <f:entry title="${%Webhooks}" field="webhooks">
+    <f:repeatableHeteroProperty hasHeader="true" id="webhooks" addCaption="${Webhooks}" />
+  </f:entry>
 </j:jelly>
