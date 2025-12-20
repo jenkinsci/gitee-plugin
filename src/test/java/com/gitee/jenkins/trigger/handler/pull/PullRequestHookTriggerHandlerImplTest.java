@@ -16,6 +16,7 @@ import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.Label;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.api.model.User;
+import com.gitee.jenkins.gitee.api.model.WebHook;
 import com.gitee.jenkins.gitee.hook.model.Action;
 import com.gitee.jenkins.gitee.hook.model.ActionDesc;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
@@ -1011,6 +1012,16 @@ class PullRequestHookTriggerHandlerImplTest {
         @Override
         public List<Label> getLabels(String owner, String repo) {
                 throw new UnsupportedOperationException("Unimplemented method 'getLabels'");
+        }
+
+        @Override
+        public WebHook createWebHook(String owner, String repo, WebHook hook) {
+                throw new UnsupportedOperationException("Unimplemented method 'createWebHook'");
+        }
+
+        @Override
+        public List<WebHook> getWebHooks(String owner, String repo) {
+                throw new UnsupportedOperationException("Unimplemented method 'getWebHooks'");
         }
     }
 

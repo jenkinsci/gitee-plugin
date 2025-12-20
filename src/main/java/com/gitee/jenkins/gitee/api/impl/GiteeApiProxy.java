@@ -14,6 +14,12 @@ interface GiteeApiProxy {
     void createPullRequest(String owner, String repo, String title, String base, String head, String body,
             Boolean pruneSourceBranch, Boolean draft, Boolean squash);
 
+    WebHook createWebHook(String owner, String repo, String url, String title, Integer encryptionType,
+            Boolean pushEvents, Boolean tagPushEvents, Boolean issuesEvents, Boolean noteEvents,
+            Boolean mergeRequestEvents);
+
+    List<WebHook> getWebHooks(String owner, String repo);
+
     List<PullRequest> getPullRequest(String owner, String repo, String base, String head);
 
     User getCurrentUser();
