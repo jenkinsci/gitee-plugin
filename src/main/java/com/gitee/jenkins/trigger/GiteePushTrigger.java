@@ -5,7 +5,6 @@ import com.gitee.jenkins.connection.GiteeConnectionConfig;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.impl.ResteasyGiteeClientBuilder;
 import com.gitee.jenkins.gitee.api.model.WebHook;
 import com.gitee.jenkins.gitee.api.model.builder.generated.WebHookBuilder;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
@@ -29,13 +28,12 @@ import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.plugins.git.GitSCM;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import hudson.util.SequentialExecutionQueue;
-import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jenkins.model.Jenkins;
@@ -51,6 +49,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.springframework.security.access.AccessDeniedException;
+
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.Collections;
@@ -785,6 +785,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                 return "Webhooks";
             }
 
+            @POST
             public FormValidation doAddWebhook(
                     @QueryParameter String repo,
                     @QueryParameter String owner,
@@ -795,7 +796,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     @QueryParameter boolean isNote,
                     @QueryParameter boolean isPullRequest,
                     @AncestorInPath Job<?, ?> job) {
-
+                
+                
                 String url = Jenkins.get().getRootUrl();
                 if (url.contains("localhost") || url.contains("127.0.0.1")) {
                     return FormValidation
@@ -806,6 +808,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                         .getProperty(GiteeConnectionProperty.class);
 
                 try {
+                    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
                     GiteeClient client = giteeConnectionProp.getClient();
                     List<WebHook> hooks = client.getWebHooks(owner, repo);
                     for (WebHook hook : hooks) {
@@ -831,6 +834,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     return FormValidation.error(Messages.connection_error(e.getMessage()));
                 } catch (ProcessingException e) {
                     return FormValidation.error(Messages.connection_error(e.getCause().getMessage()));
+                } catch (AccessDeniedException e) {
+                    return FormValidation.error(Messages.connection_error(e.getMessage()));
                 }
             }
         }
