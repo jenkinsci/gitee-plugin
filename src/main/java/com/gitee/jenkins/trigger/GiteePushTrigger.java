@@ -785,6 +785,11 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                 return "Webhooks";
             }
 
+            @Override
+            public String getHelpFile() {
+                return "/plugin/gitee/help/help-add-webhooks.html";
+            }
+
             @POST
             public FormValidation doAddWebhook(
                     @QueryParameter String repo,
