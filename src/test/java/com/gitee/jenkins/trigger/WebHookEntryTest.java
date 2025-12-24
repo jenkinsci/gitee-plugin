@@ -53,6 +53,7 @@ import jenkins.model.JenkinsLocationConfiguration;
 public class WebHookEntryTest {
     private static final String API_TOKEN = "secret";
     private static final String API_TOKEN_ID = "apiTokenId";
+
     private JenkinsRule jenkins;
     private JenkinsLocationConfiguration locationConfig;
 
@@ -134,6 +135,15 @@ public class WebHookEntryTest {
     }
 
     @Test
+    void testBadAccessToken() {
+        WebhookEntry entry = new WebhookEntry("test", "test", "test",
+                true, false, false, false, false);
+        String form = failGetWebhookBadToken(entry);
+
+        assertTrue(form.contains(Messages.connection_error("HTTP 401 Unauthorized")));
+    }
+
+    @Test
     void testLocalhostNotAllowed() {
         locationConfig.setUrl("http://localhost.com");
         locationConfig.save();
@@ -148,6 +158,27 @@ public class WebHookEntryTest {
                 entry.isIssue(), entry.isNote(), entry.isPullRequest(), job);
 
         assertTrue(formValidation.getMessage().equals(Messages.localhost_error()));
+    }
+
+    private String failGetWebhookBadToken(WebhookEntry entry) {
+        HttpRequest getWebhooksRequest = request()
+                .withPath("/api/v5/repos/%s/%s/hooks".formatted(entry.getOwner(), entry.getRepo()))
+                .withHeader("PRIVATE-TOKEN", API_TOKEN)
+                .withMethod("GET");
+        
+        mockServerClient.when(getWebhooksRequest)
+                .respond(
+                        response()
+                                .withStatusCode(Response.Status.UNAUTHORIZED.getStatusCode())
+                                .withContentType(MediaType.APPLICATION_JSON)
+                                .withReasonPhrase("Access token does not exist"));
+        
+        FormValidation formValidation = descriptor.doAddWebhook(entry.getRepo(), entry.getOwner(), entry.getName(),
+                entry.isPush(), entry.isTagPush(),
+                entry.isIssue(), entry.isNote(), entry.isPullRequest(), job);
+
+        mockServerClient.verify(getWebhooksRequest);
+        return formValidation.getMessage();
     }
 
     private String doAddWebhook(WebhookEntry entry) throws JsonProcessingException {
