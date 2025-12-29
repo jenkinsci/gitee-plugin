@@ -1,0 +1,34 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form">
+    
+    <f:entry title="${%Webhook.Name}">
+      <f:textbox name="name" field="name"/>
+    </f:entry>
+    <f:entry title="${%Repo.Name}">
+      <f:textbox name="repo" field="repo"/>
+    </f:entry>
+    <f:entry title="${%Repo.Owner}">
+      <f:textbox name="owner" field="owner"/>
+    </f:entry>
+    <f:entry title="${%Webhook.Options}">
+        <f:entry title="${%Push.Events}" field="isPush">
+          <f:checkbox default="true"/>
+        </f:entry>
+        <f:entry title="${%Tag.Push.Events}" field="isTagPush">
+          <f:checkbox default="false"/>
+        </f:entry>
+        <f:entry title="${%Issues.Event}" field="isIssue">
+          <f:checkbox default="false"/>
+        </f:entry>
+        <f:entry title="${%Note.Events}" field="isNote">
+          <f:checkbox default="false"/>
+        </f:entry>
+        <f:entry title="${%Pull.Request.Events}" field="isPullRequest">
+          <f:checkbox default="false"/>
+        </f:entry>
+    </f:entry>
+
+    <f:validateButton title="${%Connect.Webhook}" progress="${%Connect.Progress}" method="addWebhook"
+        with="name,repo,owner,isPush,isTagPush,isIssue,isNote,isPullRequest"/>
+</j:jelly>

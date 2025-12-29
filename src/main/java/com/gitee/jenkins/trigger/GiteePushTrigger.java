@@ -1,10 +1,12 @@
 package com.gitee.jenkins.trigger;
 
-
 import com.gitee.jenkins.connection.GiteeConnection;
 import com.gitee.jenkins.connection.GiteeConnectionConfig;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
 import com.gitee.jenkins.gitee.hook.model.PullRequestHook;
+import com.gitee.jenkins.gitee.api.GiteeClient;
+import com.gitee.jenkins.gitee.api.model.WebHook;
+import com.gitee.jenkins.gitee.api.model.builder.generated.WebHookBuilder;
 import com.gitee.jenkins.gitee.hook.model.NoteHook;
 import com.gitee.jenkins.gitee.hook.model.PipelineHook;
 import com.gitee.jenkins.gitee.hook.model.PushHook;
@@ -21,13 +23,19 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
+import hudson.model.AbstractDescribableImpl;
 import hudson.model.AbstractProject;
+import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
+import hudson.util.FormValidation;
 import hudson.util.Secret;
 import hudson.util.SequentialExecutionQueue;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.WebApplicationException;
 import jenkins.model.Jenkins;
 import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem.SCMTriggerItems;
@@ -38,20 +46,22 @@ import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.io.ObjectStreamException;
-import java.security.SecureRandom;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
 
 import static com.gitee.jenkins.trigger.filter.BranchFilterConfig.BranchFilterConfigBuilder.branchFilterConfig;
 import static com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandlerFactory.newPullRequestHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandlerFactory.newNoteHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandlerFactory.newPipelineHookTriggerHandler;
 import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFactory.newPushHookTriggerHandler;
-
 
 /**
  * Triggers a build when we receive a Gitee WebHook.
@@ -61,20 +71,19 @@ import static com.gitee.jenkins.trigger.handler.push.PushHookTriggerHandlerFacto
  *
  */
 public class GiteePushTrigger extends Trigger<Job<?, ?>> {
-
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final Logger LOGGER = Logger.getLogger(GiteePushTrigger.class.getName());
 
     private boolean triggerOnPush = true;
     private boolean triggerOnCommitComment = false;
     private boolean triggerOnOpenPullRequest = true;
     private boolean triggerOnPipelineEvent = false;
     private boolean triggerOnAcceptedPullRequest = false;
-    private String  triggerOnUpdatePullRequest = "3";
+    private String triggerOnUpdatePullRequest = "3";
     private boolean triggerOnClosedPullRequest = false;
     private boolean triggerOnApprovedPullRequest = false;
     private boolean triggerOnTestedPullRequest = false;
     private boolean triggerOnNoteRequest = true;
-    private String  noteRegex = "";
+    private String noteRegex = "";
     private transient boolean ciSkip = true;
     private BuildInstructionFilterType buildInstructionFilterType = BuildInstructionFilterType.NONE;
     private boolean skipWorkInProgressPullRequest;
@@ -97,6 +106,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private boolean cancelPendingBuildsOnUpdate;
     private boolean cancelIncompleteBuildOnSamePullRequest;
     private boolean ignorePullRequestConflicts;
+    private List<WebhookEntry> webhooks = Collections.<WebhookEntry>emptyList();
 
     private transient BranchFilter branchFilter;
     private transient PushHookTriggerHandler pushHookTriggerHandler;
@@ -107,26 +117,29 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private transient PullRequestLabelFilter pullRequestLabelFilter;
 
     /**
-     * @deprecated use {@link #GiteePushTrigger()} with setters to configure an instance of this class.
+     * @deprecated use {@link #GiteePushTrigger()} with setters to configure an
+     *             instance of this class.
      */
     @Deprecated
     @GeneratePojoBuilder(intoPackage = "*.builder.generated", withFactoryMethod = "*")
     public GiteePushTrigger(boolean triggerOnPush,
-                            boolean triggerOnCommitComment,
-                            boolean triggerOnOpenPullRequest,
-                            String triggerOnUpdatePullRequest,
-                            boolean triggerOnAcceptedPullRequest,
-                            boolean triggerOnClosedPullRequest,
-                            boolean triggerOnNoteRequest, String noteRegex,
-                            boolean skipWorkInProgressPullRequest, boolean ciSkip,
-                            BuildInstructionFilterType buildInstructionFilterType,
-                            boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage, boolean addVoteOnPullRequest,
-                            boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
-                            String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
-                            PullRequestLabelFilterConfig pullRequestLabelFilterConfig, String secretToken, boolean triggerOnPipelineEvent,
-                            boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate,
-                            boolean cancelIncompleteBuildOnSamePullRequest,
-                            boolean ignorePullRequestConflicts) {
+            boolean triggerOnCommitComment,
+            boolean triggerOnOpenPullRequest,
+            String triggerOnUpdatePullRequest,
+            boolean triggerOnAcceptedPullRequest,
+            boolean triggerOnClosedPullRequest,
+            boolean triggerOnNoteRequest, String noteRegex,
+            boolean skipWorkInProgressPullRequest, boolean ciSkip,
+            BuildInstructionFilterType buildInstructionFilterType,
+            boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage,
+            boolean addVoteOnPullRequest,
+            boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
+            String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
+            PullRequestLabelFilterConfig pullRequestLabelFilterConfig, String secretToken,
+            boolean triggerOnPipelineEvent,
+            boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate,
+            boolean cancelIncompleteBuildOnSamePullRequest,
+            boolean ignorePullRequestConflicts) {
         this.triggerOnPush = triggerOnPush;
         this.triggerOnCommitComment = triggerOnCommitComment;
         this.triggerOnOpenPullRequest = triggerOnOpenPullRequest;
@@ -162,18 +175,20 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundConstructor
-    public GiteePushTrigger() { }
+    public GiteePushTrigger() {
+    }
 
     @Initializer(after = InitMilestone.JOB_LOADED)
     public static void migrateJobs() throws IOException {
         GiteePushTrigger.DescriptorImpl oldConfig = Trigger.all().get(GiteePushTrigger.DescriptorImpl.class);
         if (!oldConfig.jobsMigrated) {
-            GiteeConnectionConfig giteeConfig = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
+            GiteeConnectionConfig giteeConfig = (GiteeConnectionConfig) Jenkins.get()
+                    .getDescriptor(GiteeConnectionConfig.class);
             giteeConfig.getConnections().add(new GiteeConnection(
-                oldConfig.giteeHostUrl,
+                    oldConfig.giteeHostUrl,
                     oldConfig.giteeHostUrl,
                     oldConfig.GiteeApiToken,
-                "autodetect",
+                    "autodetect",
                     oldConfig.ignoreCertificateErrors,
                     10,
                     10));
@@ -227,7 +242,9 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     }
 
-    public boolean getAddNoteOnPullRequest() { return addNoteOnPullRequest; }
+    public boolean getAddNoteOnPullRequest() {
+        return addNoteOnPullRequest;
+    }
 
     public boolean getTriggerOnPush() {
         return triggerOnPush;
@@ -254,8 +271,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     public boolean isTriggerOnApprovedPullRequest() {
-		return triggerOnApprovedPullRequest;
-	}
+        return triggerOnApprovedPullRequest;
+    }
 
     public boolean isTriggerOnClosedPullRequest() {
         return triggerOnClosedPullRequest;
@@ -265,7 +282,9 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return triggerOnNoteRequest;
     }
 
-    public boolean getTriggerOnPipelineEvent() { return triggerOnPipelineEvent; }
+    public boolean getTriggerOnPipelineEvent() {
+        return triggerOnPipelineEvent;
+    }
 
     public String getNoteRegex() {
         return this.noteRegex == null ? "" : this.noteRegex;
@@ -347,6 +366,15 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return ignorePullRequestConflicts;
     }
 
+    public List<WebhookEntry> getWebhooks() {
+        return webhooks;
+    }
+
+    @DataBoundSetter
+    public void setWebhooks(List<WebhookEntry> webhooks) {
+        this.webhooks = webhooks;
+    }
+
     @DataBoundSetter
     public void setTriggerOnPush(boolean triggerOnPush) {
         this.triggerOnPush = triggerOnPush;
@@ -421,8 +449,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     public void setSkipLastCommitHasBeenBuild(boolean skipLastCommitHasBeenBuild) {
         this.skipLastCommitHasBeenBuild = skipLastCommitHasBeenBuild;
     }
-
-
 
     @DataBoundSetter
     public void setSetBuildDescription(boolean setBuildDescription) {
@@ -526,7 +552,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             initializeTriggerHandler();
         }
 
-        pushHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pushHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter,
+                pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pull request
@@ -540,7 +567,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pullRequestHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pullRequestHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pullRequestHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild,
+                branchFilter, pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a note request
@@ -554,7 +582,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (noteHookTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        noteHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        noteHookTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter,
+                pullRequestLabelFilter);
     }
 
     // executes when the Trigger receives a pipeline event
@@ -562,18 +591,21 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         if (pipelineTriggerHandler == null) {
             initializeTriggerHandler();
         }
-        pipelineTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+        pipelineTriggerHandler.handle(job, hook, buildInstructionFilterType, skipLastCommitHasBeenBuild, branchFilter,
+                pullRequestLabelFilter);
     }
 
     private void initializeTriggerHandler() {
-		pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(triggerOnOpenPullRequest,
-				triggerOnUpdatePullRequest, triggerOnAcceptedPullRequest, triggerOnClosedPullRequest,
-				skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest, cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired,
-            cancelIncompleteBuildOnSamePullRequest,
-            ignorePullRequestConflicts
-        );
-        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnCommitComment, triggerOnNoteRequest, noteRegex, ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest, ignorePullRequestConflicts);
-        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest, ciBuildForDeleteRef);
+        pullRequestHookTriggerHandler = newPullRequestHookTriggerHandler(triggerOnOpenPullRequest,
+                triggerOnUpdatePullRequest, triggerOnAcceptedPullRequest, triggerOnClosedPullRequest,
+                skipWorkInProgressPullRequest, triggerOnApprovedPullRequest, triggerOnTestedPullRequest,
+                cancelPendingBuildsOnUpdate, ciSkipFroTestNotRequired,
+                cancelIncompleteBuildOnSamePullRequest,
+                ignorePullRequestConflicts);
+        noteHookTriggerHandler = newNoteHookTriggerHandler(triggerOnCommitComment, triggerOnNoteRequest, noteRegex,
+                ciSkipFroTestNotRequired, cancelIncompleteBuildOnSamePullRequest, ignorePullRequestConflicts);
+        pushHookTriggerHandler = newPushHookTriggerHandler(triggerOnPush, skipWorkInProgressPullRequest,
+                ciBuildForDeleteRef);
         pipelineTriggerHandler = newPipelineHookTriggerHandler(triggerOnPipelineEvent);
     }
 
@@ -617,7 +649,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     @Symbol("gitee")
     public static class DescriptorImpl extends TriggerDescriptor {
 
-        private final transient SequentialExecutionQueue queue = new SequentialExecutionQueue(Jenkins.MasterComputer.threadPoolForRemoting);
+        private final transient SequentialExecutionQueue queue = new SequentialExecutionQueue(
+                Jenkins.MasterComputer.threadPoolForRemoting);
         private boolean jobsMigrated = false;
         private boolean jobsMigrated2 = false;
         private boolean jobsMigrated3 = false;
@@ -644,7 +677,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             if (project != null) {
                 try {
                     return Messages.Build_Gitee_WebHook(retrieveProjectUrl(project));
-//                    return "Build when a change is pushed to Gitee";
+                    // return "Build when a change is pushed to Gitee";
                 } catch (IllegalStateException e) {
                     // nothing to do
                 }
@@ -682,16 +715,134 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             save();
             return super.configure(req, formData);
         }
+    }
 
-        public void doGenerateSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
-            byte[] random = new byte[16];   // 16x8=128bit worth of randomness, since we use md5 digest as the API token
-            RANDOM.nextBytes(random);
-            String secretToken = Util.toHexString(random);
-            response.setHeader("script", "document.getElementById('giteeSecretToken').value='" + secretToken + "'");
+    public static final class WebhookEntry extends AbstractDescribableImpl<WebhookEntry> {
+        private String name;
+        private String owner;
+        private String repo;
+        private boolean isPush;
+        private boolean isTagPush;
+        private boolean isIssue;
+        private boolean isNote;
+        private boolean isPullRequest;
+
+        @DataBoundConstructor
+        public WebhookEntry(String name, String owner, String repo, boolean isPush, boolean isTagPush, boolean isIssue,
+                boolean isNote, boolean isPulRequest) {
+            this.name = name;
+            this.owner = owner;
+            this.repo = repo;
+            this.isPush = isPush;
+            this.isTagPush = isTagPush;
+            this.isIssue = isIssue;
+            this.isNote = isNote;
+            this.isPullRequest = isPulRequest;
         }
 
-        public void doClearSecretToken(@AncestorInPath final Job<?, ?> project, StaplerResponse2 response) {
-            response.setHeader("script", "document.getElementById('giteeSecretToken').value=''");
+        public String getOwner() {
+            return owner;
+        }
+
+        public String getRepo() {
+            return repo;
+        }
+
+        public boolean isPush() {
+            return isPush;
+        }
+
+        public boolean isTagPush() {
+            return isTagPush;
+        }
+
+        public boolean isIssue() {
+            return isIssue;
+        }
+
+        public boolean isNote() {
+            return isNote;
+        }
+
+        public boolean isPullRequest() {
+            return isPullRequest;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        @Extension
+        public static class DescriptorImpl extends Descriptor<WebhookEntry> {
+            @Override
+            public String getDisplayName() {
+
+                return "Webhooks";
+            }
+
+            @Override
+            public String getHelpFile() {
+                return "/plugin/gitee/help/help-add-webhooks.html";
+            }
+
+            @POST
+            public FormValidation doAddWebhook(
+                    @QueryParameter String repo,
+                    @QueryParameter String owner,
+                    @QueryParameter String name,
+                    @QueryParameter boolean isPush,
+                    @QueryParameter boolean isTagPush,
+                    @QueryParameter boolean isIssue,
+                    @QueryParameter boolean isNote,
+                    @QueryParameter boolean isPullRequest,
+                    @AncestorInPath Job<?, ?> job) {
+                
+                
+                String url = Jenkins.get().getRootUrl();
+                if (url.contains("localhost") || url.contains("127.0.0.1")) {
+                    return FormValidation
+                            .error(Messages.localhost_error());
+                }
+
+                GiteeConnectionProperty giteeConnectionProp = (GiteeConnectionProperty) job
+                        .getProperty(GiteeConnectionProperty.class);
+
+                try {
+                    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+                    GiteeClient client = giteeConnectionProp.getClient();
+                    List<WebHook> hooks = client.getWebHooks(owner, repo);
+                    for (WebHook hook : hooks) {
+                        if (hook.getTitle().equals(name)) {
+                            return FormValidation.ok(Messages.webhook_exist());
+                        }
+                    }
+
+                    WebHook hook = new WebHookBuilder()
+                            .withUrl(Jenkins.get().getRootUrl())
+                            .withTitle(name)
+                            .withPushEvents(isPush)
+                            .withTagPushEvents(isTagPush)
+                            .withNoteEvents(isNote)
+                            .withIssuesEvents(isIssue)
+                            .withMergeRequestsEvents(isPullRequest)
+                            .withEncryptionType(0)
+                            .build();
+
+                    WebHook hookCreated = client.createWebHook(owner, repo, hook);
+                    return FormValidation.ok(Messages.connection_success(hookCreated.getTitle()));
+                } catch (WebApplicationException e) {
+                    return FormValidation.error(Messages.connection_error(e.getMessage()));
+                } catch (ProcessingException e) {
+                    return FormValidation.error(Messages.connection_error(e.getCause().getMessage()));
+                } catch (AccessDeniedException e) {
+                    return FormValidation.error(Messages.connection_error(e.getMessage()));
+                }
+            }
         }
     }
 }
