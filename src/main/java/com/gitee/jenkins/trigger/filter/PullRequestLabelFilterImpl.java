@@ -3,6 +3,7 @@ package com.gitee.jenkins.trigger.filter;
 import com.google.common.base.Splitter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,10 @@ class PullRequestLabelFilterImpl implements PullRequestLabelFilter {
     }
 
     private Set<String> convert(String commaSeparatedString) {
+        if (commaSeparatedString == null) {
+            return Collections.emptySet();
+        }
+
         Set<String> result = new HashSet<>();
         for (String s : Splitter.on(',').omitEmptyStrings().trimResults().split(commaSeparatedString)) {
             result.add(s);

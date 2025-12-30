@@ -13,6 +13,7 @@ import com.gitee.jenkins.gitee.hook.model.PushHook;
 import com.gitee.jenkins.publisher.GiteeAcceptPullRequestPublisher;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.filter.*;
+import com.gitee.jenkins.trigger.filter.PullRequestLabelFilterConfig.PullRequestLabelFilterConfigBuilder;
 import com.gitee.jenkins.trigger.handler.pull.PullRequestHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.note.NoteHookTriggerHandler;
 import com.gitee.jenkins.trigger.handler.pipeline.PipelineHookTriggerHandler;
@@ -100,7 +101,8 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     private String includeBranchesSpec;
     private String excludeBranchesSpec;
     private String targetBranchRegex;
-    private PullRequestLabelFilterConfig pullRequestLabelFilterConfig;
+    private String includeLabelSpec;
+    private String excludeLabelSpec;
     private volatile Secret secretToken;
     private String pendingBuildName;
     private boolean cancelPendingBuildsOnUpdate;
@@ -134,8 +136,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             boolean setBuildDescription, boolean addNoteOnPullRequest, boolean addCiMessage,
             boolean addVoteOnPullRequest,
             boolean acceptPullRequestOnSuccess, BranchFilterType branchFilterType,
-            String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex,
-            PullRequestLabelFilterConfig pullRequestLabelFilterConfig, String secretToken,
+            String includeBranchesSpec, String excludeBranchesSpec, String targetBranchRegex, String secretToken,
             boolean triggerOnPipelineEvent,
             boolean triggerOnApprovedPullRequest, String pendingBuildName, boolean cancelPendingBuildsOnUpdate,
             boolean cancelIncompleteBuildOnSamePullRequest,
@@ -161,7 +162,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         this.excludeBranchesSpec = excludeBranchesSpec;
         this.targetBranchRegex = targetBranchRegex;
         this.acceptPullRequestOnSuccess = acceptPullRequestOnSuccess;
-        this.pullRequestLabelFilterConfig = pullRequestLabelFilterConfig;
         this.secretToken = Secret.fromString(secretToken);
         this.triggerOnApprovedPullRequest = triggerOnApprovedPullRequest;
         this.pendingBuildName = pendingBuildName;
@@ -342,10 +342,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         return targetBranchRegex;
     }
 
-    public PullRequestLabelFilterConfig getPullRequestLabelFilterConfig() {
-        return pullRequestLabelFilterConfig;
-    }
-
     public String getSecretToken() {
         return secretToken == null ? null : secretToken.getPlainText();
     }
@@ -368,6 +364,24 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public List<WebhookEntry> getWebhooks() {
         return webhooks;
+    }
+
+    public String getIncludeLabelSpec() {
+        return includeLabelSpec;
+    }
+
+    public String getExcludeLabelSpec() {
+        return excludeLabelSpec;
+    }
+
+    @DataBoundSetter
+    public void setIncludeLabelSpec(String includeLabelSpec) {
+        this.includeLabelSpec = includeLabelSpec;
+    }
+
+    @DataBoundSetter
+    public void setExcludeLabelSpec(String excludeLabelSpec) {
+        this.excludeLabelSpec = excludeLabelSpec;
     }
 
     @DataBoundSetter
@@ -496,11 +510,6 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     @DataBoundSetter
-    public void setPullRequestLabelFilterConfig(PullRequestLabelFilterConfig pullRequestLabelFilterConfig) {
-        this.pullRequestLabelFilterConfig = pullRequestLabelFilterConfig;
-    }
-
-    @DataBoundSetter
     public void setSecretToken(String secretToken) {
         this.secretToken = Secret.fromString(secretToken);
     }
@@ -622,7 +631,12 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
     }
 
     private void initializePullRequestLabelFilter() {
-        pullRequestLabelFilter = PullRequestLabelFilterFactory.newPullRequestLabelFilter(pullRequestLabelFilterConfig);
+        pullRequestLabelFilter = PullRequestLabelFilterFactory
+                .newPullRequestLabelFilter
+                    (new PullRequestLabelFilterConfigBuilder()
+                        .withIncludeBranchesSpec(includeLabelSpec)
+                        .withExcludeBranchesSpec(excludeLabelSpec)
+                        .build());
     }
 
     @Override
@@ -801,8 +815,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     @QueryParameter boolean isNote,
                     @QueryParameter boolean isPullRequest,
                     @AncestorInPath Job<?, ?> job) {
-                
-                
+
                 String url = Jenkins.get().getRootUrl();
                 if (url.contains("localhost") || url.contains("127.0.0.1")) {
                     return FormValidation

@@ -99,9 +99,12 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                     return;
                 }
 
-                if (pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
-                    super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
+                if (!pullRequestLabelFilter.isPullRequestAllowed(labelsNames)) {
+                    LOGGER.log(Level.INFO, "Skip because this pull request label is excluded.");
+                    return;
                 }
+
+                super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
             }
             else {
                 LOGGER.log(Level.INFO, "request is not allow, hook state=" + hook.getState() + ", action = " + hook.getAction() + ", action desc = " + hook.getActionDesc());

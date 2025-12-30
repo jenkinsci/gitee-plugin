@@ -11,10 +11,6 @@ public class PullRequestLabelFilterConfig {
     private String include;
     private String exclude;
 
-    /**
-     * @deprecated use {@link #PullRequestLabelFilterConfig()} with setters to configure an instance of this class.
-     */
-    @Deprecated
     public PullRequestLabelFilterConfig(String include, String exclude) {
         this.include = include;
         this.exclude = exclude;
@@ -39,5 +35,28 @@ public class PullRequestLabelFilterConfig {
     @DataBoundSetter
     public void setExclude(String exclude) {
         this.exclude = exclude;
+    }
+
+    public static class PullRequestLabelFilterConfigBuilder {
+        private String includeLabelSpec;
+        private String excludeLabelSpec;
+
+        public static PullRequestLabelFilterConfigBuilder pullRequestFilterConfig() {
+            return new PullRequestLabelFilterConfigBuilder();
+        }
+
+        public PullRequestLabelFilterConfigBuilder withIncludeBranchesSpec(String includeLabelSpec) {
+            this.includeLabelSpec = includeLabelSpec;
+            return this;
+        }
+
+        public PullRequestLabelFilterConfigBuilder withExcludeBranchesSpec(String excludeLabelSpec) {
+            this.excludeLabelSpec = excludeLabelSpec;
+            return this;
+        }
+
+        public PullRequestLabelFilterConfig build() {
+            return new PullRequestLabelFilterConfig(includeLabelSpec, excludeLabelSpec);
+        }
     }
 }
