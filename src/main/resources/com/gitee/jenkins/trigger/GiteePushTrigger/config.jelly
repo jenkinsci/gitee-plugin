@@ -119,6 +119,25 @@
       </f:radioBlock>
     </table>
   </f:entry>
+  <f:entry title="Filter by Label">
+    <f:radioBlock name="PullRequestFilterType" value="All" title="Allow all labels to trigger this job"
+                  inline="true"/>
+    <f:radioBlock name="PullRequestFilterType" value="NameBasedFilter" title="Filter labels by name"
+                  inline="true">
+      <f:entry title="Include">
+        <f:textbox name="includeLabelSpec" field="includeLabelSpec" autoCompleteDelimChar=","/>
+      </f:entry>
+      <f:entry title="Exclude">
+        <f:textbox name="excludeLabelSpec" field="excludeLabelSpec" autoCompleteDelimChar=","/>
+      </f:entry>
+    </f:radioBlock>
+    <!-- <f:radioBlock name="PullRequestFilterType" value="RegexBasedFilter" title="Filter labels by regex"
+                  inline="true">
+      <f:entry title="Label Regex">
+        <f:textbox name="targetBranchRegex" field="targetBranchRegex"/>
+      </f:entry>
+    </f:radioBlock> -->
+  </f:entry>
   <f:entry title="${%Secret.Token}" help="/plugin/gitee/help/help-secretToken.html">
     <st:adjunct includes="com.gitee.jenkins.trigger.GiteePushTrigger.adjunct"/>
     <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>

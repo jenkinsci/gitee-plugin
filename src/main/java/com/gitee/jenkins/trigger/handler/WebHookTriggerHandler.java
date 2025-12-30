@@ -11,6 +11,8 @@ import hudson.model.Job;
  */
 public interface WebHookTriggerHandler<H extends WebHook> {
 
-    void handle(Job<?, ?> job, H hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter);
+    void handle(Job<?, ?> job, H hook, BuildInstructionFilter buildInstructionFilter,
+            boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter,
+            PullRequestLabelFilter pullRequestLabelFilter);
 
 }
