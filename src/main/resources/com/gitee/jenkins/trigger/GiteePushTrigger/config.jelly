@@ -121,9 +121,9 @@
   </f:entry>
   <f:entry title="Filter by Label">
     <f:radioBlock name="PullRequestFilterType" value="All" title="Allow all labels to trigger this job"
-                  inline="true"/>
+                  inline="true" help="/plugin/gitee/help/help-noLabelFiltering.html" />
     <f:radioBlock name="PullRequestFilterType" value="NameBasedFilter" title="Filter labels by name"
-                  inline="true">
+                  inline="true" help="/plugin/gitee/help/help-allowedLabels.html">
       <f:entry title="Include">
         <f:textbox name="includeLabelSpec" field="includeLabelSpec" autoCompleteDelimChar=","/>
       </f:entry>
