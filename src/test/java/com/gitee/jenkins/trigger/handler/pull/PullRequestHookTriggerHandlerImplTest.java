@@ -15,6 +15,7 @@ import com.gitee.jenkins.connection.GiteeConnectionProperty;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.Label;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
+import com.gitee.jenkins.gitee.api.model.Release;
 import com.gitee.jenkins.gitee.api.model.User;
 import com.gitee.jenkins.gitee.api.model.WebHook;
 import com.gitee.jenkins.gitee.hook.model.Action;
@@ -1023,6 +1024,12 @@ class PullRequestHookTriggerHandlerImplTest {
         public List<WebHook> getWebHooks(String owner, String repo) {
                 throw new UnsupportedOperationException("Unimplemented method 'getWebHooks'");
         }
+
+        @Override
+        public Release createRelease(String owner, String repo, Release release) {
+                throw new UnsupportedOperationException("Unimplemented method 'createRelease'");
+        }
+
     }
 
     private class TestPublisher extends GiteeMessagePublisher {

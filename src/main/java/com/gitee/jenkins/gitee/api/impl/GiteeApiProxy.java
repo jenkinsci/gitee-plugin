@@ -25,4 +25,7 @@ interface GiteeApiProxy {
     User getCurrentUser();
 
     List<Label> getLabels(String owner, String repo);
+
+    Release createRelease(String owner, String repo, String tagName, String name, String body, Boolean prerelease,
+            String targetCommit);
 }
