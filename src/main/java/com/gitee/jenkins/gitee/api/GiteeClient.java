@@ -1,5 +1,6 @@
 package com.gitee.jenkins.gitee.api;
 
+import java.io.File;
 import java.util.List;
 
 import com.gitee.jenkins.gitee.api.model.*;
@@ -23,4 +24,5 @@ public interface GiteeClient {
 
     List<PullRequest> getPullRequest(PullRequest pr);
 
+    Release createRelease(String owner, String repo, Release release);
 }

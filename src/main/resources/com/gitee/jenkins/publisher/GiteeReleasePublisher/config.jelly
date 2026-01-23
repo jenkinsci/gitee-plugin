@@ -1,0 +1,22 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form">
+    <f:entry title="${%owner.name}">
+        <f:textbox name="owner" field="owner"/>
+    </f:entry>
+    <f:entry title="${%repo.name}">
+        <f:textbox name="repo" field="repo"/>
+    </f:entry>
+    <f:entry title="${%release.tag.name}">
+        <f:textbox name="tagName" field="tagName"/>
+    </f:entry>
+    <f:entry title="${%name.name}">
+        <f:textbox name="name" field="name"/>
+    </f:entry>
+    <f:entry title="${%description.name}">
+        <f:textarea name="body" field="body"/>
+    </f:entry>
+    <f:entry title="${%prerelease.name}" field="prerelease">
+        <f:checkbox/>
+    </f:entry>
+</j:jelly>

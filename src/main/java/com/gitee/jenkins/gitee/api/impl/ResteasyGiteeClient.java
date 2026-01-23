@@ -65,4 +65,10 @@ final class ResteasyGiteeClient implements GiteeClient {
     public List<WebHook> getWebHooks(String owner, String repo) {
         return api.getWebHooks(owner, repo);
     }
+
+    @Override
+    public Release createRelease(String owner, String repo, Release release) {
+        return api.createRelease(owner, repo, release.getTagName(), release.getName(), release.getBody(),
+                release.isPrerelease(), release.getTargetCommitish());
+    }
 }
