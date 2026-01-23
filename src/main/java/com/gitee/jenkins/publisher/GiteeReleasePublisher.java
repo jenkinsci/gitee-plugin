@@ -136,8 +136,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
                 .withTargetCommitish(commitHash)
                 .build();
 
-        Release releaseResponse = client.createRelease(owner, repo, release);
-
+        client.createRelease(owner, repo, release);
         return true;
     }
 
