@@ -16,13 +16,16 @@ import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Run;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.util.BuildData;
 import hudson.scm.SCM;
+import hudson.tasks.ArtifactArchiver;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import jenkins.triggers.SCMTriggerItem;
+import jenkins.util.VirtualFile;
 
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
@@ -33,8 +36,10 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     private String tagName;
     private String name;
     private String body;
-    private boolean prerelease;
     private String targetCommit;
+    private boolean prerelease;
+    private boolean artifacts;
+    // private boolean increment;
 
     @DataBoundConstructor
     public GiteeReleasePublisher() {
@@ -68,6 +73,14 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         return targetCommit;
     }
 
+    public boolean isArtifacts() {
+        return artifacts;
+    }
+
+    // public boolean isIncrement() {
+    //     return increment;
+    // }
+
     @DataBoundSetter
     public void setOwner(String owner) {
         this.owner = owner;
@@ -94,6 +107,11 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     }
 
     @DataBoundSetter
+    public void setArtifacts(boolean artifacts) {
+        this.artifacts = artifacts;
+    }
+
+    @DataBoundSetter
     public void setTargetCommit(String targetCommit) {
         this.targetCommit = targetCommit;
     }
@@ -102,6 +120,11 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     public void setBody(String body) {
         this.body = body;
     }
+
+    // @DataBoundSetter
+    // public void setIncrement(boolean increment) {
+    //     this.increment = increment;
+    // }
 
     @Override
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
@@ -135,8 +158,19 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
                 .withPrerelease(prerelease)
                 .withTargetCommitish(commitHash)
                 .build();
-
-        client.createRelease(owner, repo, release);
+        
+        Release releaseResponse = client.createRelease(owner, repo, release);
+        
+        if (artifacts) {
+            ArtifactArchiver archiver = build.getProject().getPublishersList().get(ArtifactArchiver.class);
+            for (Run<?,?>.Artifact artifact: build.getArtifacts()) {
+                VirtualFile file = build.getArtifactManager().root().child(artifact.toString());
+                if (archiver.getExcludes() == null || !archiver.getExcludes().contains(file.getName())) {
+                    client.attachFileToRelease(owner, repo, releaseResponse.getId(), artifact.getFileName(), file);
+                }
+            }
+        }
+        
         return true;
     }
 

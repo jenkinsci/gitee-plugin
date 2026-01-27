@@ -1,9 +1,10 @@
 package com.gitee.jenkins.gitee.api;
 
-import java.io.File;
 import java.util.List;
 
 import com.gitee.jenkins.gitee.api.model.*;
+
+import jenkins.util.VirtualFile;
 
 public interface GiteeClient {
     String getHostUrl();
@@ -24,5 +25,10 @@ public interface GiteeClient {
 
     List<PullRequest> getPullRequest(PullRequest pr);
 
+    Release getLatestRelease(String owner, String repo);
+
     Release createRelease(String owner, String repo, Release release);
+
+    void attachFileToRelease(String owner, String repo, Integer releaseId, String filename, VirtualFile file);
+
 }

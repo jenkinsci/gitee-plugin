@@ -28,7 +28,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.jboss.resteasy.client.jaxrs.internal.proxy.ProxyBuilderImpl;
 import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
+import org.jboss.resteasy.plugins.providers.InputStreamProvider;
 import org.jboss.resteasy.plugins.providers.JaxrsFormProvider;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataWriter;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
@@ -120,6 +122,8 @@ public class ResteasyGiteeClientBuilder extends GiteeClientBuilder {
             .register(new LoggingFilter())
             .register(new RemoveAcceptEncodingFilter())
             .register(new JaxrsFormProvider())
+            .register(MultipartFormDataWriter.class)
+            .register(InputStreamProvider.class)
             .build().target(url);
 
         // workaround for https://github.com/orgs/resteasy/discussions/4538 when using ResteasyWebTarget#proxyBuilder

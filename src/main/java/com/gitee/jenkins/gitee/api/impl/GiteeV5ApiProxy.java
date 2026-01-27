@@ -2,10 +2,12 @@ package com.gitee.jenkins.gitee.api.impl;
 
 import java.util.List;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+
 import com.gitee.jenkins.gitee.api.model.*;
+
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
 
 /**
  * @author Robin Müller
@@ -93,6 +95,12 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
     List<Label> getLabels(@PathParam("ownerPath") String ownerPath,
             @PathParam("repoPath") String repoPath);
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/repos/{ownerPath}/{repoPath}/releases/latest")
+    Release getLatestRelease(@PathParam("ownerPath") String ownerPath,
+            @PathParam("repoPath") String repoPath);
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/repos/{ownerPath}/{repoPath}/releases")
@@ -103,5 +111,14 @@ interface GiteeV5ApiProxy extends GiteeApiProxy {
             @FormParam("body") String body,
             @FormParam("prerelease") Boolean prerelease,
             @FormParam("target_commitish") String targetCommit);
+
+    @POST   
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/repos/{ownerPath}/{repoPath}/releases/{releaseId}/attach_files")
+    void attachFileToRelease(@PathParam("ownerPath") String ownerPath,
+            @PathParam("repoPath") String repoPath,
+            @PathParam("releaseId") Integer releaseId,
+            MultipartFormDataOutput file);
 
 }

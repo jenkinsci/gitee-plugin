@@ -30,6 +30,7 @@ import com.gitee.jenkins.trigger.filter.BranchFilterFactory;
 import com.gitee.jenkins.trigger.filter.BranchFilterType;
 import com.gitee.jenkins.trigger.filter.BuildInstructionFilterType;
 
+import hidden.jth.org.apache.http.UnsupportedHttpVersionException;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -37,6 +38,8 @@ import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.plugins.git.GitSCM;
 import hudson.util.OneShotEvent;
+import jenkins.util.VirtualFile;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -1028,6 +1031,17 @@ class PullRequestHookTriggerHandlerImplTest {
         @Override
         public Release createRelease(String owner, String repo, Release release) {
                 throw new UnsupportedOperationException("Unimplemented method 'createRelease'");
+        }
+
+        @Override
+        public void attachFileToRelease(String owner, String repo, Integer id, String filename,
+                        VirtualFile file) {
+                throw new UnsupportedOperationException("Unimplemented method 'attachFileToRelease'");
+        }
+
+        @Override
+        public Release getLatestRelease(String owner, String repo) {
+                throw new UnsupportedOperationException("Unimplemented method 'attachFileToRelease'");
         }
 
     }
