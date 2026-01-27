@@ -1,10 +1,16 @@
 package com.gitee.jenkins.gitee.api.impl;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import com.gitee.jenkins.gitee.api.GiteeClient;
+
 import com.gitee.jenkins.gitee.api.model.*;
 import com.google.common.base.Function;
+
+import jakarta.ws.rs.core.MediaType;
+import jenkins.util.VirtualFile;
 
 final class ResteasyGiteeClient implements GiteeClient {
     private final String hostUrl;
@@ -67,8 +73,26 @@ final class ResteasyGiteeClient implements GiteeClient {
     }
 
     @Override
+    public Release getLatestRelease(String owner, String repo) {
+        return api.getLatestRelease(owner, repo);
+    }
+
+    @Override
     public Release createRelease(String owner, String repo, Release release) {
         return api.createRelease(owner, repo, release.getTagName(), release.getName(), release.getBody(),
                 release.isPrerelease(), release.getTargetCommitish());
+    }
+
+    @Override
+    public void attachFileToRelease(String owner, String repo, Integer releaseId, String filename, VirtualFile file) {
+        MultipartFormDataOutput output = new MultipartFormDataOutput();
+        try {
+            if (file.isFile()) {
+                output.addFormData("file", file.open(), MediaType.APPLICATION_OCTET_STREAM_TYPE, filename);
+                api.attachFileToRelease(owner, repo, releaseId, output);
+            }
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

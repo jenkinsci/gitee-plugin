@@ -2,6 +2,8 @@ package com.gitee.jenkins.gitee.api.impl;
 
 import java.util.List;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+
 import com.gitee.jenkins.gitee.api.model.*;
 
 interface GiteeApiProxy {
@@ -26,6 +28,10 @@ interface GiteeApiProxy {
 
     List<Label> getLabels(String owner, String repo);
 
+    Release getLatestRelease(String owner, String Repo);
+
     Release createRelease(String owner, String repo, String tagName, String name, String body, Boolean prerelease,
             String targetCommit);
+
+    void attachFileToRelease(String owner, String repo, Integer releaseId, MultipartFormDataOutput file);
 }
