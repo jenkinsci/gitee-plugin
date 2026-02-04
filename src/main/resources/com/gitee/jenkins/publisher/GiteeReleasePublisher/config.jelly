@@ -9,6 +9,9 @@
     </f:entry>
     <f:entry title="${%release.tag.name}">
         <f:textbox name="tagName" field="tagName"/>
+        <f:entry title="Increment" field="increment">
+            <f:checkbox default="false"/>
+        </f:entry>
     </f:entry>
     <f:entry title="${%name.name}">
         <f:textbox name="name" field="name"/>

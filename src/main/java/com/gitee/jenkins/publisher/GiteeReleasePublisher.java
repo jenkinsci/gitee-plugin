@@ -27,6 +27,9 @@ import hudson.tasks.Publisher;
 import jenkins.triggers.SCMTriggerItem;
 import jenkins.util.VirtualFile;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
 public class GiteeReleasePublisher extends Notifier implements MatrixAggregatable {
@@ -39,7 +42,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     private String targetCommit;
     private boolean prerelease;
     private boolean artifacts;
-    // private boolean increment;
+    private boolean increment;
 
     @DataBoundConstructor
     public GiteeReleasePublisher() {
@@ -77,9 +80,9 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         return artifacts;
     }
 
-    // public boolean isIncrement() {
-    //     return increment;
-    // }
+    public boolean isIncrement() {
+        return increment;
+    }
 
     @DataBoundSetter
     public void setOwner(String owner) {
@@ -121,10 +124,10 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         this.body = body;
     }
 
-    // @DataBoundSetter
-    // public void setIncrement(boolean increment) {
-    //     this.increment = increment;
-    // }
+    @DataBoundSetter
+    public void setIncrement(boolean increment) {
+        this.increment = increment;
+    }
 
     @Override
     public MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
@@ -137,22 +140,84 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         };
     }
 
-    @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        GiteeClient client = getClient(build);
+    private String createIncrementVersionString(GiteeClient client) {
+        Pattern incrementRegex = Pattern.compile("(=+|0+|\\++)");
+        Matcher incrementMatcher = incrementRegex.matcher(tagName);
+
+        Release latestRelease = client.getLatestRelease(owner, repo);
+        String latestTag = latestRelease.getTagName();
+        Pattern regex = Pattern.compile("(\\d+)");
+        Matcher latestMatcher = regex.matcher(latestTag);
+        StringBuilder newVersion = new StringBuilder();
+        if (latestTag.length() == tagName.length()) {
+            while (latestMatcher.find() && incrementMatcher.find()) {
+                if (incrementMatcher.group().equals("+")) {
+                    int versionNumberString = Integer.parseInt(latestMatcher.group()) + 1;
+                    newVersion.append(versionNumberString);
+                } else if (incrementMatcher.group().equals("=")) {
+                    newVersion.append(latestMatcher.group());
+                } else if (incrementMatcher.group().equals("0")) {
+                    newVersion.append("0");
+                }
+
+                if (newVersion.length() != latestTag.length()) {
+                    newVersion.append(".");
+                }
+            }  
+        } else {
+            return "";
+        }
+
+        return newVersion.toString();
+    }
+
+    private void attachFileArtifacts(Integer releaseId, GiteeClient client, AbstractBuild<?,?> build) {
+        ArtifactArchiver archiver = build.getProject().getPublishersList().get(ArtifactArchiver.class);
+        for (Run<?,?>.Artifact artifact: build.getArtifacts()) {
+            VirtualFile file = build.getArtifactManager().root().child(artifact.toString());
+            if (archiver.getExcludes() == null || !archiver.getExcludes().contains(file.getName())) {
+                client.attachFileToRelease(owner, repo, releaseId, artifact.getFileName(), file);
+            }
+        }
+    }
+
+    private String getCommitHash(AbstractBuild<?, ?> build) {
         SCMTriggerItem item = SCMTriggerItem.SCMTriggerItems.asSCMTriggerItem(build.getProject());
         String commitHash = null;
         for (SCM scm : item.getSCMs()) {
             if (scm instanceof GitSCM gitSCM) {
+                // Get first Git repo and use it for commit
                 BuildData data = gitSCM.getBuildData(build);
                 if (data != null && data.getLastBuiltRevision() != null) {
                     commitHash = data.getLastBuiltRevision().getSha1String();
                 }
+           }
+        }
+        return commitHash;
+    }
 
+    @Override
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+        GiteeClient client = getClient(build);
+        
+        String incrementedTagName = null;
+        String commitHash = getCommitHash(build);
+        
+        if (commitHash == null) {
+            launcher.getListener().getLogger().print("Failed to find commit hash. Check that first repository is configured and is Gitee repo.");
+            return false;
+        }
+        
+        if (increment) {
+            incrementedTagName = createIncrementVersionString(client);
+            if (incrementedTagName == null) {
+                launcher.getListener().getLogger().print("Failed to increment. Check version string format.");
+                return false;
             }
         }
+
         Release release = new ReleaseBuilder()
-                .withTagName(tagName)
+                .withTagName(increment ? incrementedTagName : tagName)
                 .withName(name)
                 .withBody(body)
                 .withPrerelease(prerelease)
@@ -162,13 +227,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         Release releaseResponse = client.createRelease(owner, repo, release);
         
         if (artifacts) {
-            ArtifactArchiver archiver = build.getProject().getPublishersList().get(ArtifactArchiver.class);
-            for (Run<?,?>.Artifact artifact: build.getArtifacts()) {
-                VirtualFile file = build.getArtifactManager().root().child(artifact.toString());
-                if (archiver.getExcludes() == null || !archiver.getExcludes().contains(file.getName())) {
-                    client.attachFileToRelease(owner, repo, releaseResponse.getId(), artifact.getFileName(), file);
-                }
-            }
+            attachFileArtifacts(releaseResponse.getId(), client, build);
         }
         
         return true;
