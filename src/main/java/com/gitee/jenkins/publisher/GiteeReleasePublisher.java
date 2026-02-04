@@ -27,6 +27,7 @@ import hudson.tasks.Publisher;
 import jenkins.triggers.SCMTriggerItem;
 import jenkins.util.VirtualFile;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -148,27 +149,25 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         String latestTag = latestRelease.getTagName();
         Pattern regex = Pattern.compile("(\\d+)");
         Matcher latestMatcher = regex.matcher(latestTag);
-        StringBuilder newVersion = new StringBuilder();
-        if (latestTag.length() == tagName.length()) {
-            while (latestMatcher.find() && incrementMatcher.find()) {
-                if (incrementMatcher.group().equals("+")) {
-                    int versionNumberString = Integer.parseInt(latestMatcher.group()) + 1;
-                    newVersion.append(versionNumberString);
-                } else if (incrementMatcher.group().equals("=")) {
-                    newVersion.append(latestMatcher.group());
-                } else if (incrementMatcher.group().equals("0")) {
-                    newVersion.append("0");
-                }
+        ArrayList<String> newVersion = new ArrayList<String>();
 
-                if (newVersion.length() != latestTag.length()) {
-                    newVersion.append(".");
-                }
-            }  
-        } else {
-            return "";
+        while (latestMatcher.find() && incrementMatcher.find()) {
+            if (incrementMatcher.group().equals("+")) {
+                int versionNumberString = Integer.parseInt(latestMatcher.group()) + 1;
+                newVersion.add("" + versionNumberString);
+            } else if (incrementMatcher.group().equals("=")) {
+                newVersion.add(latestMatcher.group());
+            } else if (incrementMatcher.group().equals("0")) {
+                newVersion.add("0");
+            }
+
         }
 
-        return newVersion.toString();
+        if (!latestMatcher.find() && !incrementMatcher.find()) {
+            return String.join(".", newVersion);
+        } else {
+            return null;
+        }
     }
 
     private void attachFileArtifacts(Integer releaseId, GiteeClient client, AbstractBuild<?,?> build) {
