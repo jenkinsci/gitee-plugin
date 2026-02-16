@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form"
          xmlns:st="jelly:stapler">
-  <f:entry title="${%Enabled.Gitee.Triggers}" help="/plugin/gitee/help/help-pull-request-refspec.html">
+  <f:entry title="${%Enabled.Gitee.Triggers}" field="triggers">
     <table>
       <f:entry title="${%Push}" field="triggerOnPush">
         <f:checkbox default="true"/>
@@ -41,7 +41,7 @@
       <f:entry title="${%Comments}" field="triggerOnNoteRequest">
         <f:checkbox default="false"/>
       </f:entry>
-      <f:entry title="${%Comment.Regex}" help="/plugin/gitee/help/help-noteRegex.html">
+      <f:entry title="${%Comment.Regex}">
         <f:textbox field="noteRegex" default="Retry build"/>
       </f:entry>
     </table>
@@ -53,7 +53,8 @@
                     value="NONE"
                     title="${%Build.Instruction.Filter.None}"
                     checked="${instance.buildInstructionFilterType == null || instance.buildInstructionFilterType == 'NONE'}"
-                    inline="true"/>
+                    inline="true"
+                    help="/plugin/gitee/help/help-ci-none.html"/>
       <f:radioBlock name="buildInstructionFilterType"
                     value="CI_SKIP"
                     title="${%Build.Instruction.Filter.CiSkip}"
@@ -69,19 +70,19 @@
     </table>
   </f:entry>
 
-  <f:entry title="${%Enable.CI.SkipFroTestNotRequired}" field="ciSkipFroTestNotRequired" help="/plugin/gitee/help/help-ci-skip-test.html">
+  <f:entry title="${%Enable.CI.SkipFroTestNotRequired}" field="ciSkipFroTestNotRequired">
     <f:checkbox default="true"/>
   </f:entry>
 
-  <f:entry title="${%Enable.CI.BuildForDeleteRef}" field="ciBuildForDeleteRef" help="/plugin/gitee/help/help-ci-build-for-delete-ref.html">
+  <f:entry title="${%Enable.CI.BuildForDeleteRef}" field="ciBuildForDeleteRef">
     <f:checkbox default="true"/>
   </f:entry>
 
-  <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild" help="/plugin/gitee/help/help-skip-last-commit.html">
+  <f:entry title="${%Ignore.Last.Commit.Has.Build}" field="skipLastCommitHasBeenBuild">
     <f:checkbox default="true"/>
   </f:entry>
 
-  <f:entry title="${%Cancel.Same.Pull.Request.Incomplete.Build}" field="cancelIncompleteBuildOnSamePullRequest" help="/plugin/gitee/help/help-cancel-same-pull-request-incomplete-build.html">
+  <f:entry title="${%Cancel.Same.Pull.Request.Incomplete.Build}" field="cancelIncompleteBuildOnSamePullRequest">
     <f:checkbox default="false"/>
   </f:entry>
 
@@ -89,7 +90,7 @@
     <f:checkbox default="true"/>
   </f:entry>
 
-  <f:entry title="${%Ignore.Pull.Request.Conflicts}" field="ignorePullRequestConflicts" help="/plugin/gitee/help/help-ignore-pull-request-conflicts.html">
+  <f:entry title="${%Ignore.Pull.Request.Conflicts}" field="ignorePullRequestConflicts">
     <f:checkbox default="false"/>
   </f:entry>
 
@@ -138,9 +139,9 @@
       </f:entry>
     </f:radioBlock> -->
   </f:entry>
-  <f:entry title="${%Secret.Token}" help="/plugin/gitee/help/help-secretToken.html">
+  <f:entry title="${%Secret.Token}" field="secretToken">
     <st:adjunct includes="com.gitee.jenkins.trigger.GiteePushTrigger.adjunct"/>
-    <f:readOnlyTextbox field="secretToken" id="giteeSecretToken"/>
+    <f:readOnlyTextbox id="giteeSecretToken"/>
     <button class="jenkins-button gitee-generate jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Generate}</button>
     <button class="jenkins-button gitee-clear jenkins-!-margin-top-1">${%Clear}</button>
   </f:entry>
