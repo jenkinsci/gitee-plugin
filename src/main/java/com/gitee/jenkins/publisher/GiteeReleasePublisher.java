@@ -170,9 +170,9 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         }
     }
 
-    private void attachFileArtifacts(Integer releaseId, GiteeClient client, AbstractBuild<?,?> build) {
+    private void attachFileArtifacts(Integer releaseId, GiteeClient client, AbstractBuild<?, ?> build) {
         ArtifactArchiver archiver = build.getProject().getPublishersList().get(ArtifactArchiver.class);
-        for (Run<?,?>.Artifact artifact: build.getArtifacts()) {
+        for (Run<?, ?>.Artifact artifact : build.getArtifacts()) {
             VirtualFile file = build.getArtifactManager().root().child(artifact.toString());
             if (archiver.getExcludes() == null || !archiver.getExcludes().contains(file.getName())) {
                 client.attachFileToRelease(owner, repo, releaseId, artifact.getFileName(), file);
@@ -181,32 +181,32 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     }
 
     private String getCommitHash(AbstractBuild<?, ?> build) {
-        SCMTriggerItem item = SCMTriggerItem.SCMTriggerItems.asSCMTriggerItem(build.getProject());
         String commitHash = null;
-        for (SCM scm : item.getSCMs()) {
-            if (scm instanceof GitSCM gitSCM) {
-                // Get first Git repo and use it for commit
-                BuildData data = gitSCM.getBuildData(build);
-                if (data != null && data.getLastBuiltRevision() != null) {
-                    commitHash = data.getLastBuiltRevision().getSha1String();
-                }
-           }
-        }
+        if (build.getProject().getScm() instanceof GitSCM gitSCM) {
+            // Get first Git repo and use it for commit
+            BuildData data = gitSCM.getBuildData(build);
+            if (data != null && data.getLastBuiltRevision() != null) {
+                commitHash = data.getLastBuiltRevision().getSha1String();
+            }
+        } 
         return commitHash;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         GiteeClient client = getClient(build);
-        
+
         String incrementedTagName = null;
         String commitHash = getCommitHash(build);
-        
+
         if (commitHash == null) {
-            launcher.getListener().getLogger().print("Failed to find commit hash. Check that first repository is configured and is Gitee repo.");
+            if (launcher != null) {
+                launcher.getListener().getLogger().print(
+                        "Failed to find commit hash. Check that first repository is configured and is Gitee repo.");
+            }
             return false;
         }
-        
+
         if (increment) {
             incrementedTagName = createIncrementVersionString(client);
             if (incrementedTagName == null) {
@@ -214,7 +214,6 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
                 return false;
             }
         }
-
         Release release = new ReleaseBuilder()
                 .withTagName(increment ? incrementedTagName : tagName)
                 .withName(name)
@@ -228,7 +227,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         if (artifacts) {
             attachFileArtifacts(releaseResponse.getId(), client, build);
         }
-        
+
         return true;
     }
 
