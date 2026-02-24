@@ -4,14 +4,10 @@ import static com.gitee.jenkins.publisher.TestUtility.BUILD_NUMBER;
 import static com.gitee.jenkins.publisher.TestUtility.BUILD_URL;
 import static com.gitee.jenkins.publisher.TestUtility.GITEE_CONNECTION_V5;
 import static com.gitee.jenkins.publisher.TestUtility.OWNER_PATH;
-import static com.gitee.jenkins.publisher.TestUtility.PROJECT_ID;
-import static com.gitee.jenkins.publisher.TestUtility.PULL_REQUEST_IID;
 import static com.gitee.jenkins.publisher.TestUtility.REPO_PATH;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import static com.gitee.jenkins.publisher.TestUtility.preparePublisher;
 import static com.gitee.jenkins.publisher.TestUtility.setupGiteeConnections;
-import static com.gitee.jenkins.publisher.TestUtility.verifyMatrixAggregatable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -23,15 +19,17 @@ import org.mockserver.model.JsonBody;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
-
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.stubbing.Answer;
@@ -44,13 +42,15 @@ import hudson.EnvVars;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Descriptor;
 import hudson.model.Result;
 import hudson.model.StreamBuildListener;
 import hudson.model.TaskListener;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.Revision;
 import hudson.plugins.git.util.BuildData;
-import jakarta.ws.rs.core.MediaType;
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
 
 @WithJenkins
 @ExtendWith(MockServerExtension.class)
@@ -60,6 +60,9 @@ public class GiteeReleasePublisherTest {
 
     private static MockServerClient mockServerClient;
     private BuildListener listener;
+
+    @TempDir
+    Path tempDir;
 
     @BeforeAll
     static void setUp(JenkinsRule rule, MockServerClient client) throws Exception {
@@ -79,30 +82,79 @@ public class GiteeReleasePublisherTest {
     }
 
     @Test
-    void createReleaseSuccessTest() throws IOException {
-        AbstractBuild build = mockBuild(GITEE_CONNECTION_V5, Result.SUCCESS);
-        HttpRequest request = createRelease("v5");
-        mockServerClient.when(request).respond(response().withStatusCode(200).withContentType(org.mockserver.model.MediaType.APPLICATION_JSON).withBody("{\"test\": \"test\"}"));
-        performAndVerify(build, false, false);
-        mockServerClient.verify(request);
+    void createReleaseSuccessTest() throws IOException, InterruptedException {
+        AbstractBuild<?, ?> build = mockBuild(GITEE_CONNECTION_V5, Result.SUCCESS, false);
+        HttpRequest request = createRelease("v5", "1.0.0");
+        mockServerClient.when(request).respond(response().withStatusCode(200)
+                .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON).withBody("{\"test\": \"test\"}"));
+        performAndVerify(build, false, "1.0.0", false, request);
     }
 
-    private void performAndVerify(AbstractBuild build, boolean increment, boolean attachFiles) {
+    @Test
+    void incrementReleaseTest() throws IOException, InterruptedException {
+        AbstractBuild<?, ?> build = mockBuild(GITEE_CONNECTION_V5, Result.SUCCESS, false);
+        HttpRequest latestReleaseRequest = getLatestRelease("v5");
+        HttpRequest createReleaseRequest = createRelease("v5", "1.1.0");
+
+        JsonBody jsonLatestRelease = new JsonBody("{\"tag_name\": \"1.0.0\"}");
+        JsonBody jsonCreateRelease = new JsonBody("{\"test\": \"test\"}");
+        mockServerClient.when(latestReleaseRequest).respond(
+                response()
+                        .withStatusCode(200)
+                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+                        .withBody(jsonLatestRelease));
+
+        mockServerClient.when(createReleaseRequest).respond(
+                response()
+                        .withStatusCode(200)
+                        .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+                        .withBody(jsonCreateRelease));
+
+        performAndVerify(build, true, "=.+.0", false, latestReleaseRequest);
+    }
+
+    @Disabled
+    @Test
+    void attachReleaseFileTest() throws IOException, InterruptedException {
+        AbstractBuild build = mockBuild(GITEE_CONNECTION_V5, Result.SUCCESS, true);
+        HttpRequest createReleaseRequest = createRelease("v5", "1.0.0");
+        HttpRequest attachFileRequest = attachFile("v5");
+
+        mockServerClient.when(createReleaseRequest).respond(response().withStatusCode(200)
+                .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON).withBody("{\"test\": \"test\"}"));
+
+        performAndVerify(build, false, "1.0.0", true, createReleaseRequest, attachFileRequest);
+
+    }
+
+    private void performAndVerify(
+            AbstractBuild<?, ?> build,
+            boolean increment,
+            String tagName,
+            boolean attachFiles,
+            HttpRequest... requests) {
         GiteeReleasePublisher publisher = new GiteeReleasePublisher();
         publisher.setOwner(OWNER_PATH);
         publisher.setRepo(REPO_PATH);
-        publisher.setTagName("1.0.0");
+        publisher.setTagName(tagName);
         publisher.setName("test");
-        publisher.setIncrement(false);
-        publisher.setArtifacts(false);
+        publisher.setIncrement(increment);
+        publisher.setArtifacts(attachFiles);
 
         publisher.perform(build, null, listener);
 
+        if (requests.length > 0) {
+            mockServerClient.verify(requests);
+        } else {
+            mockServerClient.verifyZeroInteractions();
+        }
     }
 
     @SuppressWarnings("rawtypes")
-    private AbstractBuild mockBuild(String giteeConnection, Result result, String... remoteUrls) throws IOException {
-        AbstractBuild build = mock(AbstractBuild.class);
+    private AbstractBuild mockBuild(String giteeConnection, Result result, boolean isArchiver, String... remoteUrls)
+            throws IOException, InterruptedException {
+        AbstractBuild<?, ?> build = mock(AbstractBuild.class);
+        DescribableList<Publisher, Descriptor<Publisher>> describableList = mock(DescribableList.class);
         BuildData buildData = mock(BuildData.class);
         ObjectId objectId = new ObjectId(0, 0, 0, 0, 0);
         when(buildData.getRemoteUrls()).thenReturn(new HashSet<>(Arrays.asList(remoteUrls)));
@@ -133,14 +185,30 @@ public class GiteeReleasePublisherTest {
         return build;
     }
 
-    private HttpRequest createRelease(String apiLevel) {
-        // JsonBody json = new JsonBody("tag_name=1.0.0&name=test&prerelease=false&target_commitish=0000000000000000000000000000000000000000");
-
+    private HttpRequest createRelease(String apiLevel, String tagName) {
         return request()
                 .withPath(String.format("/gitee/api/%s/repos/%s/%s/releases", apiLevel, OWNER_PATH, REPO_PATH))
                 .withMethod("POST")
                 .withHeader("PRIVATE-TOKEN", "secret")
-                .withBody("tag_name=1.0.0&name=test&prerelease=false&target_commitish=0000000000000000000000000000000000000000");
-                
+                .withBody(String.format(
+                        "tag_name=%s&name=test&prerelease=false&target_commitish=0000000000000000000000000000000000000000",
+                        tagName));
+
+    }
+
+    private HttpRequest getLatestRelease(String apiLevel) {
+        return request()
+                .withPath(String.format("/gitee/api/%s/repos/%s/%s/releases/latest", apiLevel, OWNER_PATH, REPO_PATH))
+                .withMethod("GET")
+                .withHeader("PRIVATE-TOKEN", "secret");
+    }
+
+    private HttpRequest attachFile(String apiLevel) {
+        return request()
+                .withPath(String.format("/gitee/api/%s/repos/%s/%s/releases/attach_files", apiLevel, OWNER_PATH,
+                        REPO_PATH))
+                .withMethod("POST")
+                .withHeader("PRIVATE-TOKEN", "secret")
+                .withBody("");
     }
 }
