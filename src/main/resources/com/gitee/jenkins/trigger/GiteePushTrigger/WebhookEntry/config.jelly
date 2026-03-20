@@ -5,11 +5,8 @@
     <f:entry title="${%Webhook.Name}">
       <f:textbox name="name" field="name"/>
     </f:entry>
-    <f:entry title="${%Repo.Name}">
-      <f:textbox name="repo" field="repo"/>
-    </f:entry>
-    <f:entry title="${%Repo.Owner}">
-      <f:textbox name="owner" field="owner"/>
+    <f:entry title="Repo/Owner" field="giteeApiRepo">
+      <f:select/>
     </f:entry>
     <f:entry title="${%Webhook.Options}">
         <f:entry title="${%Push.Events}" field="isPush">
