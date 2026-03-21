@@ -3,7 +3,6 @@ package com.gitee.jenkins.publisher;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,8 +11,9 @@ import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import com.gitee.jenkins.connection.ApiDesciptor;
+import com.gitee.jenkins.connection.GiteeApiRepo;
 import com.gitee.jenkins.gitee.api.GiteeClient;
-import com.gitee.jenkins.gitee.api.model.Label;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.api.model.builder.generated.PullRequestBuilder;
 import com.gitee.jenkins.util.LoggerUtil;
@@ -39,6 +39,7 @@ import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixAggregatable {
     private static final Logger LOGGER = Logger.getLogger(GiteeCreatePullRequestPublisher.class.getName());
 
+    private GiteeApiRepo giteeApiRepo;
     private String repo;
     private String owner;
     private String title;
@@ -104,12 +105,10 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         return isSquashMerge;
     }
 
-    @DataBoundSetter
     public void setRepo(String repo) {
         this.repo = repo;
     }
 
-    @DataBoundSetter
     public void setOwner(String owner) {
         this.owner = owner;
     }
@@ -157,6 +156,14 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     @DataBoundSetter
     public void setIsSquashMerge(boolean isSquashMerge) {
         this.isSquashMerge = isSquashMerge;
+    }
+
+    @DataBoundSetter
+    public void setGiteeApiRepo(String giteeApiRepo) {
+        this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
+        
+        setOwner(this.giteeApiRepo.getOwner());
+        setRepo(this.giteeApiRepo.getRepo());
     }
 
     @Override
@@ -224,7 +231,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
     }
 
     @Extension
-    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ApiDesciptor {
 
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {

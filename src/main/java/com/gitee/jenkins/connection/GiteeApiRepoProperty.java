@@ -44,6 +44,9 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         this.giteeApiRepo = giteeApiRepo;
     }
 
+    public ListBoxModel getOptions() {
+        return options;
+    }
 
     @Extension
     @Symbol("giteeApiRepo")
