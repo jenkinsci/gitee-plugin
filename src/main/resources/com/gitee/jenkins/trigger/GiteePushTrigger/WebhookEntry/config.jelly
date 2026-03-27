@@ -6,7 +6,7 @@
       <f:textbox name="name" field="name"/>
     </f:entry>
     <f:entry title="Repo/Owner" field="giteeApiRepo">
-      <f:select/>
+      <f:select clazz="selectElement"/>
     </f:entry>
     <f:entry title="${%Webhook.Options}">
         <f:entry title="${%Push.Events}" field="isPush">

@@ -50,7 +50,7 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
 
     @Extension
     @Symbol("giteeApiRepo")
-    public static class DescriptorImpl extends JobPropertyDescriptor {
+    public static class DescriptorImpl extends JobPropertyDescriptor implements ApiDesciptor {
 
         private ListBoxModel descriptorOptions;
 

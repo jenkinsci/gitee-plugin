@@ -8,7 +8,9 @@ Behaviour.specify("BUTTON.gitee-add", "gitee-add", 0, function(e) {
         newOption.value = text;
         newOption.innerText = text;
 
-        document.getElementById("selectElement").appendChild(newOption);
+        for (let elem of document.getElementsByClassName("selectElement")) {
+            elem.appendChild(newOption);
+        }
         property.addRepoOwner(repo, owner);
         evt.preventDefault();
     };
