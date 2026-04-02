@@ -55,6 +55,8 @@
     <jenkins.baseline>2.528</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <hpi.bundledArtifacts>angus-mail,apache-mime4j-core,apache-mime4j-dom,apache-mime4j-storage,asyncutil,codemodel,commons-codec,commons-io,istack-commons-runtime,istack-commons-tools,jackson-jakarta-rs-base,jackson-jakarta-rs-json-provider,jakarta.annotation-api,jakarta.mail-api,jakarta.validation-api,jakarta.ws.rs-api,jandex,jaxb-core,jaxb-jxc,jaxb-runtime,jaxb-xjc,jboss-logging,reactive-streams,relaxng-datatype,resteasy-client,resteasy-client-api,resteasy-core,resteasy-core-spi,resteasy-jaxb-provider,resteasy-multipart-provider,resteasy-tracing-api,rngom,txw2,xsom</hpi.bundledArtifacts>
+    <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <mockserver.version>5.15.0</mockserver.version>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
   </properties>
