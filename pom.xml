@@ -52,9 +52,11 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.504</jenkins.baseline>
+    <jenkins.baseline>2.528</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <hpi.bundledArtifacts>angus-mail,apache-mime4j-core,apache-mime4j-dom,apache-mime4j-storage,asyncutil,codemodel,commons-codec,commons-io,istack-commons-runtime,istack-commons-tools,jackson-jakarta-rs-base,jackson-jakarta-rs-json-provider,jakarta.annotation-api,jakarta.mail-api,jakarta.validation-api,jakarta.ws.rs-api,jandex,jaxb-core,jaxb-jxc,jaxb-runtime,jaxb-xjc,jboss-logging,reactive-streams,relaxng-datatype,resteasy-client,resteasy-client-api,resteasy-core,resteasy-core-spi,resteasy-jaxb-provider,resteasy-multipart-provider,resteasy-tracing-api,rngom,txw2,xsom</hpi.bundledArtifacts>
+    <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <mockserver.version>5.15.0</mockserver.version>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
   </properties>
@@ -65,7 +67,7 @@
         <!-- Pick up common dependencies for the selected LTS line: https://github.com/jenkinsci/bom#usage -->
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>5804.v80587a_38d937</version>
+        <version>6210.v69ea_fd8a_f010</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -154,7 +156,7 @@
       <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
       <artifactId>jackson-jakarta-rs-json-provider</artifactId>
       <!-- Needs to match the jackson version from plugin BOM -->
-      <version>2.20.1</version>
+      <version>2.21.1</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
