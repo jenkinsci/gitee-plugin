@@ -16,7 +16,6 @@ import net.sf.json.JSONObject;
 
 public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
 
-    private String giteeApiRepo;
     private ListBoxModel options;
     
     public GiteeApiRepoProperty() { }
@@ -29,19 +28,8 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
     }
 
     @DataBoundConstructor
-    public GiteeApiRepoProperty(String giteeApiRepo, ListBoxModel options) {
-        this.giteeApiRepo = giteeApiRepo;
+    public GiteeApiRepoProperty(ListBoxModel options) {
         this.options = options;
-    }
-
-    public String getGiteeApiRepo() {
-        return giteeApiRepo;
-    }
-
-
-    @DataBoundSetter
-    public void setGiteeApiRepo(String giteeApiRepo) {
-        this.giteeApiRepo = giteeApiRepo;
     }
 
     public ListBoxModel getOptions() {
@@ -64,6 +52,10 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         @Override
         public String getDisplayName() {
             return "Gitee Repo for API";
+        }
+
+        public ListBoxModel getDescriptorOptions() {
+            return descriptorOptions;
         }
 
         @Override
@@ -97,8 +89,26 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
             if (descriptorOptions == null) {
                 load();
             }
-            return descriptorOptions;
+            return descriptorOptions;    
         }
+
+        @JavaScriptMethod
+        public boolean removeAllRepoOwners() {
+            if (descriptorOptions.size() > 0) {
+                descriptorOptions.clear();
+                save();
+                return true;
+            }
+            return false;
+        }
+
+        @JavaScriptMethod
+        public boolean removeRepoOwner(String repoOwner) {
+            boolean isRemoved = descriptorOptions.removeIf(elem -> elem.value.equals(repoOwner));
+            save();
+            return isRemoved;
+        }
+
 
         @JavaScriptMethod
         public void addRepoOwner(String repo, String owner) {

@@ -44,6 +44,8 @@ import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem.SCMTriggerItems;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import net.sf.json.JSONObject;
+
+import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.AncestorInPath;
@@ -801,6 +803,19 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             public String getDisplayName() {
 
                 return "Webhooks";
+            }
+
+            public FormValidation doCheckGiteeApiRepo(@QueryParameter String value) {
+                if (StringUtils.isEmptyOrNull(value)) {
+                    return FormValidation.error("Gitee API Owner/Repo cannot be empty.");
+                } else {
+                    return FormValidation.ok();
+                }
+            }
+
+            @Override
+            public boolean configure(StaplerRequest2 req, JSONObject obj) {
+                return !StringUtils.isEmptyOrNull(obj.getString("giteeApiRepo"));
             }
 
             @POST
