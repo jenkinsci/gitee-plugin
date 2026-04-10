@@ -3,16 +3,18 @@ Behaviour.specify("BUTTON.gitee-add", "gitee-add", 0, function(e) {
         let repo = document.getElementById("textBoxAreaRepo").value;
         let owner = document.getElementById("textBoxAreaOwner").value;
 
-        let newOption = document.createElement("option");
-        let text = repo + " " + owner;
-        newOption.value = text;
-        newOption.innerText = text;
+        if (repo && owner) {
+            let newOption = document.createElement("option");
+            let text = repo + " " + owner;
+            newOption.value = text;
+            newOption.innerText = text;
 
-        for (let elem of document.getElementsByClassName("selectElement")) {
-            elem.appendChild(newOption.cloneNode(true));
+            for (let elem of document.getElementsByClassName("selectElement")) {
+                elem.appendChild(newOption.cloneNode(true));
+            }
+            property.addRepoOwner(repo, owner);
+            evt.preventDefault();
         }
-        property.addRepoOwner(repo, owner);
-        evt.preventDefault();
     };
 });
 
