@@ -6,9 +6,9 @@
   <st:bind var="property" value="${descriptor}"/>
   <st:adjunct includes="com.gitee.jenkins.connection.GiteeApiRepoProperty.adjunct"/>
   
-  <f:entry title="Add Gitee API object for project">
-    <f:textbox placeholder="Repo Name" id="textBoxAreaRepo"/>
-    <f:textbox placeholder="Owner" id="textBoxAreaOwner"/>
+  <f:entry title="Add Gitee API object for project" field="repoOwner">
+    <f:textbox placeholder="Repo Name" id="textBoxAreaRepo" name="repo"/>
+    <f:textbox placeholder="Owner" id="textBoxAreaOwner" name="owner"/>
     <button class="jenkins-button gitee-add jenkins-!-margin-right-1 jenkins-!-margin-top-1">Generate</button>
   </f:entry>
   <f:entry title="View Gitee API Owner/Repo options" field="giteeApiRepo">

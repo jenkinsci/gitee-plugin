@@ -140,7 +140,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     public void setGiteeApiRepo(String giteeApiRepo) {
         this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
         setOwner(this.giteeApiRepo.getOwner());
-        setRepo(this.giteeApiRepo.getRepo());
+        setRepo(this.giteeApiRepo.getRepoName());
     }
 
     @Override

@@ -163,7 +163,7 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
         this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
         
         setOwner(this.giteeApiRepo.getOwner());
-        setRepo(this.giteeApiRepo.getRepo());
+        setRepo(this.giteeApiRepo.getRepoName());
     }
 
     @Override

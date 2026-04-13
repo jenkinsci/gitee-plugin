@@ -13,8 +13,8 @@ Behaviour.specify("BUTTON.gitee-add", "gitee-add", 0, function(e) {
                 elem.appendChild(newOption.cloneNode(true));
             }
             property.addRepoOwner(repo, owner);
-            evt.preventDefault();
         }
+        evt.preventDefault();
     };
 });
 

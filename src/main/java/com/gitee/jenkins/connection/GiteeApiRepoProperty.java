@@ -1,8 +1,10 @@
 package com.gitee.jenkins.connection;
 
+import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
@@ -11,13 +13,15 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import net.sf.json.JSONObject;
 
 public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
 
     private ListBoxModel options;
-    
+    private String repoOwner;
+
     public GiteeApiRepoProperty() { }
 
     @Override
@@ -29,11 +33,24 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
 
     @DataBoundConstructor
     public GiteeApiRepoProperty(ListBoxModel options) {
-        this.options = options;
+        if (options == null) {
+            this.options = new ListBoxModel();
+        } else {
+            this.options = options;
+        }
     }
 
     public ListBoxModel getOptions() {
         return options;
+    }
+
+    public String getRepoOwner() {
+        return repoOwner;
+    }
+
+    @DataBoundSetter
+    public void setRepoOwner(String repoOwner) {
+        this.repoOwner = repoOwner;
     }
 
     @Extension
@@ -41,8 +58,6 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
     public static class DescriptorImpl extends JobPropertyDescriptor implements ApiDesciptor {
 
         private ListBoxModel descriptorOptions;
-
-
 
         public DescriptorImpl() {
             
@@ -66,7 +81,6 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         @Override
         public JobProperty<?> newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
             GiteeApiRepoProperty prop = req.bindJSON(GiteeApiRepoProperty.class, formData);
-
             if (descriptorOptions != null) {
                 prop.options = descriptorOptions;
             }
@@ -75,7 +89,11 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         }
 
         private void setDescriptorOptions(ListBoxModel options) {
-            this.descriptorOptions = options;
+            if (options == null) {
+                this.descriptorOptions = new ListBoxModel();
+            } else {
+                this.descriptorOptions = options;
+            }   
         }
 
         private void addOption(String option) {
@@ -92,11 +110,32 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
             return descriptorOptions;    
         }
 
+        public FormValidation doCheckRepoOwner(@QueryParameter String value, @QueryParameter String repo, @QueryParameter String owner) {
+            if (StringUtils.isEmptyOrNull(repo) && StringUtils.isEmptyOrNull(owner)) {
+                return FormValidation.ok("Fill in both repo and owner string for API use");
+            }
+            if (StringUtils.isEmptyOrNull(repo)) {
+                return FormValidation.error("Fill in repo string");
+            }
+            if (StringUtils.isEmptyOrNull(owner)) {
+                return FormValidation.error("Fill in owner string");
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckOwner(@QueryParameter String value) {
+            if (StringUtils.isEmptyOrNull(value)) {
+                return FormValidation.error("Fill in owner string");
+            } else {
+                return FormValidation.ok();
+            }
+        }
+
         @JavaScriptMethod
         public boolean removeAllRepoOwners() {
             if (descriptorOptions.size() > 0) {
                 descriptorOptions.clear();
-                save();
                 return true;
             }
             return false;
@@ -105,7 +144,6 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         @JavaScriptMethod
         public boolean removeRepoOwner(String repoOwner) {
             boolean isRemoved = descriptorOptions.removeIf(elem -> elem.value.equals(repoOwner));
-            save();
             return isRemoved;
         }
 
