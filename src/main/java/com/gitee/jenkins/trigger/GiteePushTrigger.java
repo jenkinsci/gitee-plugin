@@ -751,7 +751,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
             this.name = name;
             this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
             owner = this.giteeApiRepo.getOwner();
-            repo = this.giteeApiRepo.getRepo();
+            repo = this.giteeApiRepo.getRepoName();
             
             this.isPush = isPush;
             this.isTagPush = isTagPush;
