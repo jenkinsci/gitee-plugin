@@ -1,5 +1,8 @@
 package com.gitee.jenkins.connection;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -111,9 +114,21 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         }
 
         public FormValidation doCheckRepoOwner(@QueryParameter String value, @QueryParameter String repo, @QueryParameter String owner) {
-            if (StringUtils.isEmptyOrNull(repo) && StringUtils.isEmptyOrNull(owner)) {
-                return FormValidation.ok("Fill in both repo and owner string for API use");
+            Pattern pattern = Pattern.compile("[\\\\/\s]+");
+            Matcher repoMatcher = pattern.matcher(repo);
+            Matcher ownerMatcher = pattern.matcher(owner);
+
+            while (repoMatcher.find()) {
+                return FormValidation.error("Not allow character in repo: \\ / or whitespace");
             }
+            while (ownerMatcher.find()) {
+                return FormValidation.error("Not allow character in owner: \\ / or whitespace");
+            }
+            
+            if (StringUtils.isEmptyOrNull(repo) && StringUtils.isEmptyOrNull(owner)) {
+                return FormValidation.ok("Fill in both repo and owner string for API use. Touch generate button to add.");
+            }
+            
             if (StringUtils.isEmptyOrNull(repo)) {
                 return FormValidation.error("Fill in repo string");
             }
