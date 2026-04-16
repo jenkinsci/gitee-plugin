@@ -2,8 +2,9 @@ Behaviour.specify("BUTTON.gitee-add", "gitee-add", 0, function(e) {
     e.onclick = function (evt) {
         let repo = document.getElementById("textBoxAreaRepo").value;
         let owner = document.getElementById("textBoxAreaOwner").value;
-
-        if (repo && owner) {
+        let regex = /[\\\\\/\s]+/;
+        
+        if (repo && owner && !regex.test(repo) && !regex.test(owner)) {
             let newOption = document.createElement("option");
             let text = repo + " " + owner;
             newOption.value = text;
