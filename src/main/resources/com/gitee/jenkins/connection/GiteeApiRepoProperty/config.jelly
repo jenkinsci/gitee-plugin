@@ -6,14 +6,14 @@
   <st:bind var="property" value="${descriptor}"/>
   <st:adjunct includes="com.gitee.jenkins.connection.GiteeApiRepoProperty.adjunct"/>
   
-  <f:entry title="Add Gitee API object for project" field="repoOwner">
-    <f:textbox placeholder="Repo Name" id="textBoxAreaRepo" name="repo"/>
-    <f:textbox placeholder="Owner" id="textBoxAreaOwner" name="owner"/>
-    <button class="jenkins-button gitee-add jenkins-!-margin-right-1 jenkins-!-margin-top-1">Generate</button>
+  <f:entry title="${%Api.Object.Title}" field="repoOwner">
+    <f:textbox placeholder="${%Input.Placeholder.Repo}" id="textBoxAreaRepo" name="repo"/>
+    <f:textbox placeholder="${%Input.Placeholder.Owner}" id="textBoxAreaOwner" name="owner"/>
+    <button class="jenkins-button gitee-add jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Generate}</button>
   </f:entry>
-  <f:entry title="View Gitee API Owner/Repo options" field="giteeApiRepo">
+  <f:entry title="${%Select.Api.Objects}" field="giteeApiRepo">
     <f:select id="selected" clazz="selectElement"/>
-    <button class="jenkins-button gitee-remove jenkins-!-margin-right-1 jenkins-!-margin-top-1">Remove Owner/Repo</button>
-    <button class="jenkins-button gitee-remove-all jenkins-!-margin-right-1 jenkins-!-margin-top-1">Clear all Owner/Repo</button>
+    <button class="jenkins-button gitee-remove jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Remove.Api.Object}</button>
+    <button class="jenkins-button gitee-remove-all jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Remove.All.Api.Objects}</button>
   </f:entry>
 </j:jelly>

@@ -21,7 +21,6 @@ import hudson.util.ListBoxModel;
 import net.sf.json.JSONObject;
 
 public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
-
     private ListBoxModel options;
     private String repoOwner;
 
@@ -119,32 +118,24 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
             Matcher ownerMatcher = pattern.matcher(owner);
 
             while (repoMatcher.find()) {
-                return FormValidation.error("Not allow character in repo: \\ / or whitespace");
+                return FormValidation.error(Messages.ban_characters("repo"));
             }
             while (ownerMatcher.find()) {
-                return FormValidation.error("Not allow character in owner: \\ / or whitespace");
+                return FormValidation.error(Messages.ban_characters("owner"));
             }
             
             if (StringUtils.isEmptyOrNull(repo) && StringUtils.isEmptyOrNull(owner)) {
-                return FormValidation.ok("Fill in both repo and owner string for API use. Touch generate button to add.");
+                return FormValidation.ok(Messages.both_empty_inputs());
             }
             
             if (StringUtils.isEmptyOrNull(repo)) {
-                return FormValidation.error("Fill in repo string");
+                return FormValidation.error(Messages.empty_input("repo"));
             }
             if (StringUtils.isEmptyOrNull(owner)) {
-                return FormValidation.error("Fill in owner string");
+                return FormValidation.error(Messages.empty_input("owner"));
             }
 
             return FormValidation.ok();
-        }
-
-        public FormValidation doCheckOwner(@QueryParameter String value) {
-            if (StringUtils.isEmptyOrNull(value)) {
-                return FormValidation.error("Fill in owner string");
-            } else {
-                return FormValidation.ok();
-            }
         }
 
         @JavaScriptMethod
