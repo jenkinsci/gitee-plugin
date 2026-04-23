@@ -6,7 +6,7 @@
   <st:bind var="property" value="${descriptor}"/>
   <st:adjunct includes="com.gitee.jenkins.connection.GiteeApiRepoProperty.adjunct"/>
   
-  <f:entry title="${%Api.Object.Title}" field="repoOwner">
+  <f:entry title="${%Api.Object.Title}" field="repoOwner" help="/plugin/gitee/help/help-apiRepo.html">
     <f:textbox placeholder="${%Input.Placeholder.Repo}" id="textBoxAreaRepo" name="repo"/>
     <f:textbox placeholder="${%Input.Placeholder.Owner}" id="textBoxAreaOwner" name="owner"/>
     <button class="jenkins-button gitee-add jenkins-!-margin-right-1 jenkins-!-margin-top-1">${%Generate}</button>
