@@ -1,5 +1,7 @@
 package com.gitee.jenkins.trigger;
 
+import com.gitee.jenkins.connection.ApiDesciptor;
+import com.gitee.jenkins.connection.GiteeApiRepo;
 import com.gitee.jenkins.connection.GiteeConnection;
 import com.gitee.jenkins.connection.GiteeConnectionConfig;
 import com.gitee.jenkins.connection.GiteeConnectionProperty;
@@ -42,6 +44,8 @@ import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem.SCMTriggerItems;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import net.sf.json.JSONObject;
+
+import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.AncestorInPath;
@@ -632,8 +636,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     private void initializePullRequestLabelFilter() {
         pullRequestLabelFilter = PullRequestLabelFilterFactory
-                .newPullRequestLabelFilter
-                    (new PullRequestLabelFilterConfigBuilder()
+                .newPullRequestLabelFilter(new PullRequestLabelFilterConfigBuilder()
                         .withIncludeBranchesSpec(includeLabelSpec)
                         .withExcludeBranchesSpec(excludeLabelSpec)
                         .build());
@@ -733,6 +736,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
     public static final class WebhookEntry extends AbstractDescribableImpl<WebhookEntry> {
         private String name;
+        private GiteeApiRepo giteeApiRepo;
         private String owner;
         private String repo;
         private boolean isPush;
@@ -742,16 +746,18 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         private boolean isPullRequest;
 
         @DataBoundConstructor
-        public WebhookEntry(String name, String owner, String repo, boolean isPush, boolean isTagPush, boolean isIssue,
-                boolean isNote, boolean isPulRequest) {
+        public WebhookEntry(String name, String giteeApiRepo, boolean isPush, boolean isTagPush, boolean isIssue,
+                boolean isNote, boolean isPullRequest) {
             this.name = name;
-            this.owner = owner;
-            this.repo = repo;
+            this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
+            owner = this.giteeApiRepo.getOwner();
+            repo = this.giteeApiRepo.getRepoName();
+            
             this.isPush = isPush;
             this.isTagPush = isTagPush;
             this.isIssue = isIssue;
             this.isNote = isNote;
-            this.isPullRequest = isPulRequest;
+            this.isPullRequest = isPullRequest;
         }
 
         public String getOwner() {
@@ -792,11 +798,24 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
         }
 
         @Extension
-        public static class DescriptorImpl extends Descriptor<WebhookEntry> {
+        public static class DescriptorImpl extends Descriptor<WebhookEntry> implements ApiDesciptor {
             @Override
             public String getDisplayName() {
 
                 return "Webhooks";
+            }
+
+            public FormValidation doCheckGiteeApiRepo(@QueryParameter String value) {
+                if (StringUtils.isEmptyOrNull(value)) {
+                    return FormValidation.error("Gitee API Owner/Repo cannot be empty.");
+                } else {
+                    return FormValidation.ok();
+                }
+            }
+
+            @Override
+            public boolean configure(StaplerRequest2 req, JSONObject obj) {
+                return !StringUtils.isEmptyOrNull(obj.getString("giteeApiRepo"));
             }
 
             @POST
