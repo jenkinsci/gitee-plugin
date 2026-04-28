@@ -18,6 +18,7 @@ import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
 import net.sf.json.JSONObject;
 
 public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
@@ -101,6 +102,12 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         private void addOption(String option) {
             if (descriptorOptions == null) {
                 descriptorOptions = new ListBoxModel(); 
+            }
+            Option newOption = new Option(option, option);
+            for (Option testOption : descriptorOptions) {
+                if (testOption.name.equals(newOption.name)) {
+                    return; // duplicate values
+                }
             }
             descriptorOptions.add(option, option);
         }
