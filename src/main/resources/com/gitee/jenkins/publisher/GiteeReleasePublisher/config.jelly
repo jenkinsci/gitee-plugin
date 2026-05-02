@@ -1,11 +1,8 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:f="/lib/form">
-    <f:entry title="${%owner.name}">
-        <f:textbox name="owner" field="owner"/>
-    </f:entry>
-    <f:entry title="${%repo.name}">
-        <f:textbox name="repo" field="repo"/>
+    <f:entry title="${%Repo.Owner}" field="giteeApiRepo">
+      <f:select clazz="selectElement"/>
     </f:entry>
     <f:entry title="${%release.tag.name}">
         <f:textbox name="tagName" field="tagName"/>

@@ -117,7 +117,7 @@ public class WebHookEntryTest {
 
     @Test
     void testAddWebhookExisting() throws IOException {
-        WebhookEntry entry = new WebhookEntry("test", "test", "test", true, false,
+        WebhookEntry entry = new WebhookEntry("test", "test test", true, false,
                 false, false, false);
 
         String form = doGetWebhook(entry);
@@ -127,8 +127,7 @@ public class WebHookEntryTest {
 
     @Test
     void testAddNewWebhook() throws IOException {
-        WebhookEntry entry = new WebhookEntry("test", "test", "test",
-                true, false, false, false, false);
+        WebhookEntry entry = new WebhookEntry("test", "test test", true, false, false, false, false);
         String form = doAddWebhook(entry);
 
         assertTrue(form.contains(Messages.connection_success(entry.getName())));
@@ -136,8 +135,7 @@ public class WebHookEntryTest {
 
     @Test
     void testBadAccessToken() {
-        WebhookEntry entry = new WebhookEntry("test", "test", "test",
-                true, false, false, false, false);
+        WebhookEntry entry = new WebhookEntry("test", "test test", true, false, false, false, false);
         String form = failGetWebhookBadToken(entry);
 
         assertTrue(form.contains(Messages.connection_error("HTTP 401 Unauthorized")));
@@ -148,8 +146,7 @@ public class WebHookEntryTest {
         locationConfig.setUrl("http://localhost.com");
         locationConfig.save();
 
-        WebhookEntry entry = new WebhookEntry("test", "test", "test",
-                true, false, false, false, false);
+        WebhookEntry entry = new WebhookEntry("test", "test test", true, false, false, false, false);
         WebhookEntry.DescriptorImpl descriptor = (WebhookEntry.DescriptorImpl) jenkins.jenkins
                 .getDescriptor(WebhookEntry.class);
 
