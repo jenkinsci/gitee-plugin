@@ -55,7 +55,7 @@
     <jenkins.baseline>2.528</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-    <hpi.bundledArtifacts>angus-mail,apache-mime4j-core,apache-mime4j-dom,apache-mime4j-storage,asyncutil,codemodel,commons-codec,commons-io,istack-commons-runtime,istack-commons-tools,jackson-jakarta-rs-base,jackson-jakarta-rs-json-provider,jakarta.annotation-api,jakarta.mail-api,jakarta.validation-api,jakarta.ws.rs-api,jandex,jaxb-core,jaxb-jxc,jaxb-runtime,jaxb-xjc,jboss-logging,reactive-streams,relaxng-datatype,resteasy-client,resteasy-client-api,resteasy-core,resteasy-core-spi,resteasy-jaxb-provider,resteasy-multipart-provider,resteasy-tracing-api,rngom,txw2,xsom</hpi.bundledArtifacts>
+    <hpi.bundledArtifacts>angus-activation,angus-mail,apache-mime4j-core,apache-mime4j-dom,apache-mime4j-storage,asyncutil,codemodel,commons-codec,commons-io,istack-commons-runtime,istack-commons-tools,jackson-jakarta-rs-base,jackson-jakarta-rs-json-provider,jakarta.activation-api,jakarta.annotation-api,jakarta.mail-api,jakarta.servlet-api,jakarta.validation-api,jakarta.ws.rs-api,jakarta.xml.bind-api,jandex,jaxb-core,jaxb-jxc,jaxb-runtime,jaxb-xjc,jboss-logging,reactive-streams,relaxng-datatype,resteasy-client,resteasy-client-api,resteasy-core,resteasy-core-spi,resteasy-jaxb-provider,resteasy-multipart-provider,resteasy-tracing-api,rngom,txw2,xsom</hpi.bundledArtifacts>
     <hpi.strictBundledArtifacts>true</hpi.strictBundledArtifacts>
     <mockserver.version>5.15.0</mockserver.version>
     <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
@@ -113,13 +113,23 @@
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-client</artifactId>
-      <version>7.0.1.Final</version>
+      <version>7.0.2.Final</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-core</artifactId>
+      <version>7.0.2.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-core-spi</artifactId>
+      <version>7.0.2.Final</version>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -141,6 +151,11 @@
       <artifactId>jakarta-activation-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
     </dependency>
@@ -151,6 +166,11 @@
     <dependency>
         <groupId>io.jenkins.plugins</groupId>
         <artifactId>jakarta-xml-bind-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.4</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
