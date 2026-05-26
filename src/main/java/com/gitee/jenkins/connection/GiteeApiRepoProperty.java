@@ -10,15 +10,18 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
@@ -87,13 +90,17 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         }
 
         @Override
+        @RequirePOST
         public JobProperty<?> newInstance(StaplerRequest2 req, JSONObject formData) throws FormException {
-            GiteeApiRepoProperty prop = req.bindJSON(GiteeApiRepoProperty.class, formData);
-            if (descriptorOptions != null) {
-                prop.options = descriptorOptions;
+            if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
+                GiteeApiRepoProperty prop = req.bindJSON(GiteeApiRepoProperty.class, formData);
+                if (descriptorOptions != null) {
+                    prop.options = descriptorOptions;
+                }
+                descriptorOptions = null;
+                return prop;
             }
-            descriptorOptions = null;
-            return prop;
+            return null;
         }
 
         private void setDescriptorOptions(ListBoxModel options) {
