@@ -124,6 +124,7 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
             descriptorOptions.add(option, option);
         }
 
+        @RequirePOST
         public ListBoxModel doFillGiteeApiRepoItems() {
             if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
                 if (descriptorOptions == null) {
