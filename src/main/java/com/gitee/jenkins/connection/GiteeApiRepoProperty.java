@@ -125,10 +125,13 @@ public class GiteeApiRepoProperty extends JobProperty<Job<?, ?>> {
         }
 
         public ListBoxModel doFillGiteeApiRepoItems() {
-            if (descriptorOptions == null) {
-                load();
+            if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
+                if (descriptorOptions == null) {
+                    load();
+                }
+                return descriptorOptions;
             }
-            return descriptorOptions;
+            return null;
         }
 
         public FormValidation doCheckRepoOwner(@QueryParameter String value, @QueryParameter String repo,
