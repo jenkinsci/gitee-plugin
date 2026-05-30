@@ -1,6 +1,9 @@
 package com.gitee.jenkins.publisher;
 
 import java.io.IOException;
+
+import com.gitee.jenkins.connection.ApiDesciptor;
+import com.gitee.jenkins.connection.GiteeApiRepo;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.Release;
 import com.gitee.jenkins.gitee.api.model.builder.generated.ReleaseBuilder;
@@ -35,6 +38,7 @@ import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
 public class GiteeReleasePublisher extends Notifier implements MatrixAggregatable {
 
+    private GiteeApiRepo giteeApiRepo;
     private String owner;
     private String repo;
     private String tagName;
@@ -47,6 +51,10 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
 
     @DataBoundConstructor
     public GiteeReleasePublisher() {
+    }
+
+    public GiteeApiRepo getGiteeApiRepo() {
+        return giteeApiRepo;
     }
 
     public String getOwner() {
@@ -85,12 +93,10 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         return increment;
     }
 
-    @DataBoundSetter
     public void setOwner(String owner) {
         this.owner = owner;
     }
 
-    @DataBoundSetter
     public void setRepo(String repo) {
         this.repo = repo;
     }
@@ -128,6 +134,13 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     @DataBoundSetter
     public void setIncrement(boolean increment) {
         this.increment = increment;
+    }
+
+    @DataBoundSetter
+    public void setGiteeApiRepo(String giteeApiRepo) {
+        this.giteeApiRepo = new GiteeApiRepo(giteeApiRepo);
+        setOwner(this.giteeApiRepo.getOwner());
+        setRepo(this.giteeApiRepo.getRepoName());
     }
 
     @Override
@@ -232,7 +245,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
     }
 
     @Extension
-    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> implements ApiDesciptor {
 
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {

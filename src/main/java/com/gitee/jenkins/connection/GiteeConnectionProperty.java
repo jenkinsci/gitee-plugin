@@ -4,6 +4,7 @@ package com.gitee.jenkins.connection;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
+import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
@@ -78,12 +79,15 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
         }
 
         public ListBoxModel doFillGiteeConnectionItems() {
-            ListBoxModel options = new ListBoxModel();
-            GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
-            for (GiteeConnection connection : descriptor.getConnections()) {
-                options.add(connection.getName(), connection.getName());
+            if(Jenkins.get().hasPermission(Item.CONFIGURE)) {
+                ListBoxModel options = new ListBoxModel();
+                GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
+                for (GiteeConnection connection : descriptor.getConnections()) {
+                    options.add(connection.getName(), connection.getName());
+                }
+                return options;
             }
-            return options;
+            return null;
         }
     }
 }
