@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * @author Robin Müller
@@ -78,16 +79,18 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
             return req.bindJSON(GiteeConnectionProperty.class, formData);
         }
 
+        @RequirePOST
         public ListBoxModel doFillGiteeConnectionItems() {
-            if(Jenkins.get().hasPermission(Item.CONFIGURE)) {
+            if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
                 ListBoxModel options = new ListBoxModel();
                 GiteeConnectionConfig descriptor = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
                 for (GiteeConnection connection : descriptor.getConnections()) {
                     options.add(connection.getName(), connection.getName());
                 }
                 return options;
+            } else {
+                return null;
             }
-            return null;
         }
     }
 }

@@ -36,7 +36,6 @@ import hudson.triggers.TriggerDescriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import hudson.util.SequentialExecutionQueue;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jenkins.model.Jenkins;
@@ -54,6 +53,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
@@ -818,7 +818,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                 return !StringUtils.isEmptyOrNull(obj.getString("giteeApiRepo"));
             }
 
-            @POST
+            @RequirePOST
             public FormValidation doAddWebhook(
                     @QueryParameter String repo,
                     @QueryParameter String owner,
