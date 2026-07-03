@@ -22,6 +22,7 @@ import org.eclipse.jgit.util.StringUtils;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
@@ -89,13 +90,18 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
         return connectionMap.get(connectionName).getClient();
     }
 
+    @RequirePOST
     public FormValidation doCheckName(@QueryParameter String id, @QueryParameter String value) {
-        if (StringUtils.isEmptyOrNull(value)) {
-            return FormValidation.error(Messages.name_required());
-        } else if (connectionMap.containsKey(value) && !connectionMap.get(value).toString().equals(id)) {
-            return FormValidation.error(Messages.name_exists(value));
+        if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+            if (StringUtils.isEmptyOrNull(value)) {
+                return FormValidation.error(Messages.name_required());
+            } else if (connectionMap.containsKey(value) && !connectionMap.get(value).toString().equals(id)) {
+                return FormValidation.error(Messages.name_exists(value));
+            } else {
+                return FormValidation.ok();
+            }
         } else {
-            return FormValidation.ok();
+            return FormValidation.error("No permission");
         }
     }
 
@@ -131,28 +137,35 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
         }
     }
 
+    @RequirePOST
     public FormValidation doTestConnection(@QueryParameter String url,
-                                           @QueryParameter String apiTokenId,
-                                           @QueryParameter String clientBuilderId,
-                                           @QueryParameter boolean ignoreCertificateErrors,
-                                           @QueryParameter int connectionTimeout,
-                                           @QueryParameter int readTimeout) {
-        try {
-            if (clientBuilderId == null) {
-                clientBuilderId  = "v5";
-            }
+            @QueryParameter String apiTokenId,
+            @QueryParameter String clientBuilderId,
+            @QueryParameter boolean ignoreCertificateErrors,
+            @QueryParameter int connectionTimeout,
+            @QueryParameter int readTimeout) {
+        if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+            try {
+                if (clientBuilderId == null) {
+                    clientBuilderId = "v5";
+                }
 
-            new GiteeConnection("", url, apiTokenId, clientBuilderId, ignoreCertificateErrors, connectionTimeout, readTimeout).getClient().getCurrentUser();
-            return FormValidation.ok(Messages.connection_success());
-        } catch (WebApplicationException e) {
-            return FormValidation.error(Messages.connection_error(e.getMessage()));
-        } catch (ProcessingException e) {
-            return FormValidation.error(Messages.connection_error(e.getCause().getMessage()));
+                new GiteeConnection("", url, apiTokenId, clientBuilderId, ignoreCertificateErrors, connectionTimeout,
+                        readTimeout).getClient().getCurrentUser();
+                return FormValidation.ok(Messages.connection_success());
+            } catch (WebApplicationException e) {
+                return FormValidation.error(Messages.connection_error(e.getMessage()));
+            } catch (ProcessingException e) {
+                return FormValidation.error(Messages.connection_error(e.getCause().getMessage()));
+            }
+        } else {
+            return FormValidation.error("No permission");
         }
     }
 
+    @RequirePOST
     public ListBoxModel doFillApiTokenIdItems(@QueryParameter String name, @QueryParameter String url) {
-        if (Jenkins.get().hasPermission(Item.CONFIGURE)) {
+        if (Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
             AbstractIdCredentialsListBoxModel<StandardListBoxModel, StandardCredentials> options = new StandardListBoxModel()
                 .includeEmptyValue()
                 .includeMatchingAs(ACL.SYSTEM2,
@@ -172,15 +185,6 @@ public class GiteeConnectionConfig extends GlobalConfiguration {
             return options;
         }
         return new StandardListBoxModel();
-    }
-
-    public ListBoxModel doFillClientBuilderIdItems() {
-        ListBoxModel model = new ListBoxModel();
-        for (GiteeClientBuilder builder : getAllGiteeClientBuilders()) {
-            model.add(builder.id());
-        }
-
-        return model;
     }
 
     private void refreshConnectionMap() {
