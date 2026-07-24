@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,14 +83,14 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
                 // 若pr不可自动合并则评论至pr
                 if (!ignorePullRequestConflicts && !objectAttributes.isMergeable()) {
                     LOGGER.log(Level.INFO, "This pull request can not be merge");
-                    GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
-                    GiteeClient client = getClient(job);
-
-                    if (publisher != null && client != null) {
-                        PullRequest pullRequest = new PullRequest(objectAttributes);
-                        LOGGER.log(Level.INFO, "sending message to gitee.....");
-                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
-                    }
+                    Optional<GiteeMessagePublisher> publisherOpt = GiteeMessagePublisher.getFromJob(job);
+                    Optional<GiteeClient> clientOpt = getClient(job);
+                    clientOpt.ifPresent(client -> publisherOpt.ifPresent(publisher -> {
+                            PullRequest pullRequest = new PullRequest(objectAttributes);
+                            LOGGER.log(Level.INFO, "sending message to gitee.....");
+                            client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
+                        })
+                    );
                     return;
                 }
 
@@ -130,7 +131,7 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
 
         if (objectAttributes != null && objectAttributes.getMergeCommitSha() != null) {
             Run<?, ?> mergeBuild = BuildUtil.getBuildBySHA1IncludingMergeBuilds(project, objectAttributes.getMergeCommitSha());
-            if (mergeBuild != null && StringUtils.equals(getTargetBranchFromBuild(mergeBuild), objectAttributes.getTargetBranch())) {
+            if (mergeBuild != null && StringUtils.equals(getTargetBranchFromBuild(mergeBuild).orElse(""), objectAttributes.getTargetBranch())) {
                 LOGGER.log(Level.INFO, "Last commit in Pull Request has already been built in build #" + mergeBuild.getNumber());
                 return true;
             }
@@ -282,9 +283,8 @@ class PullRequestHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<Pu
         throw new NoRevisionToBuildException();
     }
 
-    private String getTargetBranchFromBuild(Run<?, ?> mergeBuild) {
-        GiteeWebHookCause cause = mergeBuild.getCause(GiteeWebHookCause.class);
-        return cause == null ? null : cause.getData().getTargetBranch();
+    private Optional<String> getTargetBranchFromBuild(Run<?, ?> mergeBuild) {
+        return Optional.ofNullable(mergeBuild.getCause(GiteeWebHookCause.class)).map(cause -> cause.getData().getTargetBranch());
     }
 
 	private boolean isAllowedByConfig(PullRequestHook hook) {

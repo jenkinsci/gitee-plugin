@@ -12,6 +12,10 @@ import hudson.model.Run;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+
+import java.lang.StackWalker.Option;
+import java.util.Optional;
+
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -34,28 +38,22 @@ public class GiteeConnectionProperty extends JobProperty<Job<?, ?>> {
         return giteeConnection;
     }
 
-    public GiteeClient getClient() {
+    public Optional<GiteeClient> getClient() {
         if (StringUtils.isNotEmpty(giteeConnection)) {
-            GiteeConnectionConfig connectionConfig = (GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class);
-            return connectionConfig != null ? connectionConfig.getClient(giteeConnection) : null;
+            Optional<GiteeConnectionConfig> opt = Optional.ofNullable((GiteeConnectionConfig) Jenkins.get().getDescriptor(GiteeConnectionConfig.class));
+            return opt.map(connectionConfig -> connectionConfig.getClient(giteeConnection));
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static GiteeClient getClient(Run<?, ?> build) {
-        final GiteeConnectionProperty connectionProperty = build.getParent().getProperty(GiteeConnectionProperty.class);
-        if (connectionProperty != null) {
-            return connectionProperty.getClient();
-        }
-        return null;
+    public static Optional<GiteeClient> getClient(Run<?, ?> build) {
+        final Optional<GiteeConnectionProperty> opt = Optional.ofNullable(build.getParent().getProperty(GiteeConnectionProperty.class));
+        return opt.map(connectionProperty -> connectionProperty.getClient()).orElse(Optional.empty());
     }
 
-    public static GiteeClient getClient(Job<?, ?> job) {
-        final GiteeConnectionProperty connectionProperty = job.getProperty(GiteeConnectionProperty.class);
-        if (connectionProperty != null) {
-            return connectionProperty.getClient();
-        }
-        return null;
+    public static Optional<GiteeClient> getClient(Job<?, ?> job) {
+        final Optional<GiteeConnectionProperty> opt = Optional.ofNullable(job.getProperty(GiteeConnectionProperty.class));
+        return opt.map(connectionProperty -> connectionProperty.getClient()).orElse(Optional.empty());
     }
 
 
