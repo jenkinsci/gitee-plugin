@@ -1,6 +1,9 @@
 package com.gitee.jenkins.gitee.hook.model;
 
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+
+import java.util.Optional;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -49,8 +52,8 @@ public class BranchData {
         this.user = user;
     }
 
-    public Project getRepo() {
-        return repo;
+    public Optional<Project> getRepo() {
+        return Optional.ofNullable(repo);
     }
 
     public void setRepo(Project repo) {

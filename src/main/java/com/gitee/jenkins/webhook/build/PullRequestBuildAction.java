@@ -41,12 +41,12 @@ public class PullRequestBuildAction extends BuildWebHookAction {
         final PullRequestObjectAttributes attributes = this.pullRequestHook.getPullRequest();
         if (attributes != null) {
             final Project source = attributes.getSource();
-            if (source != null && source.getGitHttpUrl() != null) {
+            if (source != null && source.getGitHttpUrl().isPresent()) {
                 if (source.getUrl() == null) {
-                    source.setUrl(source.getGitHttpUrl());
+                    source.setUrl(source.getGitHttpUrl().orElseThrow());
                 }
                 if (source.getHomepage() == null) {
-                    source.setHomepage(source.getGitHttpUrl().substring(0, source.getGitHttpUrl().lastIndexOf(".git")));
+                    source.setHomepage(source.getGitHttpUrl().orElseThrow().substring(0, source.getGitHttpUrl().orElseThrow().lastIndexOf(".git")));
                 }
             }
 
