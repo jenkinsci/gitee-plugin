@@ -1,6 +1,9 @@
 package com.gitee.jenkins.gitee.hook.model;
 
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+
+import java.util.Optional;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -25,40 +28,40 @@ public class Project {
     private String sshUrl;
     private String gitHttpUrl;
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getWebUrl() {
-        return webUrl;
+    public Optional<String> getWebUrl() {
+        return Optional.ofNullable(webUrl);
     }
 
     public void setWebUrl(String webUrl) {
         this.webUrl = webUrl;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public Optional<String> getAvatarUrl() {
+        return Optional.ofNullable(avatarUrl);
     }
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
     }
 
-    public String getNamespace() {
-        return namespace;
+    public Optional<String> getNamespace() {
+        return Optional.ofNullable(namespace);
     }
 
     public void setNamespace(String namespace) {
@@ -73,56 +76,56 @@ public class Project {
 //        this.visibilityLevel = visibilityLevel;
 //    }
 
-    public String getPathWithNamespace() {
-        return pathWithNamespace;
+    public Optional<String> getPathWithNamespace() {
+        return Optional.ofNullable(pathWithNamespace);
     }
 
     public void setPathWithNamespace(String pathWithNamespace) {
         this.pathWithNamespace = pathWithNamespace;
     }
 
-    public String getDefaultBranch() {
-        return defaultBranch;
+    public Optional<String> getDefaultBranch() {
+        return Optional.ofNullable(defaultBranch);
     }
 
     public void setDefaultBranch(String defaultBranch) {
         this.defaultBranch = defaultBranch;
     }
 
-    public String getHomepage() {
-        return homepage;
+    public Optional<String> getHomepage() {
+        return Optional.ofNullable(homepage);
     }
 
     public void setHomepage(String homepage) {
         this.homepage = homepage;
     }
 
-    public String getUrl() {
-        return url;
+    public Optional<String> getUrl() {
+        return Optional.ofNullable(url);
     }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
-    public String getSshUrl() {
-        return sshUrl;
+    public Optional<String> getSshUrl() {
+        return Optional.ofNullable(sshUrl);
     }
 
     public void setSshUrl(String sshUrl) {
         this.sshUrl = sshUrl;
     }
 
-    public String getGitHttpUrl() {
-        return gitHttpUrl;
+    public Optional<String> getGitHttpUrl() {
+        return Optional.ofNullable(gitHttpUrl);
     }
 
     public void setGitHttpUrl(String gitHttpUrl) {
         this.gitHttpUrl = gitHttpUrl;
     }
 
-    public Integer getId() {
-        return id;
+    public Optional<Integer> getId() {
+        return Optional.ofNullable(id);
     }
 
     public void setId(Integer id) {

@@ -6,6 +6,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author Robin Müller
@@ -48,91 +49,95 @@ public class PullRequestObjectAttributes {
         this.number = number;
     }
 
-    public String getSourceBranch() {
-        return head.getRef();
+    public Optional<String> getSourceBranch() {
+        return Optional.ofNullable(head.getRef());
     }
 
-    public String getTargetBranch() {
-        return base.getRef();
+    public Optional<String> getTargetBranch() {
+        return Optional.ofNullable(base.getRef());
     }
 
-    public Integer getSourceProjectId() {
-        return head.getRepo().getId();
+    public Optional<Integer> getSourceProjectId() {
+        return head.getRepo().map(repo -> {
+            return repo.getId();
+        }).orElse(Optional.empty());
     }
 
-    public Integer getTargetProjectId() {
-        return base.getRepo().getId();
+    public Optional<Integer> getTargetProjectId() {
+        return base.getRepo().map(base -> {
+            return base.getId();
+        }).orElse(Optional.empty());
     }
 
-    public Integer getAuthorId() {
-        return authorId;
+    public Optional<Integer> getAuthorId() {
+        return Optional.ofNullable(authorId);
     }
 
     public void setAuthorId(Integer authorId) {
         this.authorId = authorId;
     }
 
-    public Integer getAssigneeId() {
-        return assigneeId;
+    public Optional<Integer> getAssigneeId() {
+        return Optional.ofNullable(assigneeId);
     }
 
     public void setAssigneeId(Integer assigneeId) {
         this.assigneeId = assigneeId;
     }
 
-    public String getTitle() {
-        return title;
+    public Optional<String> getTitle() {
+        return Optional.ofNullable(title);
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public Optional<Date> getCreatedAt() {
+        return Optional.ofNullable(createdAt);
     }
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public Optional<Date> getUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
     }
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public String getBody() {
-        return body;
+    public Optional<String> getBody() {
+        return Optional.ofNullable(body);
     }
 
     public void setBody(String body) {
         this.body = body;
     }
 
-    public Project getSource() {
+    public Optional<Project> getSource() {
         return head.getRepo();
     }
 
-    public BranchData getHead() {
-        return head;
+    public Optional<BranchData> getHead() {
+        return Optional.ofNullable(head);
     }
 
     public void setHead(BranchData head) {
         this.head = head;
     }
 
-    public BranchData getBase() {
-        return base;
+    public Optional<BranchData> getBase() {
+        return Optional.ofNullable(base);
     }
 
     public void setBase(BranchData base) {
         this.base = base;
     }
 
-    public Project getTarget() {
+    public Optional<Project> getTarget() {
         return base.getRepo();
     }
 
@@ -152,40 +157,40 @@ public class PullRequestObjectAttributes {
         this.needReview = needReview;
     }
 
-    public String getMergeCommitSha() {
-        return mergeCommitSha;
+    public Optional<String> getMergeCommitSha() {
+        return Optional.ofNullable(mergeCommitSha);
     }
 
     public void setMergeCommitSha(String mergeCommitSha) {
         this.mergeCommitSha = mergeCommitSha;
     }
 
-    public String getMergeReferenceName() {
-        return mergeReferenceName;
+    public Optional<String> getMergeReferenceName() {
+        return Optional.ofNullable(mergeReferenceName);
     }
 
     public void setMergeReferenceName(String mergeReferenceName) {
         this.mergeReferenceName = mergeReferenceName;
     }
 
-    public String getMergeStatus() {
-        return mergeStatus;
+    public Optional<String> getMergeStatus() {
+        return Optional.ofNullable(mergeStatus);
     }
 
     public void setMergeStatus(String mergeStatus) {
         this.mergeStatus = mergeStatus;
     }
 
-    public String getHtmlUrl() {
-        return htmlUrl;
+    public Optional<String> getHtmlUrl() {
+        return Optional.ofNullable(htmlUrl);
     }
 
     public void setHtmlUrl(String htmlUrl) {
         this.htmlUrl = htmlUrl;
     }
 
-    public Boolean getWorkInProgress() {
-        return workInProgress;
+    public Optional<Boolean> getWorkInProgress() {
+        return Optional.ofNullable(workInProgress);
     }
 
     public void setWorkInProgress(Boolean workInProgress) {
