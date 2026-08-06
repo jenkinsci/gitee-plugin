@@ -17,7 +17,7 @@ import com.gitee.jenkins.util.BuildUtil;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import static com.gitee.jenkins.cause.CauseDataBuilder.causeData;
 import static com.gitee.jenkins.trigger.handler.builder.generated.BuildStatusUpdateBuilder.buildStatusUpdate;
 
