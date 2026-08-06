@@ -11,7 +11,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.*;
 
 import org.kohsuke.stapler.DataBoundConstructor;

@@ -2,7 +2,7 @@ package com.gitee.jenkins.trigger.filter;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class PullRequestLabelRegexFilter implements PullRequestLabelFilter {
     private final String regex;
