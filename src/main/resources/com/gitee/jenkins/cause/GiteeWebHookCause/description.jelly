@@ -1,4 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core">
-  <span><j:out value="${it.shortDescription}" /></span>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:st="jelly:stapler">
+  <span><st:out value="${it.shortDescription}" /></span>
 </j:jelly>
