@@ -16,7 +16,7 @@ import com.gitee.jenkins.util.BuildUtil;
 import hudson.model.*;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.RevisionParameterAction;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.transport.URIish;
 
 import jakarta.servlet.ServletException;

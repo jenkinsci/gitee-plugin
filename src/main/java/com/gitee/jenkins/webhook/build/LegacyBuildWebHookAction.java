@@ -10,7 +10,7 @@ import hudson.model.Job;
 import hudson.security.Permission;
 import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.gitee.jenkins.trigger.GiteePushTrigger;
 import com.gitee.jenkins.connection.GiteeConnectionConfig;
