@@ -54,16 +54,18 @@ public class PullRequest {
     public PullRequest(PullRequestObjectAttributes objectAttributes) {
         this.id = objectAttributes.getId();
         this.iid= objectAttributes.getNumber();
-        this.sourceBranch = objectAttributes.getSourceBranch();
-        this.targetBranch = objectAttributes.getTargetBranch();
-        this.title = objectAttributes.getTitle();
-        this.sourceProjectId = objectAttributes.getSourceProjectId();
-        this.projectId = objectAttributes.getTargetProjectId();
-        this.description = objectAttributes.getBody();
-        this.mergeStatus = objectAttributes.getMergeStatus();
+        this.sourceBranch = objectAttributes.getSourceBranch().orElse("");
+        this.targetBranch = objectAttributes.getTargetBranch().orElse("");
+        this.title = objectAttributes.getTitle().orElse("");
+        this.sourceProjectId = objectAttributes.getSourceProjectId().orElse(-1);
+        this.projectId = objectAttributes.getTargetProjectId().orElse(-1);
+        this.description = objectAttributes.getBody().orElse("");
+        this.mergeStatus = objectAttributes.getMergeStatus().orElse("");
 
 //        try {
-            String[] path = objectAttributes.getTarget().getPathWithNamespace().split("/");
+            String[] path = objectAttributes.getTarget().map(target -> {
+                return target.getPathWithNamespace().orElse("").split("/");
+            }).orElse(new String[0]);
             this.repoOwner = path[0];
             this.repoPath = path[1];
 //        } catch (Exception e) {

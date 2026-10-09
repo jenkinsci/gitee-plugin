@@ -15,6 +15,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
@@ -30,16 +31,16 @@ public abstract class PullRequestNotifier extends Notifier implements MatrixAggr
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        GiteeClient client = getClient(build);
-        if (client == null) {
+        Optional<GiteeClient> optClient = getClient(build);
+        if (optClient.isEmpty()) {
             listener.getLogger().println("No Gitee connection configured");
             return true;
         }
 
-        PullRequest pullRequest = getPullRequest(build);
-        if (pullRequest != null) {
-            perform(build, listener, client, pullRequest);
-        }
+        Optional<PullRequest> optPullRequest = getPullRequest(build);
+        optPullRequest.ifPresent(pullRequest ->
+            optClient.ifPresent(client -> perform(build, listener, client, pullRequest))
+        );
         return true;
     }
 
@@ -55,9 +56,9 @@ public abstract class PullRequestNotifier extends Notifier implements MatrixAggr
 
     protected abstract void perform(Run<?, ?> build, TaskListener listener, GiteeClient client, PullRequest pullRequest);
 
-    PullRequest getPullRequest(Run<?, ?> run) {
+    Optional<PullRequest> getPullRequest(Run<?, ?> run) {
         GiteeWebHookCause cause = run.getCause(GiteeWebHookCause.class);
-        return cause == null ? null : cause.getData().getPullRequest();
+        return cause == null ? Optional.empty() : Optional.of(cause.getData().getPullRequest());
 
     }
 }

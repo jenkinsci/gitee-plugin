@@ -18,6 +18,7 @@ import jakarta.ws.rs.WebApplicationException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +57,7 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
     @DataBoundConstructor
     public GiteeMessagePublisher() { }
 
-    public static GiteeMessagePublisher getFromJob(Job<?, ?> job) {
+    public static Optional<GiteeMessagePublisher> getFromJob(Job<?, ?> job) {
         GiteeMessagePublisher publisher = null;
         if (job instanceof AbstractProject p) {
             Map<Descriptor<Publisher>, Publisher> map = p.getPublishersList().toMap();
@@ -66,7 +67,7 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
                 }
             }
         }
-        return publisher;
+        return Optional.ofNullable(publisher);
     }
 
     public boolean isOnlyForFailure() {
@@ -90,19 +91,19 @@ public class GiteeMessagePublisher extends PullRequestNotifier {
     }
 
     public String getSuccessNoteText() {
-        return this.successNoteText == null ? "" : this.successNoteText;
+        return Optional.ofNullable(this.successNoteText).orElse("");
     }
 
     public String getFailureNoteText() {
-        return this.failureNoteText == null ? "" : this.failureNoteText;
+        return Optional.ofNullable(this.failureNoteText).orElse("");
     }
 
     public String getAbortNoteText() {
-        return this.abortNoteText == null ? "" : this.abortNoteText;
+        return Optional.ofNullable(this.abortNoteText).orElse("");
     }
 
     public String getUnstableNoteText() {
-        return this.unstableNoteText == null ? "" : this.unstableNoteText;
+        return Optional.ofNullable(this.unstableNoteText).orElse("");
     }
 
     @DataBoundSetter
