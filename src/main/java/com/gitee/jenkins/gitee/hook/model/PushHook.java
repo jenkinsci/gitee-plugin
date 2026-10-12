@@ -100,7 +100,7 @@ public class PushHook extends WebHook {
     }
 
     public Integer getProjectId() {
-        return getProject().getId();
+        return getProject().getId().orElseThrow(() -> new RuntimeException("Project ID can not be null"));
     }
 
     public Project getProject() {
