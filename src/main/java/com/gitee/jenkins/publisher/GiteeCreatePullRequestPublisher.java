@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -177,46 +178,48 @@ public class GiteeCreatePullRequestPublisher extends Notifier implements MatrixA
             }
         }
 
-        GiteeClient client = getClient(build);
-        if (client == null) {
+        Optional<GiteeClient> clientOpt = getClient(build);
+        if (clientOpt.isEmpty()) {
             listener.getLogger().println("No Gitee connection configured");
             return true;
-        }
-
-        String pullRequestTitle = title;
-        if (addDatetime) {
-            StringBuilder newTitle = new StringBuilder();
-            newTitle.append(LocalDateTime.now().toString());
-            newTitle.append(" ");
-            newTitle.append(title);
-            pullRequestTitle = newTitle.toString();
-        }
-
-        if (build.getResult() == Result.SUCCESS) {
-            PullRequest pr = PullRequestBuilder.pullRequest()
-                    .withRepoOwner(owner)
-                    .withRepoPath(repo)
-                    .withTitle(pullRequestTitle)
-                    .withSourceBranch(head)
-                    .withTargetBranch(base)
-                    .withDescription(body)
-                    .withLabels(labels)
-                    .build();
+        } else {
+            GiteeClient client = clientOpt.orElseThrow();
             
-            if (!client.getPullRequest(pr).isEmpty()) {
-                LOGGER.log(Level.INFO, "Pull request {0} -> {1} already exists", LoggerUtil.toArray(head, base));
-                if (launcher != null) {
-                    launcher.getListener().getLogger().printf("Pull request {0} -> {1} already exists", head, base);
-                }
-                
-                return true;
+            String pullRequestTitle = title;
+            if (addDatetime) {
+                StringBuilder newTitle = new StringBuilder();
+                newTitle.append(LocalDateTime.now().toString());
+                newTitle.append(" ");
+                newTitle.append(title);
+                pullRequestTitle = newTitle.toString();
             }
 
-            client.createPullRequest(pr, pruneSourceBranch, isDraft, isSquashMerge);
-            LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
-        }
+            if (build.getResult() == Result.SUCCESS) {
+                PullRequest pr = PullRequestBuilder.pullRequest()
+                        .withRepoOwner(owner)
+                        .withRepoPath(repo)
+                        .withTitle(pullRequestTitle)
+                        .withSourceBranch(head)
+                        .withTargetBranch(base)
+                        .withDescription(body)
+                        .withLabels(labels)
+                        .build();
+                
+                if (!client.getPullRequest(pr).isEmpty()) {
+                    LOGGER.log(Level.INFO, "Pull request {0} -> {1} already exists", LoggerUtil.toArray(head, base));
+                    if (launcher != null) {
+                        launcher.getListener().getLogger().printf("Pull request {0} -> {1} already exists", head, base);
+                    }
+                    
+                    return true;
+                }
 
-        return true;
+                client.createPullRequest(pr, pruneSourceBranch, isDraft, isSquashMerge);
+                LOGGER.log(Level.INFO, "Pull request {0} generated, {1} -> {2}", LoggerUtil.toArray(title, head, base));
+            }
+
+            return true;
+        }
     }
 
     @Override

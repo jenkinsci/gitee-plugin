@@ -2,6 +2,9 @@ package com.gitee.jenkins.gitee.hook.model;
 
 
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+
+import java.util.Optional;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -18,39 +21,39 @@ public class NoteHook extends WebHook {
     private NoteObjectAttributes comment;
     private NoteAction action;
 
-    public NoteAction getAction() {
-        return action;
+    public Optional<NoteAction> getAction() {
+        return Optional.ofNullable(action);
     }
 
     public void setAction(NoteAction action) {
         this.action = action;
     }
 
-    public User getUser() {
-        return user;
+    public Optional<User> getUser() {
+        return Optional.ofNullable(user);
     }
     public void setUser(User user) {
         this.user = user;
     }
 
-    public Project getProject() {
-        return project;
+    public Optional<Project> getProject() {
+        return Optional.ofNullable(project);
     }
 
     public void setProject(Project project) {
         this.project = project;
     }
 
-    public NoteObjectAttributes getComment() {
-        return comment;
+    public Optional<NoteObjectAttributes> getComment() {
+        return Optional.ofNullable(comment);
     }
 
     public void setComment(NoteObjectAttributes comment) {
         this.comment = comment;
     }
 
-    public PullRequestObjectAttributes getPullRequest() {
-        return pullRequest;
+    public Optional<PullRequestObjectAttributes> getPullRequest() {
+        return Optional.ofNullable(pullRequest);
     }
 
     public void setPullRequest(PullRequestObjectAttributes pullRequest) {

@@ -31,6 +31,7 @@ import jenkins.triggers.SCMTriggerItem;
 import jenkins.util.VirtualFile;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,7 +194,7 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
         }
     }
 
-    private String getCommitHash(AbstractBuild<?, ?> build) {
+    private Optional<String> getCommitHash(AbstractBuild<?, ?> build) {
         String commitHash = null;
         if (build.getProject().getScm() instanceof GitSCM gitSCM) {
             // Get first Git repo and use it for commit
@@ -202,22 +203,32 @@ public class GiteeReleasePublisher extends Notifier implements MatrixAggregatabl
                 commitHash = data.getLastBuiltRevision().getSha1String();
             }
         } 
-        return commitHash;
+        return Optional.ofNullable(commitHash);
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        GiteeClient client = getClient(build);
+        Optional<GiteeClient> clientOpt = getClient(build);
+        GiteeClient client;
+        if (clientOpt.isEmpty()) {
+            launcher.getListener().getLogger().print("Failed to start Gitee client. Check that Gitee connection is configure");
+            return false;
+        } else {
+            client = clientOpt.orElseThrow();
+        }
 
         String incrementedTagName = null;
-        String commitHash = getCommitHash(build);
+        Optional<String> commitHashOpt = getCommitHash(build);
+        String commitHash;
 
-        if (commitHash == null) {
+        if (commitHashOpt.isEmpty()) {
             if (launcher != null) {
                 launcher.getListener().getLogger().print(
                         "Failed to find commit hash. Check that first repository is configured and is Gitee repo.");
             }
             return false;
+        } else {
+            commitHash = commitHashOpt.orElseThrow();
         }
 
         if (increment) {

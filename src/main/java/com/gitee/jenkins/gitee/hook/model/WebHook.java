@@ -1,5 +1,7 @@
 package com.gitee.jenkins.gitee.hook.model;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -16,36 +18,36 @@ public abstract class WebHook {
     private String jsonBody;
     private User sender;
 
-    public String getJsonBody() { return  this.jsonBody; }
+    public Optional<String> getJsonBody() { return  Optional.ofNullable(this.jsonBody); }
 
     public void setJsonBody(String json) { this.jsonBody = json; }
 
-    public String getHookName() {
-        return this.hookName;
+    public Optional<String> getHookName() {
+        return Optional.ofNullable(this.hookName);
     }
 
     public void setHookName(String hookName) {
         this.hookName = hookName;
     }
 
-    public String getObjectKind() {
-        return objectKind;
+    public Optional<String> getObjectKind() {
+        return Optional.ofNullable(objectKind);
     }
 
     public void setObjectKind(String objectKind) {
         this.objectKind = objectKind;
     }
 
-    public Repository getRepository() {
-        return repository;
+    public Optional<Repository> getRepository() {
+        return Optional.ofNullable(repository);
     }
 
     public void setRepository(Repository repository) {
         this.repository = repository;
     }
 
-    public User getSender() {
-        return sender;
+    public Optional<User> getSender() {
+        return Optional.ofNullable(sender);
     }
 
     public void setSender(User sender) {

@@ -3,6 +3,7 @@ package com.gitee.jenkins.workflow;
 import static com.gitee.jenkins.connection.GiteeConnectionProperty.getClient;
 
 import java.io.Serial;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,17 +80,15 @@ public class AddGiteePullRequestCommentStep extends Step {
             if (cause != null) {
                 PullRequest pullRequest = cause.getData().getPullRequest();
                 if (pullRequest != null) {
-                    GiteeClient client = getClient(run);
-                    if (client == null) {
-                        println("No Gitee connection configured");
-                    } else {
+                    Optional<GiteeClient> opt = getClient(run);
+                    opt.ifPresentOrElse(client -> {
                         try {
                             client.createPullRequestNote(pullRequest, step.getComment());
                         } catch (WebApplicationException | ProcessingException e) {
                             printf("Failed to add comment on Pull Request for project '%s': %s%n", pullRequest.getProjectId(), e.getMessage());
                             LOGGER.log(Level.SEVERE, String.format("Failed to add comment on Pull Request for project '%s'", pullRequest.getProjectId()), e);
                         }
-                    }
+                    }, () -> println("No Gitee connection configured"));
                 }
             }
             return null;

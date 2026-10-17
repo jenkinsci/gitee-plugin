@@ -841,7 +841,7 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
 
                 try {
                     Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-                    GiteeClient client = giteeConnectionProp.getClient();
+                    GiteeClient client = giteeConnectionProp.getClient().orElseThrow(() -> new IllegalStateException("Something wrong with Gitee Client"));
                     List<WebHook> hooks = client.getWebHooks(owner, repo);
                     for (WebHook hook : hooks) {
                         if (hook.getTitle().equals(name)) {
@@ -864,8 +864,10 @@ public class GiteePushTrigger extends Trigger<Job<?, ?>> {
                     return FormValidation.ok(Messages.connection_success(hookCreated.getTitle()));
                 } catch (WebApplicationException e) {
                     return FormValidation.error(Messages.connection_error(e.getMessage()));
+                } catch (IllegalStateException e) {
+                    return FormValidation.error(Messages.connection_error(e.getMessage()));
                 } catch (ProcessingException e) {
-                    return FormValidation.error(Messages.connection_error(e.getCause().getMessage()));
+                    return FormValidation.error(Messages.connection_error(e.getCause().getMessage()))      ;
                 } catch (AccessDeniedException e) {
                     return FormValidation.error(Messages.connection_error(e.getMessage()));
                 }
