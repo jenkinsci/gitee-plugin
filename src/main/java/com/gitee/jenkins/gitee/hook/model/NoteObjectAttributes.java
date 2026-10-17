@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @author Nikolay Ustinov
@@ -23,72 +24,72 @@ public class NoteObjectAttributes {
     private String commitId;
     private User user;
 
-    public Integer getId() {
-        return id;
+    public Optional<Integer> getId() {
+        return Optional.ofNullable(id);
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public Integer getProjectId() {
-        return projectId;
+    public Optional<Integer> getProjectId() {
+        return Optional.ofNullable(projectId);
     }
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
 
-    public Integer getAuthorId() {
-        return authorId;
+    public Optional<Integer> getAuthorId() {
+        return Optional.ofNullable(authorId);
     }
 
     public void setAuthorId(Integer authorId) {
         this.authorId = authorId;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public Optional<Date> getCreatedAt() {
+        return Optional.ofNullable(createdAt);
     }
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public Optional<Date> getUpdatedAt() {
+        return Optional.ofNullable(updatedAt);
     }
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public String getBody() {
-        return body;
+    public Optional<String> getBody() {
+        return Optional.ofNullable(body);
     }
 
     public void setBody(String body) {
         this.body = body;
     }
 
-    public String getHtmlUrl() {
-        return htmlUrl;
+    public Optional<String> getHtmlUrl() {
+        return Optional.ofNullable(htmlUrl);
     }
 
     public void setHtmlUrl(String htmlUrl) {
         this.htmlUrl = htmlUrl;
     }
 
-    public String getCommitId() {
-        return commitId;
+    public Optional<String> getCommitId() {
+        return Optional.ofNullable(commitId);
     }
 
     public void setCommitId(String commitId) {
         this.commitId = commitId;
     }
 
-    public User getUser() {
-        return user;
+    public Optional<User> getUser() {
+        return Optional.ofNullable(user);
     }
 
     public void setUser(User user) {

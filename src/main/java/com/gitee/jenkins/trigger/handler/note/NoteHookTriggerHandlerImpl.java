@@ -5,6 +5,8 @@ import com.gitee.jenkins.cause.GiteeWebHookCause;
 import com.gitee.jenkins.gitee.api.GiteeClient;
 import com.gitee.jenkins.gitee.api.model.PullRequest;
 import com.gitee.jenkins.gitee.hook.model.*;
+import com.gitee.jenkins.gitee.hook.model.Project;
+import com.gitee.jenkins.gitee.hook.model.User;
 import com.gitee.jenkins.publisher.GiteeMessagePublisher;
 import com.gitee.jenkins.trigger.exception.NoRevisionToBuildException;
 import com.gitee.jenkins.trigger.filter.BranchFilter;
@@ -19,6 +21,8 @@ import org.eclipse.jgit.transport.URIish;
 
 import jakarta.servlet.ServletException;
 import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -54,35 +58,44 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     @Override
     public void handle(Job<?, ?> job, NoteHook hook, BuildInstructionFilter buildInstructionFilter, boolean skipLastCommitHasBeenBuild, BranchFilter branchFilter, PullRequestLabelFilter pullRequestLabelFilter) {
         if (isValidTrigger(hook)) {
-            // 若pr不可自动合并则评论至pr
-            PullRequestObjectAttributes objectAttributes = hook.getPullRequest();
-            if (!ignorePullRequestConflicts && objectAttributes != null && !objectAttributes.isMergeable()) {
-                LOGGER.log(Level.INFO, "This pull request can not be merge");
-                GiteeMessagePublisher publisher = GiteeMessagePublisher.getFromJob(job);
-                GiteeClient client = getClient(job);
-                if (publisher != null && client != null) {
-                    PullRequest pullRequest = new PullRequest(objectAttributes);
-                    LOGGER.log(Level.INFO, "sending message to gitee.....");
-                    client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
+            Optional<PullRequestObjectAttributes> objectAttributesOpt = hook.getPullRequest();
+            if (objectAttributesOpt.isPresent()) {
+                PullRequestObjectAttributes objectAttributes = objectAttributesOpt.orElseThrow();
+                
+                if (!ignorePullRequestConflicts && !objectAttributes.isMergeable()) {
+                    LOGGER.log(Level.INFO, "This pull request can not be merge");
+                    Optional<GiteeMessagePublisher> publisherOpt = GiteeMessagePublisher.getFromJob(job);
+                    Optional<GiteeClient> clientOpt = getClient(job);
+                    if (publisherOpt.isPresent() && clientOpt.isPresent()) {
+                        PullRequest pullRequest = new PullRequest(objectAttributes);
+                        GiteeClient client = clientOpt.orElseThrow();
+                        LOGGER.log(Level.INFO, "sending message to gitee.....");
+                        client.createPullRequestNote(pullRequest, ":bangbang: This pull request can not be merge! The build will not be triggered. Please manual merge conflict.");
+                    }
+                    return;
                 }
-                return;
+
+                // 若PR不需要测试，且有设定值，则跳过构建
+                if (ciSkipFroTestNotRequired && !objectAttributes.getNeedTest()) {
+                    LOGGER.log(Level.INFO, "Skip because this pull don't need test.");
+                    return;
+                }
+
+
+                super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
             }
-
-            // 若PR不需要测试，且有设定值，则跳过构建
-            if (objectAttributes != null && ciSkipFroTestNotRequired && !objectAttributes.getNeedTest()) {
-                LOGGER.log(Level.INFO, "Skip because this pull don't need test.");
-                return;
-            }
-
-
-            super.handle(job, hook, buildInstructionFilter, skipLastCommitHasBeenBuild, branchFilter, pullRequestLabelFilter);
         }
     }
 
     @Override
     protected boolean isCiSkip(NoteHook hook, BuildInstructionFilter buildInstructionFilter) {
-        if (buildInstructionFilter != null && hook.getPullRequest() != null) {
-            return !buildInstructionFilter.isBuildAllow(hook.getPullRequest().getBody());
+        Optional<PullRequestObjectAttributes> pullRequestOpt = hook.getPullRequest();
+        if (buildInstructionFilter != null && pullRequestOpt.isPresent()) {
+            Optional<String> body = pullRequestOpt.flatMap(PullRequestObjectAttributes::getBody);
+            if (body.isEmpty()) {
+                return false;
+            }
+            return !buildInstructionFilter.isBuildAllow(body.orElseThrow());
         }
         return false;
     }
@@ -119,10 +132,17 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
             if (giteeWebHookCause == null) {
                 continue;
             }
-            CauseData causeData = giteeWebHookCause.getData();
-            if (causeData.getSourceRepoHttpUrl().equals(hook.getPullRequest().getSource().getGitHttpUrl())
-                && causeData.getTargetRepoHttpUrl().equals(hook.getPullRequest().getTarget().getGitHttpUrl())
-                && causeData.getRef().equals(hook.getPullRequest().getMergeReferenceName())) {
+            CauseData causeData = giteeWebHookCause.getData();     
+            if (
+                causeData.getSourceRepoHttpUrl()
+                    .equals(hook.getPullRequest().flatMap(PullRequestObjectAttributes::getSource)
+                            .flatMap(Project::getGitHttpUrl).orElse(""))
+                && causeData.getTargetRepoHttpUrl()
+                    .equals(hook.getPullRequest().flatMap(PullRequestObjectAttributes::getTarget)
+                            .flatMap(Project::getGitHttpUrl).orElse(""))
+                && causeData.getRef()
+                    .equals(hook.getPullRequest()
+                            .flatMap(PullRequestObjectAttributes::getMergeReferenceName).orElse(""))) {
                 try {
                     doStop(build);
                 } catch (ServletException | IOException e) {
@@ -145,32 +165,46 @@ class NoteHookTriggerHandlerImpl extends AbstractWebHookTriggerHandler<NoteHook>
     @Override
     protected CauseData retrieveCauseData(NoteHook hook) {
         // 兼容来自commit的评论
-        if (hook.getPullRequest() == null) {
+        if (hook.getPullRequest().isEmpty()) {
+            String sourceRepoSshUrl;
             return causeData()
-                .withActionType(CauseData.ActionType.COMMIT_COMMENT)
-                .withUserName(hook.getComment().getUser().getUsername())
-                .withUserEmail(hook.getComment().getUser().getEmail())
-                .withPullRequestTitle("")
-                .withBranch("")
-                .withSourceBranch("")
-                .withSourceProjectId(hook.getProject().getId())
-                .withSourceRepoHomepage(hook.getProject().getHomepage())
-                .withSourceRepoName(hook.getProject().getName())
-                .withSourceNamespace(hook.getProject().getNamespace())
-                .withSourceRepoUrl(hook.getProject().getUrl())
-                .withSourceRepoSshUrl(hook.getProject().getSshUrl())
-                .withSourceRepoHttpUrl(hook.getProject().getGitHttpUrl())
-                .withTargetBranch("")
-                .withTargetProjectId(hook.getProject().getId())
-                .withTargetRepoName(hook.getProject().getName())
-                .withTargetNamespace(hook.getProject().getNamespace())
-                .withTargetRepoSshUrl(hook.getProject().getSshUrl())
-                .withTargetRepoHttpUrl(hook.getProject().getGitHttpUrl())
-                .withTriggeredByUser(hook.getSender().getName())
-                .withTriggerPhrase(hook.getComment().getBody())
-                .withSha(hook.getComment().getCommitId())
-                .withPathWithNamespace(hook.getProject().getPathWithNamespace())
-                .build();
+                    .withActionType(CauseData.ActionType.COMMIT_COMMENT)
+                    .withUserName(hook.getComment().flatMap(NoteObjectAttributes::getUser).flatMap(User::getUsername)
+                            .orElseThrow(() -> new NoSuchElementException("userName must be set.")))
+                    .withUserEmail(
+                            hook.getComment().flatMap(NoteObjectAttributes::getUser).flatMap(User::getEmail).orElse(""))
+                    .withPullRequestTitle("")
+                    .withBranch("")
+                    .withSourceBranch("")
+                    .withSourceProjectId(hook.getProject().flatMap(Project::getId)
+                            .orElseThrow(() -> new NoSuchElementException("sourceProjectId must be set.")))
+                    .withSourceRepoHomepage(hook.getProject().flatMap(Project::getHomepage).orElse(""))
+                    .withSourceRepoName(hook.getProject().flatMap(Project::getName)
+                            .orElseThrow(() -> new NoSuchElementException("sourceRepoName must be set.")))
+                    .withSourceNamespace(hook.getProject().flatMap(Project::getNamespace)
+                            .orElseThrow(() -> new NoSuchElementException("sourceNamespace must be set.")))
+                    .withSourceRepoSshUrl(sourceRepoSshUrl = hook.getProject().flatMap(Project::getSshUrl)
+                            .orElseThrow(() -> new NoSuchElementException("sourceRepoSshUrl must be set.")))
+                    .withSourceRepoUrl(hook.getProject().flatMap(Project::getUrl).orElse(sourceRepoSshUrl))
+                    .withSourceRepoHttpUrl(hook.getProject().flatMap(Project::getGitHttpUrl)
+                            .orElseThrow(() -> new NoSuchElementException("sourceRepoHttpUrl must be set.")))
+                    .withTargetBranch("")
+                    .withTargetProjectId(hook.getProject().flatMap(Project::getId)
+                            .orElseThrow(() -> new NoSuchElementException("targetProjectId must be set.")))
+                    .withTargetRepoName(hook.getProject().flatMap(Project::getName)
+                            .orElseThrow(() -> new NoSuchElementException("targetRepoName must be set.")))
+                    .withTargetNamespace(hook.getProject().flatMap(Project::getNamespace)
+                            .orElseThrow(() -> new NoSuchElementException("targetNamespace must be set.")))
+                    .withTargetRepoSshUrl(hook.getProject().flatMap(Project::getSshUrl)
+                            .orElseThrow(() -> new NoSuchElementException("targetRepoSshUrl must be set.")))
+                    .withTargetRepoHttpUrl(hook.getProject().flatMap(Project::getGitHttpUrl)
+                            .orElseThrow(() -> new NoSuchElementException("targetReoiHttpUrl must be set.")))
+                    .withTriggeredByUser(hook.getSender().flatMap(User::getName)
+                            .orElseThrow(() -> new NoSuchElementException("triggeredByUser must be set")))
+                    .withTriggerPhrase(hook.getComment().flatMap(NoteObjectAttributes::getBody).orElse(""))
+                    .withSha(hook.getComment().flatMap(NoteObjectAttributes::getCommitId).orElse(""))
+                    .withPathWithNamespace(hook.getProject().flatMap(Project::getPathWithNamespace).orElse(""))
+                    .build();
         }
 
         return causeData()

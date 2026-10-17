@@ -1,6 +1,9 @@
 package com.gitee.jenkins.gitee.hook.model;
 
 import net.karneim.pojobuilder.GeneratePojoBuilder;
+
+import java.util.Optional;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -17,40 +20,40 @@ public class User {
     private String email;
     private String avatarUrl;
 
-    public Integer getId() {
-        return id;
+    public Optional<Integer> getId() {
+        return Optional.ofNullable(id);  
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getUsername() {
-        return username;
+    public Optional<String> getUsername() {
+        return Optional.ofNullable(username);
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email);
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public Optional<String> getAvatarUrl() {
+        return Optional.ofNullable(avatarUrl);
     }
 
     public void setAvatarUrl(String avatarUrl) {
