@@ -32,19 +32,22 @@ This plugin allows Gitee to trigger builds in Jenkins when code is committed or 
 - When submitting a Pull Request to a Gitee project, Jenkins task builds are triggered by the configured Webhook, which supports PR actions: New, Update, Accept, Close, Review Pass, Test Pass.
 - Support [ci-skip] instruction filtering or [ci-build] instruction to trigger build.
 - Filter Commit versions that have already been built. If the branch is Push, the same branch Push is filtered,and if the branch is PR, the same PR is filtered.
+- Configure webhook automatically
 - Filters triggers by branch name。
 - Regular expressions filter the branches that can be triggered。
+- Filter pull request labels
 - Set the Webhook authentication password。
 - Post-build operations can configure PR triggered build results to comment in the corresponding PR of Gitee.
 - Post-build operation configurable PR triggered by the successful build, the corresponding PR can be automatically merged.
+- Post-build operation to create release
+- Post-build operation to create PR
 - For all PR-related events, if the PR code conflicts cannot be automatically merged, the build will not be triggered; and if the function of commenting to PR is configured, the comment to PR will prompt conflict.
 - PR comments can be triggered via WebHook (can be used for PR to trigger a build failure to facilitate re-triggering the build from the code cloud platform comments).
 - Support for configuring PR does not require filtering to trigger a build when testing is required. (Can be used to build a deployment test environment without testing).
 - Support the same PR to trigger the construction, cancel the incomplete construction in progress, and proceed to the current construction (the same PR construction is not queued, and multiple different PR constructions still need to be queued).
 
 ## Features in plan
-1. PR review and test pass trigger build (users can trigger deployment, and the feature of automatically merged PR can be used to improve the workflow.)
-2. Check the trigger mode to automatically add WebHook to Gitee.
+1. Add regex filter for PR label
 
 # Global plugin installation
 1. Online installation
